@@ -36,7 +36,7 @@ export function AppModal(props) {
         style={customStyles}
         contentLabel="Example Modal"
       >
-        <h2 ref={(_subtitle) => (subtitle = _subtitle)}>IP Address</h2>
+        <h2 ref={(_subtitle) => (subtitle = _subtitle)}></h2>
         <div>
           {Object.keys(props.loc).map((key, index) => {
             return (
