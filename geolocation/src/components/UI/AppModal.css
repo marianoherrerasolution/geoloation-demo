@@ -1,0 +1,9 @@
+.close_modal {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    font-size: 25px;
+    font-weight: 600;
+}
