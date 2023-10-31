@@ -6,7 +6,7 @@ import { Geolocation } from "./components/layers/Geolocation";
 import { ReMap } from "./components/map/map/ReMap";
 import { WMSTile } from "./components/source/WMSTile";
 import { IPAddress } from "./components/IP/IPAddress";
-import PersonList from './components/PersonList.js';
+import PersonList from './components/APIRequests.js';
 
 function App() {
   return (
