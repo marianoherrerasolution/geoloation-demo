@@ -42,16 +42,18 @@ export function AppModal(props) {
           textAlign: "left"
         }}>
           {Object.keys(props.loc).map((key, index) => {
-            return (
-              <tr>
-                <td>
-                  {key}
-                </td>
-                <td>
-                  {props.loc[key] == null? "N/A": props.loc[key]}
-                </td>
-              </tr>
-            );
+            if (key!='currency' && key != 'time_zone') {
+              return (
+                <tr>
+                  <td>
+                    {key}
+                  </td>
+                  <td>
+                    {props.loc[key] == null? "N/A": props.loc[key]}
+                  </td>
+                </tr>
+              );
+            }
           })}
         </table>
         <button className="close_modal">x</button>
