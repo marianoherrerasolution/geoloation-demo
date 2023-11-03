@@ -14,7 +14,19 @@ export default class APIRequests extends React.Component {
 
   render() {
     return (
-      <p>Returned</p>
+      <p
+          style={{
+            backgroundColor: "green",
+            padding: "10px",
+            borderRadius: "5px",
+            color: "white",
+            position: "absolute",
+            top: "100px",
+            right: "20px",
+            zIndex: "1"
+          }}>
+          You're allowed to Use this application
+      </p>
     )
   }
 }

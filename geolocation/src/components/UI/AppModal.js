@@ -1,56 +1,60 @@
 import React, { useEffect } from "react";
-import Modal from 'react-modal';
+// import Modal from 'react-modal';
 import ModalStyle  from './AppModal.css'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
-Modal.setAppElement('body');
+// const customStyles = {
+//   content: {
+//     top: '50%',
+//     left: '50%',
+//     right: 'auto',
+//     bottom: 'auto',
+//     marginRight: '-50%',
+//     transform: 'translate(-50%, -50%)',
+//   },
+// };
+// Modal.setAppElement('body');
 export function AppModal(props) {
-  const [modalIsOpen, setIsOpen] = React.useState(false);
-  let subtitle;
-  function openModal() {
-    setIsOpen(true);
-  }
-  function afterOpenModal() {
-    subtitle.style.color = '#f00';
-  }
+  // console.log(props.loc);
+  // const [modalIsOpen, setIsOpen] = React.useState(false);
+  // let subtitle;
+  // function openModal() {
+  //   setIsOpen(true);
+  // }
+  // function afterOpenModal() {
+  //   subtitle.style.color = '#f00';
+  // }
   
-  function closeModal() {
-    setIsOpen(false);
-  }
-    useEffect(() => {
-    openModal();
-  }, []);
+  // function closeModal() {
+  //   setIsOpen(false);
+  // }
+    // useEffect(() => {
+    // openModal();
+  // }, []);
   return (
-      <Modal
-        isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Example Modal"
+      <div className="modal"
+        // isOpen={modalIsOpen}
+        // onAfterOpen={afterOpenModal}
+        // onRequestClose={closeModal}
+        // style={customStyles}
+        // contentLabel="Example Modal"
       >
-        <h2 ref={(_subtitle) => (subtitle = _subtitle)}></h2>
-        <div>
+        {/* <h2>Modal</h2> */}
+        <table style={{
+          textAlign: "left"
+        }}>
           {Object.keys(props.loc).map((key, index) => {
             return (
-              <div key={index}>
-                <p>
-                  {key}: {props.loc[key]}
-                </p>
-
-                <hr />
-              </div>
+              <tr>
+                <td>
+                  {key}
+                </td>
+                <td>
+                  {props.loc[key] == null? "N/A": props.loc[key]}
+                </td>
+              </tr>
             );
           })}
-        </div>
-        <button className="close_modal" onClick={closeModal}>x</button>
-      </Modal>
+        </table>
+        <button className="close_modal">x</button>
+      </div>
   );
 }

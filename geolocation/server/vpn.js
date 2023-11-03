@@ -1,6 +1,8 @@
 const API_KEY = '746ff7ec4d3549ba9dee06fa883e4a47'
 const IP_URL = `https://api.ipgeolocation.io/getip`
+const URL_ADDRESS = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_KEY}&ip=`
 const LOC_URL = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_KEY}&ip=`
+let ip, address = null;
 
 function getRealLocation() {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -11,8 +13,11 @@ async function fetchJson(url) {
 }
 
 async function getSimulatedLocation() {
-    const ip = (await fetchJson(IP_URL)).ip
-    return (await fetchJson(LOC_URL + ip)).time_zone.name
+    ip = (await fetchJson(IP_URL)).ip
+    address = await fetchJson(LOC_URL + ip)
+    // console.log(address);
+    return address;
+    // return [address, (await fetchJson(LOC_URL + ip)).time_zone.name]
 }
 
 async function detectVPN() {
@@ -35,7 +40,7 @@ async function runDetect() {
       res = await detectVPN()
   }
   catch {}
-  return res;
+  return [ip, res, address];
 }
 
 module.exports = {

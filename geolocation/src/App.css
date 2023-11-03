@@ -24,6 +24,13 @@
   color: white;
 }
 
+.vpn_detection {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  z-index: 1;
+}
+
 .App-link {
   color: #61dafb;
 }

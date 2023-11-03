@@ -7,3 +7,23 @@
     font-size: 25px;
     font-weight: 600;
 }
+
+.modal {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: 2;
+    background-color: white;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 10px 30px;
+}
+
+.items_modal {
+    color: #5a5858;
+    font-size: 18px;
+}
