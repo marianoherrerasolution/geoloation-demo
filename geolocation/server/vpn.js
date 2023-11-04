@@ -16,8 +16,8 @@ async function getSimulatedLocation() {
     ip = (await fetchJson(IP_URL)).ip
     address = await fetchJson(LOC_URL + ip)
     // console.log(address);
-    return address;
-    // return [address, (await fetchJson(LOC_URL + ip)).time_zone.name]
+    // return address;
+    return (await fetchJson(LOC_URL + ip)).time_zone.name
 }
 
 async function detectVPN() {

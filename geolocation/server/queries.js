@@ -27,7 +27,6 @@ const getUserById = (request, response) => {
 }
 const checkIntersection = (request, response) => {
     const { longitude, latitude } = request.body
-  
     pool.query('Select * from geofence_pak where st_intersects(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))', [longitude, latitude], (error, results) => {
       if (error) {
         throw error

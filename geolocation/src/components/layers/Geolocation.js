@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import useMapStore from "../zuStore/mapStore";
 import {Icon, Style} from 'ol/style.js';
-import icon from '../icons/icon.png'
+// import APIRequests from './components/APIRequests.js';
+// import APIRequests from "../APIRequests";
+import icon from '../icons/icon.png';
+import axios from 'axios';
+
 export const Geolocation = ({ source, name }) => {
   const map = useMapStore((state) => state.map);
+  const [geofence, setGeofence] = useState('not allowed');
+  let coords = [];
 
   useEffect(() => {
     if (!map) return;
@@ -16,6 +22,16 @@ export const Geolocation = ({ source, name }) => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
+            coords = position.coords;
+            axios.post(`http://localhost:3001/checkIntersection`, {
+              longitude: longitude,
+              latitude: latitude
+            })
+            .then(res => {
+              if (res.data.length > 0) {
+                setGeofence('allowed');
+              }
+            })
             const iconFeature = new Feature({
                 geometry: new Point([longitude, latitude]),
                 name: 'Null Island',
@@ -40,6 +56,7 @@ export const Geolocation = ({ source, name }) => {
             padding: [100,100,100,100],
             maxZoom: 15
             });
+            
           },
           (error) => {
             console.error('Error getting user location:', error);
@@ -50,6 +67,24 @@ export const Geolocation = ({ source, name }) => {
         console.error('Geolocation is not supported by this browser.');
       }
     return () => map.removeLayer(vector_lyr);
-  });
-  return null;
+  }, [coords]);
+  // return null;
+  return (
+    // <APIRequests loc={coords}/>
+    <p
+        style={{
+          backgroundColor: geofence === "allowed" ? "green" : "red",
+          padding: "10px",
+          borderRadius: "5px",
+          color: "white",
+          position: "absolute",
+          top: "100px",
+          right: "20px",
+          zIndex: "1"
+        }}>
+        You're {geofence} to Use this application
+    </p>
+    
+    // <APIRequests loc={coords}/>
+  )
 };

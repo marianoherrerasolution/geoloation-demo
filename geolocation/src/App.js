@@ -5,8 +5,8 @@ import { BaseLayer } from "./components/layers/BaseLayer";
 import { Geolocation } from "./components/layers/Geolocation";
 import { ReMap } from "./components/map/map/ReMap";
 import { WMSTile } from "./components/source/WMSTile";
-import { IPAddress } from "./components/IP/IPAddress";
-import PersonList from './components/APIRequests.js';
+// import { IPAddress } from "./components/IP/IPAddress";
+// import APIRequests from './components/APIRequests.js';
 import { useEffect, useState } from "react";
 import { AppModal } from "./components/UI/AppModal";
 
@@ -18,7 +18,6 @@ function App() {
     fetch('http://localhost:3001/vpn')
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         setIPAddress(data[2])
         if (data[1].real !== data[1].simulated) {
           setVPN('Detected');
@@ -39,7 +38,7 @@ function App() {
           VPN {vpn}
         </p>
       </div>
-      <PersonList/>
+      
       <div id ='divModal'></div>
       <ReMap center={[33.51, 71.56]} zoom={5}>
         <Layers>
@@ -52,6 +51,7 @@ function App() {
           />
           <AppModal loc={ipAddress}/>
           {/* <IPAddress/> */}
+          {/* <APIRequests loc={[]}/> */}
           <Geolocation/>
         </Layers>
       </ReMap>
