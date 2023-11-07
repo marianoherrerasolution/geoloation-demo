@@ -5,8 +5,6 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import useMapStore from "../zuStore/mapStore";
 import {Icon, Style} from 'ol/style.js';
-// import APIRequests from './components/APIRequests.js';
-// import APIRequests from "../APIRequests";
 import icon from '../icons/icon.png';
 import axios from 'axios';
 
@@ -68,9 +66,7 @@ export const Geolocation = ({ source, name }) => {
       }
     return () => map.removeLayer(vector_lyr);
   }, [coords]);
-  // return null;
   return (
-    // <APIRequests loc={coords}/>
     <p
         style={{
           backgroundColor: geofence === "allowed" ? "green" : "red",
@@ -84,7 +80,5 @@ export const Geolocation = ({ source, name }) => {
         }}>
         You're {geofence} to Use this application
     </p>
-    
-    // <APIRequests loc={coords}/>
   )
 };

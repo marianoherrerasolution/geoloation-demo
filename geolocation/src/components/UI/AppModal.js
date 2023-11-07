@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-// import Modal from 'react-modal';
-import ModalStyle  from './AppModal.css'
+import './AppModal.css'
 export function AppModal(props) {
   const [showModal, setShowModal] = React.useState('block')
   function closeModal() {
@@ -17,7 +16,7 @@ export function AppModal(props) {
         {Object.keys(props.loc).map((key, index) => {
           if (key != 'currency' && key != 'time_zone') {
             return (
-              <tr>
+              <tr key={index}>
                 <td>
                   {key}
                 </td>
