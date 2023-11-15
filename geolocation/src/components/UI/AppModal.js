@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
 import './AppModal.css'
+import { useTheme  } from "../../ThemeContext";
 export function AppModal(props) {
-  const [showModal, setShowModal] = React.useState('block')
+  const [showModal, setShowModal] = React.useState('block');
+  
+  const { theme } = useTheme();
   function closeModal() {
     setShowModal('none');
   }
   return (
     <div className="modal" style={{
-        display: showModal
+        display: showModal,
+        backgroundColor: theme === "light" ? "white" : "black",
+        color: theme === "light" ? "black" : "white"
       }}>
       <table style={{
         textAlign: "left"

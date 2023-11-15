@@ -5,6 +5,7 @@ const LOC_URL = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_KEY}&ip=`
 let ip, address = null;
 
 function getRealLocation() {
+  // console.log(ip2.address());
     return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
@@ -15,8 +16,6 @@ async function fetchJson(url) {
 async function getSimulatedLocation() {
     ip = (await fetchJson(IP_URL)).ip
     address = await fetchJson(LOC_URL + ip)
-    // console.log(address);
-    // return address;
     return (await fetchJson(LOC_URL + ip)).time_zone.name
 }
 

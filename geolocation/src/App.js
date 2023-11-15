@@ -14,6 +14,7 @@ function App() {
   const [vpn, setVPN] = useState('Not Detected');
   const [ipAddress, setIPAddress] = useState('');
   const { toggleTheme } = useTheme();
+  const { theme } = useTheme();
   useEffect(() => {
     fetch('http://localhost:3001/vpn')
       .then(response => response.json())

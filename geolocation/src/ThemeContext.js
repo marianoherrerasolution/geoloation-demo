@@ -4,9 +4,13 @@ export const ThemeContext = React.createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = React.useState("light");
-
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    let color = null;
+    theme == "dark" ? (color = "white"):(color = "black");
+    document.getElementsByClassName("ol-zoom-in")[0].style.backgroundColor = color;
+    document.getElementsByClassName("ol-zoom-out")[0].style.backgroundColor = color;
+    // document.getElementsByClassName("button")[0].style.backgroundColor = color;
   };
 
   return (
