@@ -1,5 +1,5 @@
 import "./Map.css";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Map from "ol/Map";
 import View from "ol/View";
 import "../../../../node_modules/ol/ol.css";
@@ -12,6 +12,8 @@ export const ReMap = ({ children, zoom, center }) => {
   const setMap = useMapStore((state) => state.populateMap);
   const destroyMap = useMapStore((state) => state.removeMap);
   const mapId = useRef();
+  const [mapCenter, setMapCenter] = useState(center);
+  const [mapZoom, setMapZoom] = useState(zoom);
 
   useEffect(() => {
     const attribution = new Attribution({
@@ -22,15 +24,17 @@ export const ReMap = ({ children, zoom, center }) => {
       controls: defaultControls({attribution: false}),//.extend([attribution]),
       view: new View({
         projection: 'EPSG:4326',
-        center,
-        zoom,
+        mapCenter,
+        mapZoom,
       }),
     });
     theMap.setTarget(mapId.current);
     theMap.on("moveend", () => {
       let center = theMap.getView().getCenter();
       let zoom = theMap.getView().getZoom();
-      console.log(zoom);
+      // console.log(zoom);
+      setMapCenter(center);
+      setMapZoom(zoom)
       // this.setState({ center, zoom });
     });
     setMap(theMap);

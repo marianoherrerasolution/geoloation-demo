@@ -10,6 +10,24 @@ import { AppModal } from "./components/UI/AppModal";
 import Switch from "./components/Switch";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 
+function Map() {
+  return (
+    <ReMap center={[33.51, 71.56]} zoom={5}>
+      <Layers>
+        <BaseLayer/>
+        <OlTileLayer
+          source={WMSTile("https://ahocevar.com/geoserver/wms", {
+            LAYERS: "topp:states",
+            Tiled: true,
+          })}
+        />
+        
+        {/* <Geolocation/> */}
+      </Layers>
+    </ReMap>
+  )
+}
+
 function App() {
   const [vpn, setVPN] = useState('Not Detected');
   const [ipAddress, setIPAddress] = useState('');
@@ -41,7 +59,9 @@ function App() {
       </div>
       <div id ='divModal'></div>
       <Switch onChange={toggleTheme} />
-      <ReMap center={[33.51, 71.56]} zoom={5}>
+      <AppModal loc={ipAddress}/>
+      <Geolocation/>
+      {/* <ReMap center={[33.51, 71.56]} zoom={5}>
         <Layers>
           <BaseLayer/>
           <OlTileLayer
@@ -53,7 +73,7 @@ function App() {
           <AppModal loc={ipAddress}/>
           <Geolocation/>
         </Layers>
-      </ReMap>
+      </ReMap> */}
     </div>
   );
 }
@@ -61,9 +81,12 @@ function App() {
 // export default App;
 function Root() {
   return (
+    <>
     <ThemeProvider>
       <App />
     </ThemeProvider>
+    <Map />
+    </>
   );
 }
 
