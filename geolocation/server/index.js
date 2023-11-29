@@ -1,11 +1,9 @@
 const express = require('express')
-// const requestIp = require('request-ip');
 const bodyParser = require('body-parser')
 const axios = require('axios');
 const app = express();
 var cors = require('cors');
 app.use(cors());
-// app.set('trust proxy', true)
 const db = require('./queries')
 const vpn = require('./vpn')
 const port = 3001
@@ -17,14 +15,18 @@ app.use(
   })
 )
 
-// app.use(requestIp.mw());
-
-// app.use((req, res, next) => {
-//   const clientIp = req.clientIp; // This may give you the real client's IP address behind a proxy or VPN
-//   console.log('Real Client IP:', clientIp);
-//   next();
-// });
-
+app.get('/check-vpn', (req, res) => {
+  const clientIp = req.headers['x-forwarded-for'] || req.clientIp || req.connection.remoteAddress;
+  if (isVPNAddress(clientIp)) {
+    res.json({ isUsingVPN: true });
+  } else {
+    res.json({ isUsingVPN: false });
+  }
+});
+function isVPNAddress(ip) {
+  console.log(ip);
+  return false;
+}
 // app.use(async (req, res, next) => {
 //   // const clientIp = req.headers['x-forwarded-for'] || req.clientIp;
 //   // Check if the IP address is associated with a VPN using ipinfo.io
@@ -44,14 +46,10 @@ app.use(
 //   next();
 // });
 
-// app.get('/', (req, res) => {
-//   res.send('Hello, World!');
-// });
-
 app.get('/users', db.getUsers)
 app.get('/vpn', vpn.detectVPNService)
 app.get('/users/:id', db.getUserById)
-// app.post('/users', db.createUser)
+app.post('/location', db.addLocation)
 app.post('/checkIntersection', db.checkIntersection)
 app.put('/users/:id', db.updateUser)
 app.delete('/users/:id', db.deleteUser)

@@ -38,14 +38,21 @@ const checkIntersection = (request, response) => {
     })
 }
 
-const createUser = (request, response) => {
-  const { name, email } = request.body
-
-  pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email], (error, results) => {
+const addLocation = (request, response) => {
+  const { city, country, zip_code, lat, lon, ip } = request.body
+  let date_time = new Date();
+  let date = ("0" + date_time.getDate()).slice(-2);
+  let month = ("0" + (date_time.getMonth() + 1)).slice(-2);
+  let year = date_time.getFullYear();
+  let hours = date_time.getHours();
+  let minutes = date_time.getMinutes();
+  let seconds = date_time.getSeconds();
+  const current_datetime = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+  pool.query("INSERT INTO accessed_locations (city, country, zipcode, lat, lon, ip, datetime) VALUES ($1, $2, $3, $4, $5, $6, $7)", [city, country, zip_code, lat, lon, ip, current_datetime], (error, results) => {
     if (error) {
       throw error
     }
-    response.status(201).send(`User added with ID: ${results.insertId}`)
+    response.status(201).send(`Location added with ID: ${results.insertId}`)
   })
 }
 
@@ -79,7 +86,7 @@ const deleteUser = (request, response) => {
 module.exports = {
   getUsers,
   getUserById,
-  createUser,
+  addLocation,
   checkIntersection,
   updateUser,
   deleteUser,

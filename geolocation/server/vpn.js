@@ -5,28 +5,27 @@ const LOC_URL = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_KEY}&ip=`
 let ip, address = null;
 
 function getRealLocation() {
-  // console.log(ip2.address());
-    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
 async function fetchJson(url) {
-    return await (await fetch(url)).json()
+  return await (await fetch(url)).json()
 }
 
 async function getSimulatedLocation() {
-    ip = (await fetchJson(IP_URL)).ip
-    address = await fetchJson(LOC_URL + ip)
-    return (await fetchJson(LOC_URL + ip)).time_zone.name
+  ip = (await fetchJson(IP_URL)).ip
+  address = await fetchJson(LOC_URL + ip)
+  return (await fetchJson(LOC_URL + ip)).time_zone.name
 }
 
 async function detectVPN() {
-    const real = getRealLocation()
-    const simulated = await getSimulatedLocation()
-    return {
-        result: real == simulated,
-        real,
-        simulated
-    }
+  const real = getRealLocation()
+  const simulated = await getSimulatedLocation()
+  return {
+      result: real == simulated,
+      real,
+      simulated
+  }
 }
 
 const detectVPNService = async function(request, response) {

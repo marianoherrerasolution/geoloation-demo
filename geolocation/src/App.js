@@ -5,10 +5,11 @@ import { BaseLayer } from "./components/layers/BaseLayer";
 import { Geolocation } from "./components/layers/Geolocation";
 import { ReMap } from "./components/map/map/ReMap";
 import { WMSTile } from "./components/source/WMSTile";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AppModal } from "./components/UI/AppModal";
 import Switch from "./components/Switch";
 import { ThemeProvider, useTheme } from "./ThemeContext";
+import axios from 'axios';
 
 function Map() {
   return (
@@ -33,16 +34,35 @@ function App() {
   const [ipAddress, setIPAddress] = useState('');
   const { toggleTheme } = useTheme();
   const { theme } = useTheme();
+  const initialized = useRef(false)
   useEffect(() => {
     fetch('http://localhost:3001/vpn')
       .then(response => response.json())
       .then(data => {
-        setIPAddress(data[2])
-        if (data[1].real !== data[1].simulated) {
-          setVPN('Detected');
+        if (!initialized.current) {
+          initialized.current = true;
+          console.log(data[2]);
+          axios.post(`http://localhost:3001/location`, {
+            city: data[2].city,
+            country: data[2].country_name,
+            zip_code: data[2].zipcode,
+            lon: data[2].longitude,
+            lat: data[2].latitude,
+            ip: data[2].ip
+          })
+          .then(res => {
+            if (res.data.length > 0) {
+              // console.log(res.data);
+              // setGeofence('allowed');
+            }
+          });
+          setIPAddress(data[2])
+          if (data[1].real !== data[1].simulated) {
+            setVPN('Detected');
+          }
         }
       })
-      .catch(error => console.log(error))
+      .catch(error => console.log(error));
   }, []);
   return (
     <div className='App'>
