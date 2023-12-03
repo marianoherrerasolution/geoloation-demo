@@ -27,24 +27,6 @@ function isVPNAddress(ip) {
   console.log(ip);
   return false;
 }
-// app.use(async (req, res, next) => {
-//   // const clientIp = req.headers['x-forwarded-for'] || req.clientIp;
-//   // Check if the IP address is associated with a VPN using ipinfo.io
-//   const clientIp =  '39.58.227.106';
-//   try {
-//     const response = await axios.get(`https://ipinfo.io/${clientIp}/json`);
-//     const { org } = response.data;
-
-//     if (org && org.toLowerCase().includes('vpn')) {
-//       console.log('Client is using a VPN.');
-//     } else {
-//       console.log('Client is not using a VPN.');
-//     }
-//   } catch (error) {
-//     console.error('Error checking VPN status:', error.message);
-//   }
-//   next();
-// });
 
 app.get('/users', db.getUsers)
 app.get('/vpn', vpn.detectVPNService)

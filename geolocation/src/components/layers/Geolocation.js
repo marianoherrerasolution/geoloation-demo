@@ -21,7 +21,7 @@ export const Geolocation = ({ source, name }) => {
           (position) => {
             const { latitude, longitude } = position.coords;
             coords = position.coords;
-            axios.post(`http://localhost:3001/checkIntersection`, {
+            axios.post(`http://localhost:5000/checkIntersection`, {
               longitude: longitude,
               latitude: latitude
             })
@@ -30,10 +30,10 @@ export const Geolocation = ({ source, name }) => {
                 setGeofence('allowed');
               }
             })
-      //       axios.get(`https://ipinfo.io/194.61.40.46`)
-      // .then(res => {
-      //   console.log(res);
-      // })
+            // axios.get(`https://ipinfo.io/194.61.40.46`)
+            // .then(res => {
+            //   console.log(res);
+            // })
             const iconFeature = new Feature({
                 geometry: new Point([longitude, latitude]),
                 name: 'Null Island',
@@ -78,7 +78,7 @@ export const Geolocation = ({ source, name }) => {
           borderRadius: "5px",
           color: "white",
           position: "absolute",
-          top: "100px",
+          top: "148px",
           right: "20px",
           zIndex: "1"
         }}>
