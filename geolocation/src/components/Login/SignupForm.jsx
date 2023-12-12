@@ -1,29 +1,43 @@
-import React, { useState, useContext } from 'react';
-import db from '../hooks/CRUD';
-import { AppContext } from '../App';
-import Button from './Button';
+import React, { useContext } from 'react';
+import { AppContext } from '../../App';
 
-import colors from '../config/colors';
+import colors from '../../config/colors';
 
-export default function LoginForm({ props }) {
-  const { setLogin } = useContext(AppContext);
-
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-
-  // const getUserData = () => {
-  //   let data = sessionStorage.getItem('userSessionStorageData');
-  //   data = JSON.parse(data);
-  //   console.log(data);
-  // };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    db.handleLogin(email, password);
-  };
+export default function SignupForm({ addUser, updateUser }) {
+  const {
+    fName,
+    setFName,
+    lName,
+    setLName,
+    email,
+    setEmail,
+    password,
+    setPassword,
+  } = useContext(AppContext);
 
   return (
-    <form style={styles.container} onSubmit={(e) => handleLogin(e)}>
+    <form style={styles.container} onSubmit={(e) => addUser(e)}>
+      {/* <div>Please enter your account details below</div> */}
+      <label style={styles.lbl}>
+        First Name{' '}
+        <input
+          type="text"
+          value={fName}
+          placeholder="First Name"
+          style={styles.textbox}
+          onChange={(e) => setFName(e.target.value)}
+        />
+      </label>
+      <label style={styles.lbl}>
+        Last Name{' '}
+        <input
+          type="text"
+          value={lName}
+          placeholder="Last Name"
+          style={styles.textbox}
+          onChange={(e) => setLName(e.target.value)}
+        />
+      </label>
       <label style={styles.lbl}>
         Email{' '}
         <input
@@ -44,8 +58,8 @@ export default function LoginForm({ props }) {
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
-      <input style={styles.btn} type="submit" value="Login" />
-      {/* <Button text="Log User Data" onClick={() => getUserData()} /> */}
+      <input type="submit" value="Submit" style={styles.btn}/>
+      {/* <input type="submit" value="Update User Details" onClick={updateUser} /> */}
     </form>
   );
 }
@@ -55,8 +69,10 @@ const styles = {
     display: 'grid',
     justifyContent: 'center',
     // width: 300,
-    // height: 240,
     // rowGap: 20,
+    padding: 20,
+    borderRadius: 10,
+    border: `1px solid ${colors.primary}`,
     padding: 20,
     borderRadius: 10,
     border: `1px solid ${colors.primary}`,
@@ -71,7 +87,6 @@ const styles = {
     backgroundColor: colors.primary,
     color: '#FFF',
     margin: `8px 0`,
-    // padding: `12px 20px`,
     borderRadius: 10,
     cursor: 'pointer',
   },

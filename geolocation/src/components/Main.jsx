@@ -41,7 +41,6 @@ function App() {
       .then(data => {
         if (!initialized.current) {
           initialized.current = true;
-          console.log(data[2]);
           axios.post(`http://localhost:5000/location`, {
             city: data[2].city,
             country: data[2].country_name,

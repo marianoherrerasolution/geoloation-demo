@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import SignupForm from './SignupForm';
-import db from '../hooks/CRUD';
-import { AppContext } from '../App';
+import db from '../../hooks/CRUD';
+// import { AppContext } from '../../App';
+import { AppContext } from '../../App';
 
-import colors from '../config/colors';
+import colors from '../../config/colors';
 
 export default function SignupBanner({ props }) {
   const {

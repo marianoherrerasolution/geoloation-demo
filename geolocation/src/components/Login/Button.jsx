@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import colors from '../config/colors';
+import colors from '../../config/colors';
 
 export default function Button({ text, onClick }) {
   const [hover, setHover] = useState(false);

@@ -59,17 +59,18 @@ const deleteUser = async (id, setUsers, users) => {
 // Log in user
 const handleLogin = async (email, password) => {
   try {
-    const editUser = { email, password };
+    const user_credentials = { email, password };
     const response = await fetch(`http://localhost:5000/users/${email}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editUser),
+      body: JSON.stringify(user_credentials),
     });
     const jsonData = await response.json();
     sessionStorage.setItem('userSessionStorageData', JSON.stringify(jsonData));
     window.location = '/';
   } catch (err) {
-    console.error(err.message);
+    // console.error(err.message);
+    console.log(err);
   }
 };
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Header from './components/Header';
+import Header from './components/Login/Header';
 import Map from './components/Main';
-import SignupBanner from './components/SignupBanner';
-import LoginBanner from './components/LoginBanner';
+import SignupBanner from './components/Login/SignupBanner';
+import LoginBanner from './components/Login/LoginBanner';
 
 export const AppContext = React.createContext();
 

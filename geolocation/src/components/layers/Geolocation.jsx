@@ -30,10 +30,6 @@ export const Geolocation = ({ source, name }) => {
                 setGeofence('allowed');
               }
             })
-            // axios.get(`https://ipinfo.io/194.61.40.46`)
-            // .then(res => {
-            //   console.log(res);
-            // })
             const iconFeature = new Feature({
                 geometry: new Point([longitude, latitude]),
                 name: 'Null Island',

@@ -52,7 +52,6 @@ app.put('/users/:id', async (req, res) => {
       'UPDATE users SET fname = $1, lname = $2, email = $3, password = $4 WHERE id = $5',
       [fName, lName, email, password, id]
     );
-
     res.json('Todo was updated!');
   } catch (err) {
     console.error(err.message);

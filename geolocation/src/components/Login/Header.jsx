@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import Button from './Button';
-import { AppContext } from '../App';
+import { AppContext } from '../../App';
 
-import colors from '../config/colors';
+import colors from '../../config/colors';
 
 export default function Header({ props }) {
   const { login, setLogin, page, setPage } = useContext(AppContext);
