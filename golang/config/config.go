@@ -1,8 +1,6 @@
 package config
 
 import (
-	"errors"
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,15 +8,17 @@ import (
 
 type EnvVars struct {
 	GEOAPI_KEY string
-	PG_USER    string
-	PG_DB      string
-	PG_PASS    string
-	PG_HOST    string
+	DB_USER    string
+	DB_NAME    string
+	DB_PASS    string
+	DB_HOST    string
+	DB_PORT    string
 }
 
 var Env EnvVars
 
-func envFilename() string {
+// getEnvFilename() to populate .env filename
+func getEnvFilename() string {
 	if os.Getenv("TEST") != "" {
 		return ".env.test"
 	}
@@ -28,14 +28,18 @@ func envFilename() string {
 	return ".env"
 }
 
+// Init() to load environment variable and store in config.Env
 func Init() {
-	var err error
-	if err := godotenv.Load(envFilename()); err != nil {
+	if err := godotenv.Load(getEnvFilename()); err != nil {
 		panic(err)
 	}
 
-	if err != nil {
-		panic(errors.New(fmt.Sprintf("loading env file error: %v", err)))
+	Env = EnvVars{
+		GEOAPI_KEY: os.Getenv("GEOAPI_KEY"),
+		DB_USER:    os.Getenv("DB_USER"),
+		DB_NAME:    os.Getenv("DB_NAME"),
+		DB_PASS:    os.Getenv("DB_PASS"),
+		DB_HOST:    os.Getenv("DB_HOST"),
+		DB_PORT:    os.Getenv("DB_PORT"),
 	}
-
 }
