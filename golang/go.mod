@@ -7,6 +7,8 @@ require (
 	github.com/imroc/req/v3 v3.42.3
 	github.com/joho/godotenv v1.5.1
 	github.com/valyala/fasthttp v1.51.0
+	gorm.io/driver/postgres v1.5.4
+	gorm.io/gorm v1.25.6
 )
 
 require (
@@ -16,6 +18,11 @@ require (
 	github.com/google/pprof v0.0.0-20231229205709-960ae82b1e42 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgx/v5 v5.4.3 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
