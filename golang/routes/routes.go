@@ -15,5 +15,6 @@ func Init() *router.Router {
 	r.GET("/users", usersapi.List)
 	r.GET("/users/{id}", usersapi.Show)
 	r.POST("/checkIntersection", geoapi.Intersection)
+	r.POST("/addLocation", geoapi.AddLocation)
 	return r
 }
