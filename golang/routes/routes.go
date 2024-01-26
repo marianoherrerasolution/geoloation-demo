@@ -12,5 +12,6 @@ func Init() *router.Router {
 	r := router.New()
 	r.GET("/vpn", vpnsapi.Detect)
 	r.GET("/users", usersapi.List)
+	r.GET("/users/{id}", usersapi.Show)
 	return r
 }
