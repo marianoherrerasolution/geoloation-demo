@@ -1,6 +1,7 @@
 package routes
 
 import (
+	geoapi "geonius/api/geos"
 	usersapi "geonius/api/users"
 	vpnsapi "geonius/api/vpns"
 
@@ -13,5 +14,6 @@ func Init() *router.Router {
 	r.GET("/vpn", vpnsapi.Detect)
 	r.GET("/users", usersapi.List)
 	r.GET("/users/{id}", usersapi.Show)
+	r.POST("/checkIntersection", geoapi.Intersection)
 	return r
 }
