@@ -1,9 +1,9 @@
 package usersapi
 
 import (
-	"encoding/json"
-	"fmt"
+	"geonius/api"
 	"geonius/database"
+	"geonius/model"
 
 	"github.com/valyala/fasthttp"
 )
@@ -15,16 +15,15 @@ import (
 // @success 200 {object}
 // @Router /users/{id} [get]
 func Show(ctx *fasthttp.RequestCtx) {
-	var user map[string]interface{}
-	tx := database.Pg.Table("tbl_user").Where("gid = ?", ctx.UserValue("id")).First(&user)
-
-	if tx.Error != nil {
-		ctx.SetStatusCode(404)
-		ctx.SetContentType("application/json")
-		fmt.Printf("usersapi/List error %v\n", tx.Error)
-		ctx.SetBody([]byte("{\"error\": \"user id is not found\"}"))
-	} else {
-		respBytes, _ := json.Marshal(user)
-		ctx.Success("application/json", respBytes)
+	if user := FindByID(ctx.UserValue("id"), ctx); user.ValidID() {
+		api.SuccessJSON(ctx, user)
 	}
+}
+
+func FindByID(id interface{}, ctx *fasthttp.RequestCtx) *model.User {
+	user := &model.User{}
+	if tx := database.Pg.Where("id = ?", ctx.UserValue("id")).First(user); tx.Error != nil {
+		api.NotFoundError(ctx)
+	}
+	return user
 }

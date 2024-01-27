@@ -1,8 +1,8 @@
 package geoapi
 
 import (
-	"encoding/json"
 	"fmt"
+	"geonius/api"
 	"geonius/database"
 
 	"github.com/valyala/fasthttp"
@@ -30,12 +30,8 @@ func Intersection(ctx *fasthttp.RequestCtx) {
 		Find(&results)
 
 	if tx.Error != nil {
-		ctx.SetStatusCode(500)
-		ctx.SetContentType("application/json")
-		fmt.Printf("checkIntersection error %v\n", tx.Error)
-		ctx.SetBody([]byte("{\"error\": \"internal server error\"}"))
+		api.InternalError(ctx)
 	} else {
-		respBytes, _ := json.Marshal(results)
-		ctx.Success("application/json", respBytes)
+		api.SuccessJSON(ctx, results)
 	}
 }

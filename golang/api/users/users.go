@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"geonius/database"
+	"geonius/model"
 
 	"github.com/valyala/fasthttp"
 )
@@ -15,8 +16,8 @@ import (
 // @success 200 {object}
 // @Router /users [get]
 func List(ctx *fasthttp.RequestCtx) {
-	var users []map[string]interface{}
-	tx := database.Pg.Table("tbl_user").Order("gid ASC").Find(&users)
+	var users []model.User
+	tx := database.Pg.Order("gid ASC").Find(&users)
 
 	if tx.Error != nil {
 		ctx.SetStatusCode(500)

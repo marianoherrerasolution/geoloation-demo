@@ -14,6 +14,8 @@ func Init() *router.Router {
 	r.GET("/vpn", vpnsapi.Detect)
 	r.GET("/users", usersapi.List)
 	r.GET("/users/{id}", usersapi.Show)
+	r.PUT("/users/{id}", usersapi.Update)
+	r.DELETE("/users/{id}", usersapi.Delete)
 	r.POST("/checkIntersection", geoapi.Intersection)
 	r.POST("/addLocation", geoapi.AddLocation)
 	return r
