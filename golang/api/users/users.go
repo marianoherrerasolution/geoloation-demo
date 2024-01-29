@@ -2,7 +2,7 @@ package usersapi
 
 import (
 	"encoding/json"
-	"fmt"
+	"geonius/api"
 	"geonius/database"
 	"geonius/model"
 
@@ -17,13 +17,10 @@ import (
 // @Router /users [get]
 func List(ctx *fasthttp.RequestCtx) {
 	var users []model.User
-	tx := database.Pg.Order("gid ASC").Find(&users)
+	tx := database.Pg.Order("id ASC").Find(&users)
 
 	if tx.Error != nil {
-		ctx.SetStatusCode(500)
-		ctx.SetContentType("application/json")
-		fmt.Printf("usersapi/List error %v\n", tx.Error)
-		ctx.SetBody([]byte("{\"error\": \"internal server error\"}"))
+		api.InternalError(ctx)
 	} else {
 		respBytes, _ := json.Marshal(users)
 		ctx.Success("application/json", respBytes)

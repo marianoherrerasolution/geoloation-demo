@@ -9,13 +9,19 @@ import (
 func NotFoundError(ctx *fasthttp.RequestCtx) {
 	ctx.SetStatusCode(404)
 	ctx.SetContentType("application/json")
-	ctx.SetBody([]byte("{\"error\": \"not found\"}"))
+	ctx.SetBody([]byte("{\"error\": \"not_found\"}"))
 }
 
 func InternalError(ctx *fasthttp.RequestCtx) {
 	ctx.SetStatusCode(500)
 	ctx.SetContentType("application/json")
-	ctx.SetBody([]byte("{\"error\": \"internal server\"}"))
+	ctx.SetBody([]byte("{\"error\": \"internal_server\"}"))
+}
+
+func UnauthorizeError(ctx *fasthttp.RequestCtx) {
+	ctx.SetStatusCode(401)
+	ctx.SetContentType("application/json")
+	ctx.SetBody([]byte("{\"error\": \"unauthorize\"}"))
 }
 
 func SuccessJSON(ctx *fasthttp.RequestCtx, data interface{}) {

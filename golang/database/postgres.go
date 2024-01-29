@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var Pg *gorm.DB
@@ -30,7 +31,12 @@ func buildPosgresDSN() string {
 
 func InitPostgres() {
 	var err error
-	Pg, err = gorm.Open(postgres.New(postgres.Config{}))
+	Pg, err = gorm.Open(postgres.Open(buildPosgresDSN()), &gorm.Config{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
+	})
+
 	if err != nil {
 		panic(err)
 	}
