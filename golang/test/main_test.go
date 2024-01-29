@@ -51,11 +51,17 @@ func TestMain(t *testing.T) {
 	setup()
 	fmt.Println("Setup test environment ...")
 	runServer()
+	testUserAPI(t)
+	testAddLocation(t)
+}
+
+func testUserAPI(t *testing.T) {
 	testCreateUser(t)
 	testUserList(t)
 	testUserUpdate(t)
 	testUserShow(t)
 	testUserLogin(t)
+	testUserDelete(t)
 }
 
 func testPath(path string) string {
@@ -200,5 +206,59 @@ func testUserLogin(t *testing.T) {
 		var user model.User
 		json.Unmarshal(b, &user)
 		assert.Equal(t, uint(1), user.ID, fmt.Sprintf("User ID should be 1 = %d", user.ID))
+	})
+}
+
+func testUserDelete(t *testing.T) {
+	fmt.Println("DELETE /users/1 should deete user")
+	t.Run(`DELETE /users/1`, func(t *testing.T) {
+		httpClient := http.DefaultClient
+		req, err := http.NewRequest(`DELETE`, testPath("/users/1"), nil)
+		assert.Empty(t, err, "should not error request")
+		if err != nil {
+			return
+		}
+
+		res, err := httpClient.Do(req)
+		assert.Empty(t, err, "should not respond error")
+		if err != nil {
+			return
+		}
+
+		assert.Equal(t, res.StatusCode, 200)
+		b, _ := io.ReadAll(res.Body)
+		var result map[string]interface{}
+		json.Unmarshal(b, &result)
+		assert.True(t, result["success"].(bool), "success should be true")
+	})
+}
+
+func testAddLocation(t *testing.T) {
+	fmt.Println("POST /location should create new location")
+	t.Run(`POST /location`, func(t *testing.T) {
+		httpClient := http.DefaultClient
+		var data = []byte(`{
+			"city": "mephis",
+			"country": "United State America",
+			"zip_code": "13112",
+			"lat": 35.17926638047639,
+			"lon": -90.05742233886744,
+			"ip": "139.195.84.42"
+		}`)
+		req, err := http.NewRequest(`POST`, testPath("/location"), bytes.NewBuffer(data))
+		assert.Empty(t, err, "should not error request")
+		if err != nil {
+			return
+		}
+
+		res, err := httpClient.Do(req)
+		assert.Empty(t, err, "should not respond error")
+		if err != nil {
+			return
+		}
+
+		assert.Equal(t, res.StatusCode, 201)
+		b, _ := io.ReadAll(res.Body)
+		assert.Equal(t, string(b), "Location added with ID: 1")
 	})
 }

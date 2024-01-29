@@ -19,6 +19,6 @@ func Init() *router.Router {
 	r.PUT("/users/{id}", usersapi.Update)
 	r.DELETE("/users/{id}", usersapi.Delete)
 	r.POST("/checkIntersection", geoapi.Intersection)
-	r.POST("/addLocation", geoapi.AddLocation)
+	r.POST("/location", geoapi.AddLocation)
 	return r
 }
