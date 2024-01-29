@@ -28,15 +28,12 @@ func AddLocation(ctx *fasthttp.RequestCtx) {
 	var params model.AccessedLocation
 	json.Unmarshal(body, &params)
 
-	params.Datetime = time.Now()
+	now := time.Now()
+	params.Datetime = now.Format("2006-01-02 15:04:05")
 
-	fmt.Println(params)
-
-	if tx := database.Pg.Create(&params); tx.Error != nil {
-		fmt.Println(tx.Error)
+	if tx := database.Pg.Table("accessed_locations").Create(&params); tx.Error != nil {
 		api.InternalError(ctx)
 	} else {
-		ctx.SetStatusCode(201)
-		ctx.Success("text/plain", []byte(fmt.Sprintf("Location added with ID: %v", params.ID)))
+		ctx.Success("text/plain", []byte(fmt.Sprintf("Location added with ID: %d", params.GID)))
 	}
 }

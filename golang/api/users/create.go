@@ -2,6 +2,7 @@ package usersapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"geonius/api"
 	"geonius/database"
 	"geonius/model"
@@ -19,8 +20,9 @@ func Create(ctx *fasthttp.RequestCtx) {
 	body := ctx.PostBody()
 	var params model.User
 	json.Unmarshal(body, &params)
-
+	fmt.Println(params)
 	if tx := database.Pg.Create(&params); tx.Error != nil {
+		fmt.Println(tx.Error)
 		api.InternalError(ctx)
 	} else {
 		api.SuccessJSON(ctx, params)

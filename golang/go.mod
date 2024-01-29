@@ -3,6 +3,7 @@ module geonius
 go 1.21.3
 
 require (
+	github.com/AdhityaRamadhanus/fasthttpcors v0.0.0-20170121111917-d4c07198763a
 	github.com/fasthttp/router v1.4.22
 	github.com/imroc/req/v3 v3.42.3
 	github.com/joho/godotenv v1.5.1
