@@ -25,5 +25,7 @@ func FindByID(id interface{}, ctx *fasthttp.RequestCtx) *model.User {
 	if tx := database.Pg.Where("id = ?", ctx.UserValue("id")).First(user); tx.Error != nil {
 		api.NotFoundError(ctx)
 	}
+
+	user.Password = ""
 	return user
 }

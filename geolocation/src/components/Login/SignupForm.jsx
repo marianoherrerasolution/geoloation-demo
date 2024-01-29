@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { AppContext } from '../../App';
 
 import colors from '../../config/colors';
 
-export default function SignupForm({ addUser, updateUser }) {
+export default function SignupForm({ addUser }) {
   const {
     fName,
     setFName,
@@ -15,9 +15,29 @@ export default function SignupForm({ addUser, updateUser }) {
     setPassword,
   } = useContext(AppContext);
 
+  const [errMessage, setError] = useState();
+  const onError = (err) => {
+    if (err.error == "exist") {
+      setError(`The ${err.field} is already registered`)
+    }
+    if (err.error == "empty") {
+      let fieldLabel = err.field
+      switch(err.field) {
+        case "lname":
+          fieldLabel = "last name"
+          break;
+        case "fname":
+          fieldLabel = "first name"
+          break;
+      }
+      setError(`The ${fieldLabel} can not be empty`)
+    }
+  }
+
   return (
-    <form style={styles.container} onSubmit={(e) => addUser(e)}>
+    <form style={styles.container} onSubmit={(e) => addUser(e, onError)}>
       {/* <div>Please enter your account details below</div> */}
+      <h4 style={styles.textError}>{ errMessage }</h4>
       <label style={styles.lbl}>
         First Name{' '}
         <input
@@ -25,6 +45,7 @@ export default function SignupForm({ addUser, updateUser }) {
           value={fName}
           placeholder="First Name"
           style={styles.textbox}
+          required
           onChange={(e) => setFName(e.target.value)}
         />
       </label>
@@ -35,13 +56,14 @@ export default function SignupForm({ addUser, updateUser }) {
           value={lName}
           placeholder="Last Name"
           style={styles.textbox}
+          required
           onChange={(e) => setLName(e.target.value)}
         />
       </label>
       <label style={styles.lbl}>
         Email{' '}
         <input
-          type="text"
+          type="email"
           value={email}
           placeholder="Account email"
           style={styles.textbox}
@@ -55,6 +77,7 @@ export default function SignupForm({ addUser, updateUser }) {
           value={password}
           placeholder="Password"
           style={styles.textbox}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
@@ -102,5 +125,10 @@ const styles = {
   },
   lbl: {
     textAlign: `left`
+  },
+  textError: {
+    color: 'red',
+    marginTop: '0.7rem',
+    marginBottom: '1.5rem'
   }
 };

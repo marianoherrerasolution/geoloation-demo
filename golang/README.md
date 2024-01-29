@@ -6,6 +6,7 @@ Please install the following stacks
 | Name | Version |  Install |  Features |
 | ------ | ------ | ------ | ------ |
 | PostgreSQL | 12 | [Link](https://www.postgresql.org/download/)  | Main Database |
+| PostGIS | 3.2 | [Link](https://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS3UbuntuPGSQLApt) |
 | Golang | 1.21 | [Link](https://go.dev/doc/install)  | API Backend |
 
 ### Knowledge

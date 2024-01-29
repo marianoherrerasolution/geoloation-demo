@@ -2,10 +2,12 @@ package usersapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"geonius/api"
-	"geonius/database"
+	db "geonius/database"
 	"geonius/model"
+	"geonius/pkg/encrypt"
+	"geonius/pkg/stringify"
+	"net/mail"
 
 	"github.com/valyala/fasthttp"
 )
@@ -20,14 +22,20 @@ func Login(ctx *fasthttp.RequestCtx) {
 	body := ctx.PostBody()
 	var params model.User
 	json.Unmarshal(body, &params)
-	params.Email = ctx.UserValue("email").(string)
+
+	params.Email = stringify.SafetySQL(stringify.LowerTrim(ctx.UserValue("email").(string)))
+	_, err := mail.ParseAddress(params.Email)
+	if params.Password == "" || err != nil {
+		api.UnauthorizeError(ctx)
+		return
+	}
 
 	var user model.User
-	tx := database.Pg.Where("email = ? AND password = ?", params.Email, params.Password).First(&user)
-	fmt.Println(tx.Error)
-	if tx.Error != nil {
+	tx := db.Where("email = ?", params.Email).First(&user)
+	if tx.Error != nil || (params.Password != "" && user.Password != encrypt.Sha1(params.Password)) {
 		api.UnauthorizeError(ctx)
 	} else {
+		user.Password = ""
 		api.SuccessJSON(ctx, user)
 	}
 }

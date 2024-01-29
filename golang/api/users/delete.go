@@ -2,7 +2,7 @@ package usersapi
 
 import (
 	"geonius/api"
-	"geonius/database"
+	db "geonius/database"
 
 	"github.com/valyala/fasthttp"
 )
@@ -15,7 +15,7 @@ import (
 // @Router /users/{id} [delete]
 func Delete(ctx *fasthttp.RequestCtx) {
 	if user := FindByID(ctx.UserValue("id"), ctx); user.ValidID() {
-		tx := database.Pg.Delete(user)
+		tx := db.Delete(user)
 		api.SuccessJSON(ctx, map[string]interface{}{"success": (tx.Error == nil), "error": tx.Error})
 	}
 }

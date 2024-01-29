@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import db from '../../hooks/CRUD';
 import { AppContext } from '../../App';
-import Button from './Button';
+// import Button from './Button';
 
 import colors from '../../config/colors';
 
@@ -10,24 +10,23 @@ export default function LoginForm({ props }) {
 
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-
-  // const getUserData = () => {
-  //   let data = sessionStorage.getItem('userSessionStorageData');
-  //   data = JSON.parse(data);
-  //   console.log(data);
-  // };
+  const [errMessage, setError] = useState();
 
   const handleLogin = (e) => {
+    setError("")
     e.preventDefault();
-    db.handleLogin(email, password);
+    db.handleLogin(email, password, (err) => {
+      setError("Invalid email or password")
+    });
   };
 
   return (
     <form style={styles.container} onSubmit={(e) => handleLogin(e)}>
+      <h4 style={styles.textError}>{ errMessage }</h4>
       <label style={styles.lbl}>
         Email{' '}
         <input
-          type="text"
+          type="email"
           value={email}
           placeholder="Account email"
           style={styles.textbox}
@@ -41,6 +40,7 @@ export default function LoginForm({ props }) {
           value={password}
           placeholder="Password"
           style={styles.textbox}
+          required
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
@@ -83,5 +83,10 @@ const styles = {
   },
   lbl: {
     textAlign: `left`
+  },
+  textError: {
+    color: 'red',
+    marginTop: '0.7rem',
+    marginBottom: '1.5rem'
   }
 };
