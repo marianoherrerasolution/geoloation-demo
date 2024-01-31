@@ -2,14 +2,14 @@ package vpnsapi
 
 import (
 	"encoding/json"
-	"fmt"
+	"geonius/api"
 	"geonius/pkg/ipgeo"
-	"time"
+	"strings"
 
 	"github.com/valyala/fasthttp"
 )
 
-type ResultResp struct {
+type Validation struct {
 	Result    bool   `json:"result"`
 	Real      string `json:"real"`
 	Simulated string `json:"simulated"`
@@ -18,34 +18,36 @@ type ResultResp struct {
 type DetectResp struct {
 	IP      string            `json:"ip"`
 	Address ipgeo.GeoLocation `json:"address"`
-	Result  ResultResp        `json:"res"`
+	Result  Validation        `json:"res"`
 }
 
 // Detect VPN
 // @summary VPN Detection
 // @id detection
 // @tag vpn
+// @param ip string ip address
+// @param tz string timezone
 // @success 200 {object}
 // @Router /vpn [get]
 func Detect(ctx *fasthttp.RequestCtx) {
-	remoteIP := ctx.RemoteIP().String()
-	info, err := ipgeo.Lookup(remoteIP)
+	timezone := string(ctx.QueryArgs().Peek("tz"))
+	ip := string(ctx.QueryArgs().Peek("ip"))
+	info, err := ipgeo.Lookup(ip)
+
 	if err != nil {
-		ctx.SetStatusCode(500)
-		ctx.SetContentType("application/json")
-		ctx.SetBody([]byte(fmt.Sprintf("{\"error\": %s}", err.Error())))
+		api.InternalError(ctx)
 	} else {
-		serverTimezone := time.Now().Location().String()
 		resp := DetectResp{
-			IP:      remoteIP,
+			IP:      ip,
 			Address: info,
-			Result: ResultResp{
-				Real:      serverTimezone,
+			Result: Validation{
+				Real:      timezone,
 				Simulated: info.Timezone.Name,
-				Result:    serverTimezone == info.Timezone.Name,
+				Result:    strings.EqualFold(timezone, info.Timezone.Name),
 			},
 		}
 		respBytes, _ := json.Marshal(resp)
 		ctx.Success("application/json", respBytes)
 	}
+
 }

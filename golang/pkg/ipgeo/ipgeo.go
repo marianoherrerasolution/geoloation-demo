@@ -20,8 +20,8 @@ type GeoCurrency struct {
 
 type GeoTimezone struct {
 	Name            string  `json:"name"`
-	Offset          string  `json:"offset"`
-	OffsetDST       string  `json:"offset_with_dst"`
+	Offset          int     `json:"offset"`
+	OffsetDST       int     `json:"offset_with_dst"`
 	CurrentTime     string  `json:"current_time"`
 	CurrentTimeUnix float64 `json:"current_time_unix"`
 	IsDST           bool    `json:"is_dst"`
