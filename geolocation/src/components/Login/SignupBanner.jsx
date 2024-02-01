@@ -26,8 +26,8 @@ export default function SignupBanner({ props }) {
     db.getUsers(setUsers);
   }, []);
 
-  const addUser = async (e) => {
-    db.addUser(e, fName, lName, email, password);
+  const addUser = async (e, onError) => {
+    db.addUser(e, fName, lName, email, password, onError);
   };
 
   const updateUser = async (e) => {

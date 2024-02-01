@@ -1,15 +1,25 @@
 // Add user to db
-const addUser = async (e, fName, lName, email, password) => {
+const USER_API = "http://localhost:5000/users"
+const addUser = async (e, fName, lName, email, password, onError) => {
   e.preventDefault();
   try {
     const body = { fName, lName, email, password };
-    const response = await fetch('http://localhost:5000/users', {
+    const response = await fetch(USER_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-
-    window.location = '/';
+    const jsonData = await response.json();
+    if (jsonData.error) {
+      if (onError) {
+        onError(jsonData)
+      } else {
+        console.log(jsonData.error)
+      }
+    } else {
+      sessionStorage.setItem('userSessionStorageData', JSON.stringify(jsonData));
+      window.location = '/';
+    }
   } catch (err) {
     console.error(err.message);
   }
@@ -18,7 +28,7 @@ const addUser = async (e, fName, lName, email, password) => {
 // Get all users from db
 const getUsers = async (setUsers) => {
   try {
-    const response = await fetch('http://localhost:5000/users');
+    const response = await fetch(USER_API);
     const jsonData = await response.json();
 
     setUsers(jsonData);
@@ -32,7 +42,7 @@ const updateUser = async (e, fName, lName, email, password, id) => {
   e.preventDefault();
   try {
     const editUser = { fName, lName, email, password };
-    const response = await fetch(`http://localhost:5000/users/${id}`, {
+    const response = await fetch(`${USER_API}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editUser),
@@ -46,7 +56,7 @@ const updateUser = async (e, fName, lName, email, password, id) => {
 // Delete user from db
 const deleteUser = async (id, setUsers, users) => {
   try {
-    const deleteUser = await fetch(`http://localhost:5000/users/${id}`, {
+    const deleteUser = await fetch(`${USER_API}/${id}`, {
       method: 'DELETE',
     });
 
@@ -57,17 +67,21 @@ const deleteUser = async (id, setUsers, users) => {
 };
 
 // Log in user
-const handleLogin = async (email, password) => {
+const handleLogin = async (email, password, onError) => {
   try {
     const user_credentials = { email, password };
-    const response = await fetch(`http://localhost:5000/users/${email}`, {
+    const response = await fetch(`${USER_API}/${email}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user_credentials),
     });
     const jsonData = await response.json();
-    sessionStorage.setItem('userSessionStorageData', JSON.stringify(jsonData));
-    window.location = '/';
+    if (jsonData.error) {
+      onError(jsonData.error)
+    } else {
+      sessionStorage.setItem('userSessionStorageData', JSON.stringify(jsonData));
+      window.location = '/';
+    }
   } catch (err) {
     // console.error(err.message);
     console.log(err);
