@@ -4,6 +4,7 @@ import (
 	geoapi "geonius/api/geos"
 	usersapi "geonius/api/users"
 	vpnsapi "geonius/api/vpns"
+	sessionsapi "geonius/api/sessions"
 
 	"github.com/fasthttp/router"
 )
@@ -20,5 +21,10 @@ func Init() *router.Router {
 	r.DELETE("/users/{id}", usersapi.Delete)
 	r.POST("/checkIntersection", geoapi.Intersection)
 	r.POST("/location", geoapi.AddLocation)
+
+	rV2 := r.Group("/v2")
+	rV2.POST("/signin", sessionsapi.Signin)
+	rV2.POST("/signup", sessionsapi.Signup)
+	rV2.POST("/lookup", vpnsapi.Detect)
 	return r
 }

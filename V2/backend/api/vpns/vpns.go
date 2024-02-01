@@ -21,6 +21,11 @@ type DetectResp struct {
 	Result  Validation        `json:"res"`
 }
 
+type DetectParam struct {
+	IP string `json:"ip" body:"ip" query:"ip"`
+	Timezone string `json:"tz" body:"tz" query:"tz"`
+}
+
 // Detect VPN
 // @summary VPN Detection
 // @id detection
@@ -30,24 +35,29 @@ type DetectResp struct {
 // @success 200 {object}
 // @Router /vpn [get]
 func Detect(ctx *fasthttp.RequestCtx) {
-	timezone := string(ctx.QueryArgs().Peek("tz"))
-	ip := string(ctx.QueryArgs().Peek("ip"))
-	info, err := ipgeo.Lookup(ip)
+	body := ctx.PostBody()
+	var params DetectParam
+	json.Unmarshal(body, &params)
 
+	if params.IP == "" {
+		params.IP = ctx.RemoteIP().String()
+	}
+	
+	info, err := ipgeo.Lookup(params.IP)
 	if err != nil {
 		api.InternalError(ctx)
-	} else {
-		resp := DetectResp{
-			IP:      ip,
-			Address: info,
-			Result: Validation{
-				Real:      timezone,
-				Simulated: info.Timezone.Name,
-				Result:    strings.EqualFold(timezone, info.Timezone.Name),
-			},
-		}
-		respBytes, _ := json.Marshal(resp)
-		ctx.Success("application/json", respBytes)
+		return
 	}
 
+	resp := DetectResp{
+		IP:      params.IP,
+		Address: info,
+		Result: Validation{
+			Real:      params.Timezone,
+			Simulated: info.Timezone.Name,
+			Result:    strings.EqualFold(params.Timezone, info.Timezone.Name),
+		},
+	}
+	respBytes, _ := json.Marshal(resp)
+	ctx.Success("application/json", respBytes)
 }
