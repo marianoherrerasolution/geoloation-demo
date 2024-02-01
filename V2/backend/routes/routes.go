@@ -26,5 +26,7 @@ func Init() *router.Router {
 	rV2.POST("/signin", sessionsapi.Signin)
 	rV2.POST("/signup", sessionsapi.Signup)
 	rV2.POST("/lookup", vpnsapi.Detect)
+	rV2.POST("/location/intersect", geoapi.Intersection)
+	rV2.POST("/location/add", geoapi.AddLocation)
 	return r
 }

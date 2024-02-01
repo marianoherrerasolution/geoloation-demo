@@ -22,17 +22,16 @@ const GeoMap = ({
   lat,
   lon
 }: MapProps) => {
-  const [loc, setLoc] = useState([lon, lat]);
   return (
     <Fragment>
       <RMap
         className="map-container"
-        initial={{ center: fromLonLat([lon, lat]), zoom: 15 }}
+        initial={{ center: fromLonLat([lon, lat]), zoom: 17 }}
       >
         <ROSM />
         <RLayerVector>
           <RFeature
-            geometry={new Point(fromLonLat(loc))}
+            geometry={new Point(fromLonLat([lon, lat]))}
           >
             <RStyle.RStyle>
               <RStyle.RIcon src={locationIcon} anchor={[0.5, 0.8]} />
@@ -42,8 +41,8 @@ const GeoMap = ({
       </RMap>
       <div className="mx-0 mt-0 mb-3 p-1 w-100 jumbotron shadow shadow">
         <p>
-          Pin location is{" "}
-          <strong>{`${loc[1].toFixed(3)} : ${loc[0].toFixed(3)}`}</strong>
+          Longitude : Latitude{" "}
+          <strong>{`${lat.toFixed(3)} : ${lon.toFixed(3)}`}</strong>
         </p>
       </div>
     </Fragment>

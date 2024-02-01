@@ -1,4 +1,4 @@
-import { BreadcrumbProps } from 'antd';
+import { BreadcrumbProps, Flex, Radio } from 'antd';
 import { useEffect, useState, useRef } from 'react';
 import BasePageContainer from '../layout/PageContainer';
 import { webRoutes } from '../../routes/web';
@@ -10,10 +10,9 @@ import {
   MdVpnLock,
   MdOutlineWatchLater,
   MdOutlineWifi,
-  MdLocationPin
+  MdLocationPin,
 } from "react-icons/md";
 import frowser from "frowser";
-import packageJson from '../../../package.json';
 import { setPageTitle, handleErrorResponse } from '../../utils';
 import { defaultHttp } from '../../utils/http';
 import { apiRoutes } from '../../routes/api';
@@ -39,9 +38,12 @@ const breadcrumb: BreadcrumbProps = {
 const getBrowserName = () => frowser.getParser(window.navigator.userAgent).getBrowserName();
 const getBrowserVersion = () => frowser.getParser(window.navigator.userAgent).getBrowserVersion();
 const Lookup = () => {
-  const packageVersion = packageJson.version;
   const [loading, setLoading] = useState<boolean>(false);
+  const [gpsLatitude, setGPSLatitude] = useState<number>(0);
+  const [gpsLongitude, setGPSLongitude] = useState<number>(0);
+  const [useGPS, setUsingGPS] = useState<boolean>(false);
   const [geoip, setGeoip] = useState<Geoip>();
+  const [isGeofenced, setGeofence] = useState<string>("");
   const mounted = useRef(false);
 
   const checkIPAddress = (ip: string) => {
@@ -72,11 +74,56 @@ const Lookup = () => {
   }
 
   const getLat = () => {
+    if (useGPS) {
+      return gpsLatitude
+    }
     return Number(geoip?.address?.latitude)
   }
 
   const getLon = () => {
+    if (useGPS) {
+      return gpsLongitude
+    }
     return Number(geoip?.address?.longitude)
+  }
+
+  const onChangeLocation = (e: any) => {
+    if (e?.target?.value == "visible" && navigator.geolocation) {
+      setLoading(true)
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setGPSLatitude(latitude)
+          setGPSLongitude(longitude)
+          setUsingGPS(true)
+          setLoading(false)
+          defaultHttp
+            .post(apiRoutes.intersectLocation, {
+              latitude,
+              longitude,
+            })
+            .then((response) => {
+              if (response.data.length > 0) {
+                setGeofence('allowed');
+              } else {
+                setGeofence('disallowed');
+              }
+            })
+          
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+        }
+      );
+    } else {
+      setLoading(true);
+      let timer = setTimeout(() => {
+        setUsingGPS(false)
+        setLoading(false);
+        clearTimeout(timer)
+      }, 500);
+      
+    }
   }
 
   useEffect(() => {
@@ -90,6 +137,12 @@ const Lookup = () => {
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       <div className="m-5">
+        {
+          (isGeofenced == "disallowed") ? 
+          <p className="text-red-900 text-2xl mb-6">You're {isGeofenced} to use this application</p>
+          : ""
+        }
+        
         <Row gutter={24}>
           <Col xl={6} lg={6} md={6} sm={12} xs={24} className="mb-4">
             <Card
@@ -208,12 +261,27 @@ const Lookup = () => {
               title={
                 <span>
                   <MdLocationPin className="inline-block mr-2 text-2xl" />
-                  <span className="inline-block">MAP</span>
+                  <span className="inline-block mr-2">MAP</span>
                 </span>
+              }
+              extra={
+                <span>
+                  <span className="inline-block mr-2">Real Location</span>
+                  <Radio.Group
+                    onChange={onChangeLocation} 
+                    defaultValue="invisible"
+                    optionType="button"
+                    buttonStyle="solid"
+                  >
+                    <Radio.Button value="visible">Visible</Radio.Button>
+                    <Radio.Button value="invisible">Invisible</Radio.Button>
+                  </Radio.Group>
+                </span>
+                
               }
             >
               {
-                loading ? <Loader /> : <GeoMap lat={getLat()} lon={getLon()} />
+                loading ? <Loader text="" /> : <GeoMap lat={getLat()} lon={getLon()} />
               }
             </Card>
           </Col>
