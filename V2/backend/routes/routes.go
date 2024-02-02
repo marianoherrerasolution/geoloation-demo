@@ -3,7 +3,9 @@ package routes
 import (
 	"geonius/api"
 	adminsapi "geonius/api/admins"
+	geoipsapi "geonius/api/geoips"
 	geoapi "geonius/api/geos"
+	locationsapi "geonius/api/locations"
 	sessionsapi "geonius/api/sessions"
 	usersapi "geonius/api/users"
 	vpnsapi "geonius/api/vpns"
@@ -49,6 +51,9 @@ func Init() *router.Router {
 	rV2.POST("/location/intersect", authToken(geoapi.Intersection, "member"))
 	rV2.POST("/location/add", authToken(geoapi.AddLocation, "member"))
 
+	rV2.GET("/profile", authToken(usersapi.Update, "member"))
+	rV2.POST("/profile/update", authToken(usersapi.Show, "member"))
+
 	rV2.POST("/vpn/check", authToken(vpnsapi.Detect, "member"))
 
 	rV2.POST("/users", authToken(usersapi.List, "admin"))
@@ -63,5 +68,12 @@ func Init() *router.Router {
 	rV2.DELETE("/admins/{id}", authToken(adminsapi.Delete, "admin"))
 	rV2.POST("/admins", authToken(adminsapi.Create, "admin"))
 
+	rV2.POST("/locations", authToken(locationsapi.List, "admin"))
+	rV2.GET("/locations/{id}", authToken(locationsapi.Show, "admin"))
+	rV2.DELETE("/locations/{id}", authToken(locationsapi.Delete, "admin"))
+
+	rV2.POST("/geoips", authToken(geoipsapi.List, "admin"))
+	rV2.GET("/geoips/{id}", authToken(geoipsapi.Show, "admin"))
+	rV2.DELETE("/geoips/{id}", authToken(geoipsapi.Delete, "admin"))
 	return r
 }
