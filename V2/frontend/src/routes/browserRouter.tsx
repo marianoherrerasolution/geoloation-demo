@@ -11,6 +11,7 @@ import RequireAuth from './requireAuth';
 import Login from '../components/auth/Login';
 import About from '../components/demo-pages/about';
 import Lookup from '../components/lookup';
+import EditProfile from '../components/profile';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -53,6 +54,10 @@ export const browserRouter = createBrowserRouter([
       {
         path: webRoutes.lookup,
         element: <Lookup />,
+      },
+      {
+        path: webRoutes.editProfile,
+        element: <EditProfile />,
       },
       {
         path: webRoutes.dashboard,

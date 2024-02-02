@@ -2,21 +2,18 @@ import { Button, Form, Input } from 'antd';
 import { Fragment, useEffect, useState } from 'react';
 import { apiRoutes } from '../../routes/api';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../../store/slices/userSlice';
+import { setCurrentUser } from '../../store/slices/userSlice';
 import { RootState } from '../../store';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { webRoutes } from '../../routes/web';
 import { setPageTitle } from '../../utils';
 import { User } from '../../interfaces/models/user';
 import { defaultHttp } from '../../utils/http';
+import AlertBadge from '../alert';
 
 interface FormValues {
   email: string;
   password: string;
-}
-
-interface AlertProps {
-  error: boolean;
 }
 
 const Login = () => {
@@ -48,14 +45,8 @@ const Login = () => {
         password: values.password,
       })
       .then((response) => {
-        const user: User = {
-          token: response.data.token,
-          firstName: response.data.fName,
-          lastName: response.data.lName,
-          password: '',
-          email: response.data.email,
-        };
-        dispatch(login(user));
+        const user: User = response.data;
+        dispatch(setCurrentUser(user));
       })
       .catch((error) => {
         // handleErrorResponse(error);
@@ -64,23 +55,14 @@ const Login = () => {
       });
   };
 
-  const ErrorAlert = (props: AlertProps) => {
-    if (!props.error) {
-      return null
-    }
-    return (
-      <div className="flex bg-red-100 rounded-lg p-4 mb-4 text-sm text-red-700 items-center" role="alert">
-        Invalid email or password.
-      </div>
-    )
-  }
-
   return (
     <Fragment>
       <h1 className="text-xl font-bold leading-tight tracking-tight text-primary-900 md:text-2xl text-center text-opacity-30 tracking-wide">
         GeoIPLocation
       </h1>
-      <ErrorAlert error={loginError} />
+      {
+        loginError ? <AlertBadge message="Invalid email or password" theme="error" /> : ""
+      }
       <Form
         className="space-y-4 md:space-y-6"
         form={form}

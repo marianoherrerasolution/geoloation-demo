@@ -2,7 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { webRoutes } from '../../routes/web';
 import { Dropdown } from 'antd';
 import { ProLayout, ProLayoutProps } from '@ant-design/pro-components';
-import Icon, { LogoutOutlined } from '@ant-design/icons';
+import Icon, { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/userSlice';
 import { memo } from 'react';
@@ -29,16 +29,22 @@ const Layout = () => {
     },
   };
 
-  const logoutAdmin = () => {
+  const logoutUser = () => {
     dispatch(logout());
     navigate(webRoutes.login, {
       replace: true,
     });
 
-    http.post(apiRoutes.logout).catch((error) => {
-      handleErrorResponse(error);
-    });
+    // http.post(apiRoutes.logout).catch((error) => {
+    //   handleErrorResponse(error);
+    // });
   };
+
+  const editUser = () => {
+    navigate(webRoutes.editProfile, {
+      replace: true,
+    });
+  }
 
   return (
     <div className="h-screen">
@@ -74,11 +80,19 @@ const Layout = () => {
                 menu={{
                   items: [
                     {
+                      key: 'editProfile',
+                      icon: <UserOutlined />,
+                      label: 'Edit Profile',
+                      onClick: () => {
+                        editUser();
+                      },
+                    },
+                    {
                       key: 'logout',
                       icon: <LogoutOutlined />,
                       label: 'Logout',
                       onClick: () => {
-                        logoutAdmin();
+                        logoutUser();
                       },
                     },
                   ],

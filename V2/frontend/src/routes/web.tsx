@@ -1,9 +1,10 @@
 export const webRoutes = {
   home: '/',
   login: '/login',
+  lookup: '/lookup',
+  editProfile: '/profile/edit',
   logout: '/logout',
   dashboard: '/dashboard',
-  lookup: '/lookup',
   users: '/users',
   about: '/about',
 };

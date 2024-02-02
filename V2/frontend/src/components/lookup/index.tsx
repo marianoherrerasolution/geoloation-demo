@@ -25,6 +25,7 @@ import {
 } from 'antd';
 import ReactCountryFlag from "react-country-flag"
 import Loader from '../loader';
+import AlertBadge from '../alert';
 
 const breadcrumb: BreadcrumbProps = {
   items: [
@@ -139,7 +140,7 @@ const Lookup = () => {
       <div className="m-5">
         {
           (isGeofenced == "disallowed") ? 
-          <p className="text-red-900 text-2xl mb-6">You're {isGeofenced} to use this application</p>
+          <AlertBadge message="You are not allowed to use this application" theme="error" />
           : ""
         }
         
