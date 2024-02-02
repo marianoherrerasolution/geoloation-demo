@@ -7,9 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/userSlice';
 import { memo } from 'react';
 import { sidebar } from './sidebar';
-import { apiRoutes } from '../../routes/api';
-import http from '../../utils/http';
-import { handleErrorResponse } from '../../utils';
 import { RiShieldUserFill } from 'react-icons/ri';
 import { RootState } from '../../store';
 
@@ -34,10 +31,6 @@ const Layout = () => {
     navigate(webRoutes.login, {
       replace: true,
     });
-
-    // http.post(apiRoutes.logout).catch((error) => {
-    //   handleErrorResponse(error);
-    // });
   };
 
   const editUser = () => {
@@ -73,7 +66,7 @@ const Layout = () => {
           className: 'bg-primary bg-opacity-20 text-primary text-opacity-90',
           size: 'small',
           shape: 'square',
-          title: user?.firstName,
+          title: `${user?.fName} ${user?.lName}`,
           render: (_, dom) => {
             return (
               <Dropdown

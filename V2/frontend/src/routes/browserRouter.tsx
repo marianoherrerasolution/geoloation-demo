@@ -12,6 +12,7 @@ import Login from '../components/auth/Login';
 import About from '../components/demo-pages/about';
 import Lookup from '../components/lookup';
 import EditProfile from '../components/profile';
+import Register from '../components/auth/Register';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -38,6 +39,10 @@ export const browserRouter = createBrowserRouter([
       {
         path: webRoutes.login,
         element: <Login />,
+      },
+      {
+        path: webRoutes.register,
+        element: <Register />,
       },
     ],
   },

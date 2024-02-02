@@ -7,3 +7,15 @@ export interface User {
   password: string;
   avatar: string;
 }
+
+export interface FormUser {
+  fName: string,
+  lName: string,
+  email: string;
+  password: string;
+}
+
+export interface FormLogin {
+  email: string;
+  password: string;
+}

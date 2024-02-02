@@ -16,7 +16,8 @@ import { defaultHttp } from '../../utils/http';
 import { apiRoutes } from '../../routes/api';
 import { RootState } from '../../store';
 import { setCurrentUser } from '../../store/slices/userSlice';
-import { User } from '../../interfaces/models/user';
+import { FormUser, User } from '../../interfaces/models/user';
+import { errorCallback } from '../../utils/userHTTPCallback';
 
 const breadcrumb: BreadcrumbProps = {
   items: [
@@ -31,12 +32,6 @@ const breadcrumb: BreadcrumbProps = {
   ],
 };
 
-interface ProfileForm {
-  fName: string;
-  lName: string;
-  email: string;
-  password: string;
-}
 
 const EditProfile = () => {
   const [alertMessage, setAlertMessage] = useState<string>("");
@@ -58,36 +53,21 @@ const EditProfile = () => {
     }
   }
   
-  const onSubmit = () => {
+  const onSubmit = (values: FormUser) => {
     setLoading(true);
+    setAlertTheme("");
     defaultHttp
-      .put(`${apiRoutes.users}/${user?.id}`, form.getFieldsValue())
+      .put(`${apiRoutes.users}/${user?.id}`, values)
       .then(response => {
-        console.log(response.data)
         setAlertMessage("Profile is updated successfully")
         setAlertTheme("success")
         setLoading(false)
       })
-      .catch(({ response }) => {
-        const {data} = response
-        switch (data?.error) {
-          case "exist":
-            setAlertMessage(`The ${data?.field} is already taken`)
-            break;
-          case "empty":
-            setAlertMessage(`The ${fieldToLabel(data?.field || "field")} should be filled.`)
-            break;
-          case "invalid":
-            setAlertMessage(`The ${fieldToLabel(data?.field || "field")} is invalid.`)
-            break;
-          case "not_found":
-            setAlertMessage(`The account is not exist.`)
-            break;
-          case "internal_server":
-            setAlertMessage(`Sorry, there's internal error`)
-            break;
-          default:
-            setAlertMessage(`${data.error}`)
+      .catch(({response}) => {
+        if (!response) { return }
+        const {data} = response;
+        if (data) {
+          errorCallback(data, setAlertMessage)
         }
         setLoading(false)
         setAlertTheme("error")
