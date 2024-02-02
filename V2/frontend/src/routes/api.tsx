@@ -10,3 +10,11 @@ export const apiRoutes = {
   users: `${API_URL}/users`,
   reviews: `${API_URL}/unknown`,
 };
+
+export const adminRoutes = {
+  login: `${API_URL}/admin/signin`,
+  logout: `${API_URL}/admin/signout`,
+  users: `${API_URL}/users`,
+  locations: `${API_URL}/locations`,
+  geoips: `${API_URL}/geoips`,
+}

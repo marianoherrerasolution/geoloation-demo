@@ -47,7 +47,7 @@ export const browserRouter = createBrowserRouter([
     ],
   },
 
-  // protected routes
+  // protected member routes
   {
     element: (
       <RequireAuth>
@@ -64,17 +64,25 @@ export const browserRouter = createBrowserRouter([
         path: webRoutes.editProfile,
         element: <EditProfile />,
       },
+    ],
+  },
+
+  // protected admin routes
+  {
+    element: (
+      <RequireAuth>
+        <Layout />
+      </RequireAuth>
+    ),
+    errorElement: errorElement,
+    children: [
       {
-        path: webRoutes.dashboard,
-        element: <Dashboard />,
+        path: webRoutes.lookup,
+        element: <Lookup />,
       },
       {
-        path: webRoutes.users,
-        element: <Users />,
-      },
-      {
-        path: webRoutes.about,
-        element: <About />,
+        path: webRoutes.editProfile,
+        element: <EditProfile />,
       },
     ],
   },

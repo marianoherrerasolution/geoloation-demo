@@ -9,3 +9,11 @@ export const webRoutes = {
   users: '/users',
   about: '/about',
 };
+
+export const adminRoutes = {
+  home: '/admin',
+  login: '/admin/login',
+  users: '/admin/users',
+  locations: '/admin/locations',
+  geoips: '/admin/geoips',
+};
