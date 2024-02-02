@@ -29,7 +29,7 @@ func GenerateToken() string {
 
 // ValidateRequest() to validate request token in header
 // format: unixstamp.encrypttext.userID.loginToken
-func ValidateRequest(auth string) bool {
+func ValidateRequest(auth string, accessType string) bool {
 	bearer := strings.Replace(auth, "Bearer ", "", -1)
 	if bearer == "" {
 		return false
@@ -56,7 +56,7 @@ func ValidateRequest(auth string) bool {
 	}
 
 	//
-	return ChiperAuthorization(userIDTxt, unixstampTxt, loginToken) == encryptedText //token ecryption valid
+	return ChiperAuthorization(userIDTxt, unixstampTxt, loginToken, accessType) == encryptedText //token ecryption valid
 }
 
 // EncryptMD5() to encrypt md5
@@ -67,8 +67,8 @@ func EncryptMD5(chipertext string) string {
 }
 
 // ChiperAuthorization() to encrypt header token, format is sha1(md5(timestamp:logintoken), userID)
-func ChiperAuthorization(userID string, timestamp string, loginToken string) string {
+func ChiperAuthorization(userID string, timestamp string, loginToken string, accessType string) string {
 	newSHA1 := sha1.New()
-	newSHA1.Write([]byte(fmt.Sprintf("%s:%s", EncryptMD5(fmt.Sprintf("%s:%s", timestamp, loginToken)), userID)))
+	newSHA1.Write([]byte(fmt.Sprintf("%s:%s", EncryptMD5(fmt.Sprintf("%s:%s:%s", timestamp, loginToken, accessType)), userID)))
 	return fmt.Sprintf("%x", newSHA1.Sum(nil))
 }
