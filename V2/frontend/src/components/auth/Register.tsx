@@ -37,7 +37,7 @@ const Register = () => {
     setLoading(true);
     setAlertTheme("")
     defaultHttp
-      .post(apiRoutes.users, values)
+      .post(apiRoutes.signup, values)
       .then((response) => {
         setAlertMessage("Your account is successfully registered.")
         setAlertTheme("success")

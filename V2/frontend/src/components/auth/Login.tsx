@@ -35,7 +35,7 @@ const Login = () => {
     setLoading(true);
 
     defaultHttp
-      .post(apiRoutes.users, {
+      .post(apiRoutes.signin, {
         email: values.email,
         password: values.password,
       })

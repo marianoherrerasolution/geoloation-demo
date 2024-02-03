@@ -12,6 +12,11 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+type SigninResponse struct {
+	model.User
+	Token 	string `json:"token"`
+}
+
 // Signin user
 // @summary User signin
 // @id	signin
@@ -30,12 +35,13 @@ func Signin(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	var user model.User
+	var user SigninResponse
 	tx := db.Where("email = ?", params.Email).First(&user)
 	if tx.Error != nil || (params.Password != "" && user.Password != encrypt.Sha1(params.Password)) {
 		api.UnauthorizeError(ctx)
 	} else {
 		user.Password = ""
+		user.Token = encrypt.GenerateToken()
 		api.SuccessJSON(ctx, user)
 	}
 }

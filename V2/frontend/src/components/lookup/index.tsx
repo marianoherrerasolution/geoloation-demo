@@ -14,7 +14,7 @@ import {
 } from "react-icons/md";
 import frowser from "frowser";
 import { setPageTitle, handleErrorResponse } from '../../utils';
-import { defaultHttp } from '../../utils/http';
+import http, { defaultHttp } from '../../utils/http';
 import { apiRoutes } from '../../routes/api';
 import { Geoip } from '../../interfaces/models/geoip';
 import GeoMap from '../geomap';
@@ -65,7 +65,7 @@ const Lookup = () => {
 
   const getIpAddress = () => {
     setLoading(true);
-    defaultHttp
+    http
       .get("https://api.ipify.org/?format=json")
       .then(response => checkIPAddress(response?.data?.ip))
       .catch(err => {

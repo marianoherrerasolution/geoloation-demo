@@ -57,8 +57,10 @@ const EditProfile = () => {
     setLoading(true);
     setAlertTheme("");
     defaultHttp
-      .put(`${apiRoutes.users}/${user?.id}`, values)
+      .post(apiRoutes.profile, values)
       .then(response => {
+        const user: User = response.data;
+        dispatch(setCurrentUser(user));
         setAlertMessage("Profile is updated successfully")
         setAlertTheme("success")
         setLoading(false)
@@ -76,7 +78,7 @@ const EditProfile = () => {
 
   const getCurrentUser = () => {
     setLoading(true)
-    defaultHttp.get(`${apiRoutes.users}/${user?.id}`)
+    defaultHttp.get(apiRoutes.profile)
     .then((response) => {
       const user: User = response.data;
       dispatch(setCurrentUser(user));

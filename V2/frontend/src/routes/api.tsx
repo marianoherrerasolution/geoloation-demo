@@ -1,9 +1,10 @@
 import { API_URL } from '../utils';
 
 export const apiRoutes = {
-  login: `${API_URL}/v2/signin`,
+  signin: `${API_URL}/v2/signin`,
   signup: `${API_URL}/v2/signup`,
   lookup: `${API_URL}/v2/lookup`,
+  profile: `${API_URL}/v2/profile`,
   intersectLocation: `${API_URL}/v2/location/intersect`,
   addLocation: `${API_URL}/v2/location/add`,
   logout: `${API_URL}/logout`,
