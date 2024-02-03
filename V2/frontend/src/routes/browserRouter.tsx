@@ -4,7 +4,7 @@ import ErrorPage from '../components/errorPage';
 import Layout from '../components/layout';
 import Redirect from '../components/layout/Redirect';
 import NotFoundPage from '../components/notfoundPage';
-import { webRoutes } from './web';
+import { adminRoutes, webRoutes } from './web';
 import loadable from '@loadable/component';
 import ProgressBar from '../components/loader/progressBar';
 import RequireAuth from './requireAuth';
@@ -13,6 +13,7 @@ import About from '../components/demo-pages/about';
 import Lookup from '../components/lookup';
 import EditProfile from '../components/profile';
 import Register from '../components/auth/Register';
+import RequireAdmin from './requireAdmin';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -44,6 +45,10 @@ export const browserRouter = createBrowserRouter([
         path: webRoutes.register,
         element: <Register />,
       },
+      {
+        path: adminRoutes.login,
+        element: <Login />,
+      },
     ],
   },
 
@@ -70,19 +75,15 @@ export const browserRouter = createBrowserRouter([
   // protected admin routes
   {
     element: (
-      <RequireAuth>
+      <RequireAdmin>
         <Layout />
-      </RequireAuth>
+      </RequireAdmin>
     ),
     errorElement: errorElement,
     children: [
       {
-        path: webRoutes.lookup,
-        element: <Lookup />,
-      },
-      {
-        path: webRoutes.editProfile,
-        element: <EditProfile />,
+        path: adminRoutes.users,
+        element: <Users />,
       },
     ],
   },

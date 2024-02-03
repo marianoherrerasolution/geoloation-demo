@@ -7,39 +7,42 @@ import {
   ProDescriptions,
 } from '@ant-design/pro-components';
 import { Avatar, BreadcrumbProps, Modal, Space } from 'antd';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { FiUsers } from 'react-icons/fi';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { User } from '../../interfaces/models/user';
 import { apiRoutes } from '../../routes/api';
-import { webRoutes } from '../../routes/web';
+import { adminRoutes, webRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
   NotificationType,
   showNotification,
 } from '../../utils';
-import http from '../../utils/http';
+import http, { defaultHttp } from '../../utils/http';
 import BasePageContainer from '../layout/PageContainer';
 import LazyImage from '../lazy-image';
 import Icon, {
   ExclamationCircleOutlined,
   DeleteOutlined,
+  EditOutlined
 } from '@ant-design/icons';
+import AlertBadge from '../alert';
 
 enum ActionKey {
   DELETE = 'delete',
+  EDIT = 'edit'
 }
 
+const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#922B3E', '#252850'];
+const getColorBadge = () => {
+  return ColorList[Math.floor(Math.random()*ColorList.length)]
+}
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
-      key: webRoutes.dashboard,
-      title: <Link to={webRoutes.dashboard}>Dashboard</Link>,
-    },
-    {
       key: webRoutes.users,
-      title: <Link to={webRoutes.users}>Users</Link>,
+      title: <Link to={adminRoutes.users}>Users</Link>,
     },
   ],
 };
@@ -47,6 +50,8 @@ const breadcrumb: BreadcrumbProps = {
 const Users = () => {
   const actionRef = useRef<ActionType>();
   const [modal, modalContextHolder] = Modal.useModal();
+  const [alertTheme, setAlertTheme] = useState<string>("");
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
   const columns: ProColumns[] = [
     {
@@ -55,22 +60,13 @@ const Users = () => {
       align: 'center',
       sorter: false,
       render: (_, row: User) =>
-        row.avatar ? (
-          <Avatar
-            shape="circle"
-            size="small"
-            src={
-              <LazyImage
-                src={row.avatar}
-                placeholder={<div className="bg-gray-100 h-full w-full" />}
-              />
-            }
-          />
-        ) : (
-          <Avatar shape="circle" size="small">
-            {row.first_name.charAt(0).toUpperCase()}
-          </Avatar>
-        ),
+      <Avatar
+        style={{ backgroundColor: getColorBadge(), verticalAlign: 'middle' }}
+        shape="circle"
+        size="large"
+      >
+        {`${row.fName.charAt(0).toUpperCase()} ${row.lName.charAt(0).toUpperCase()}`}
+      </Avatar>
     },
     {
       title: 'Name',
@@ -78,7 +74,7 @@ const Users = () => {
       sorter: false,
       align: 'center',
       ellipsis: true,
-      render: (_, row: User) => `${row.first_name} ${row.last_name}`,
+      render: (_, row: User) => `${row.fName} ${row.lName}`,
     },
     {
       title: 'Email',
@@ -106,6 +102,15 @@ const Users = () => {
                 </Space>
               ),
             },
+            {
+              key: ActionKey.EDIT,
+              name: (
+                <Space>
+                  <EditOutlined />
+                  Edit
+                </Space>
+              ),
+            },
           ]}
         >
           <Icon component={CiCircleMore} className="text-primary text-xl" />
@@ -127,10 +132,10 @@ const Users = () => {
       content: (
         <ProDescriptions column={1} title=" ">
           <ProDescriptions.Item valueType="avatar" label="Avatar">
-            {user.avatar}
+            {`${user.fName.charAt(0).toUpperCase()} ${user.lName.charAt(0).toUpperCase()}`}
           </ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Name">
-            {user.first_name} {user.last_name}
+            {user.fName} {user.lName}
           </ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Email">
             {user.email}
@@ -161,6 +166,10 @@ const Users = () => {
 
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
+      {
+        alertTheme == "" ? "" : 
+        <AlertBadge message={alertMessage} theme={alertTheme} />
+      }
       <ProTable
         columns={columns}
         cardBordered={false}
@@ -183,7 +192,7 @@ const Users = () => {
         }}
         actionRef={actionRef}
         request={(params) => {
-          return http
+          return defaultHttp
             .get(apiRoutes.users, {
               params: {
                 page: params.current,

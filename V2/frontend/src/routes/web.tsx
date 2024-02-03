@@ -16,4 +16,5 @@ export const adminRoutes = {
   users: '/admin/users',
   locations: '/admin/locations',
   geoips: '/admin/geoips',
+  admins: '/admins',
 };

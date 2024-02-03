@@ -14,7 +14,7 @@ export const adminSlice = createSlice({
 
       return state;
     },
-    logout: (state) => {
+    logoutAdmin: (state) => {
       state = null;
 
       return state;
@@ -22,6 +22,6 @@ export const adminSlice = createSlice({
   },
 });
 
-export const { setCurrentAdmin, logout } = adminSlice.actions;
+export const { setCurrentAdmin, logoutAdmin } = adminSlice.actions;
 
 export default adminSlice.reducer;

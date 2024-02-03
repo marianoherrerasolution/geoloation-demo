@@ -10,12 +10,9 @@ export const apiRoutes = {
   logout: `${API_URL}/logout`,
   users: `${API_URL}/users`,
   reviews: `${API_URL}/unknown`,
+  adminLogin: `${API_URL}/v2/admin/signin`,
+  adminLogout: `${API_URL}/v2/admin/signout`,
+  adminUsers: `${API_URL}/v2/users`,
+  adminLocations: `${API_URL}/locations`,
+  adminGeoips: `${API_URL}/v2/geoips`,
 };
-
-export const adminRoutes = {
-  login: `${API_URL}/admin/signin`,
-  logout: `${API_URL}/admin/signout`,
-  users: `${API_URL}/users`,
-  locations: `${API_URL}/locations`,
-  geoips: `${API_URL}/geoips`,
-}
