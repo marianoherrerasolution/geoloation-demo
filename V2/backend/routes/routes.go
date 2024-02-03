@@ -64,6 +64,7 @@ func Init() *router.Router {
 	rV2.POST("/users", authToken(usersapi.Create, "admin"))
 
 	rV2.GET("/admins", authToken(adminsapi.List, "admin"))
+	rV2.POST("/admin/signin", adminsapi.Login)
 	rV2.GET("/admins/{id}", authToken(adminsapi.Show, "admin"))
 	rV2.PUT("/admins/{id}", authToken(adminsapi.Update, "admin"))
 	rV2.DELETE("/admins/{id}", authToken(adminsapi.Delete, "admin"))

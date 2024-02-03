@@ -19,3 +19,5 @@ Please learn from the following links about the features:
 ### Prerequisite
 - Install dependencies: `go mod tidy`
 - Restore data for development: `pg_restore -U db_user --host localhost -d geolocation < geolocation.sql`
+- Migration: `make migrate-dev`
+- Server: `make dev`

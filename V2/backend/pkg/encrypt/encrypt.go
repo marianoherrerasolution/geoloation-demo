@@ -66,7 +66,7 @@ func EncryptMD5(chipertext string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-// ChiperAuthorization() to encrypt header token, format is sha1(md5(timestamp:logintoken), userID)
+// ChiperAuthorization() to encrypt header token, format is sha1(md5(timestamp:logintoken:accessType), userID)
 func ChiperAuthorization(userID string, timestamp string, loginToken string, accessType string) string {
 	newSHA1 := sha1.New()
 	newSHA1.Write([]byte(fmt.Sprintf("%s:%s", EncryptMD5(fmt.Sprintf("%s:%s:%s", timestamp, loginToken, accessType)), userID)))
