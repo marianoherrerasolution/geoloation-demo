@@ -19,9 +19,12 @@ export const adminSlice = createSlice({
 
       return state;
     },
+    getAdmin: (state) => {
+      return state
+    }
   },
 });
 
-export const { setCurrentAdmin, logoutAdmin } = adminSlice.actions;
+export const { setCurrentAdmin, logoutAdmin, getAdmin } = adminSlice.actions;
 
 export default adminSlice.reducer;

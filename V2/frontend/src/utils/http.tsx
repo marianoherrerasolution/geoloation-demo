@@ -30,11 +30,9 @@ const generateToken = () => {
 
 defaultHttp.interceptors.request.use(
   (config) => {
-    console.log("test")
     const state: RootState = store.getState();
     const {user, admin} = state
     const isLogin = (!!user || !!admin);
-    console.log(isLogin)
     if (isLogin) {
       config.headers.Authorization = `Bearer ${generateToken()}`;
     }
