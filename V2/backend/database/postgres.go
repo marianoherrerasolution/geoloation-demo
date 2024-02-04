@@ -2,6 +2,7 @@ package database
 
 import (
 	"geonius/config"
+	"os"
 	"strings"
 
 	"gorm.io/driver/postgres"
@@ -45,12 +46,19 @@ func buildPosgresDSN() string {
 	return strings.Join(dsn, " ")
 }
 
+func LogMode() logger.LogLevel {
+	if os.Getenv("PRODUCTION") != "" {
+		return logger.Silent
+	}
+	return logger.Info
+}
+
 func InitPostgres() {
 	var err error
 	Pg, err = gorm.Open(postgres.Open(buildPosgresDSN()), &gorm.Config{
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
-		Logger:                 logger.Default.LogMode(logger.Silent),
+		Logger:                 logger.Default.LogMode(LogMode()),
 	})
 
 	if err != nil {

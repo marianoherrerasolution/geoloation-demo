@@ -2,9 +2,11 @@ package usersapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"geonius/api"
 	"geonius/database"
 	"geonius/model"
+	"geonius/pkg/stringify"
 
 	"github.com/valyala/fasthttp"
 )
@@ -18,6 +20,7 @@ import (
 func List(ctx *fasthttp.RequestCtx) {
 	page := ctx.QueryArgs().GetUintOrZero("page")
 	perPage := ctx.QueryArgs().GetUintOrZero("per_page")
+	keyword := string(ctx.QueryArgs().Peek("keyword"))
 	if perPage < 1 {
 		perPage = 10
 	}
@@ -28,7 +31,15 @@ func List(ctx *fasthttp.RequestCtx) {
 		page = 1
 	}
 	var users []model.User
-	tx := database.Pg.Order("id ASC").
+	tx := database.Pg
+
+	if keyword != "" {
+		keyword = stringify.LowerTrim(stringify.SafetySQL(keyword))
+		keywordQL := fmt.Sprintf("%%%s%%", keyword)
+		tx = tx.Where("lower(fname) LIKE ?", keywordQL).Or("lower(lname) LIKE ?", keywordQL).Or("lower(email) LIKE ?", keywordQL)
+	}
+
+	tx = tx.Order("id ASC").
 		Limit(perPage).
 		Offset((page - 1) * perPage).
 		Find(&users)
@@ -37,6 +48,7 @@ func List(ctx *fasthttp.RequestCtx) {
 	database.Pg.Table(model.TableUser).Count(&total)
 
 	if tx.Error != nil {
+		fmt.Println(tx.Error)
 		api.InternalError(ctx)
 	} else {
 		respBytes, _ := json.Marshal(map[string]interface{}{
