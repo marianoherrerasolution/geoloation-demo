@@ -10,7 +10,7 @@ const (
 
 type Admin struct {
 	User
-	Role string `gorm:"column:role" json:"role" body:"role" query:"role" form:"role"`
+	Role string `gorm:"column:role;index:idx_admin_role" json:"role" body:"role" query:"role" form:"role"`
 }
 
 func (u *Admin) TableName() string {

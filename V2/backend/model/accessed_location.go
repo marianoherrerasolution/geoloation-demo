@@ -11,7 +11,7 @@ type AccessedLocation struct {
 	ZipCode   string  `json:"zip_code" body:"zip_code" form:"zip_code" gorm:"column:zipcode"`
 	Latitude  float64 `json:"lat" body:"lat" form:"lat" gorm:"column:lat"`
 	Longitude float64 `json:"lon" body:"lon" form:"lon" gorm:"column:lon"`
-	Ipaddress string  `json:"ip" body:"ip" form:"ip" gorm:"column:ip"`
+	Ipaddress string  `json:"ip" body:"ip" form:"ip" gorm:"column:ip;index:idx_accloc_ip"`
 	Datetime  string  `json:"datetime" body:"datetime" form:"datetime" gorm:"column:datetime"`
 }
 
