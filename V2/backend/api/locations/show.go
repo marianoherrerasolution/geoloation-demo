@@ -22,7 +22,7 @@ func Show(ctx *fasthttp.RequestCtx) {
 
 func FindByID(id interface{}, ctx *fasthttp.RequestCtx) *model.AccessedLocation {
 	location := &model.AccessedLocation{}
-	if tx := database.Pg.Where("id = ?", ctx.UserValue("id")).First(location); tx.Error != nil {
+	if tx := database.Pg.Where("gid = ?", ctx.UserValue("id")).First(location); tx.Error != nil {
 		api.NotFoundError(ctx)
 	}
 	return location

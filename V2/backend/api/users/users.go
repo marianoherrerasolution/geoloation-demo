@@ -32,11 +32,13 @@ func List(ctx *fasthttp.RequestCtx) {
 	}
 	var users []model.User
 	tx := database.Pg
+	txCount := database.Pg
 
 	if keyword != "" {
 		keyword = stringify.LowerTrim(stringify.SafetySQL(keyword))
 		keywordQL := fmt.Sprintf("%%%s%%", keyword)
 		tx = tx.Where("lower(fname) LIKE ?", keywordQL).Or("lower(lname) LIKE ?", keywordQL).Or("lower(email) LIKE ?", keywordQL)
+		txCount = tx
 	}
 
 	tx = tx.Order("id ASC").
@@ -45,7 +47,7 @@ func List(ctx *fasthttp.RequestCtx) {
 		Find(&users)
 
 	var total int64
-	database.Pg.Table(model.TableUser).Count(&total)
+	txCount.Table(model.TableUser).Count(&total)
 
 	if tx.Error != nil {
 		fmt.Println(tx.Error)
