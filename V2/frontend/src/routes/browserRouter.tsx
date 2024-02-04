@@ -14,6 +14,8 @@ import Lookup from '../components/lookup';
 import EditProfile from '../components/profile';
 import Register from '../components/auth/Register';
 import RequireAdmin from './requireAdmin';
+import Admins from '../components/admins';
+import Locations from '../components/locations';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -84,6 +86,12 @@ export const browserRouter = createBrowserRouter([
       {
         path: adminRoutes.users,
         element: <Users />,
+      },{
+        path: adminRoutes.admins,
+        element: <Admins />,
+      },{
+        path: adminRoutes.locations,
+        element: <Locations />,
       },
     ],
   },

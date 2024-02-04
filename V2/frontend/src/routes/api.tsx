@@ -13,6 +13,7 @@ export const apiRoutes = {
   adminLogin: `${API_URL}/v2/admin/signin`,
   adminLogout: `${API_URL}/v2/admin/signout`,
   adminUsers: `${API_URL}/v2/users`,
-  adminLocations: `${API_URL}/locations`,
+  adminList: `${API_URL}/v2/admins`,
+  adminLocations: `${API_URL}/v2/locations`,
   adminGeoips: `${API_URL}/v2/geoips`,
 };
