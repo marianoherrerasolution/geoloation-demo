@@ -58,8 +58,10 @@ const Login = () => {
       .then((response) => {
         if (isAdmin) {
           dispatch(setCurrentAdmin(response.data));
+          dispatch(setCurrentUser(null));
         } else {
           dispatch(setCurrentUser(response.data));
+          dispatch(setCurrentAdmin(null));
         }
       })
       .catch((error) => {

@@ -6,7 +6,7 @@ import Icon, { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/userSlice';
 import { memo } from 'react';
-import { sidebar } from './sidebar';
+import { adminSidebar, userSidebar } from './sidebar';
 import { RiShieldUserFill, RiAdminLine } from 'react-icons/ri';
 import { RootState } from '../../store';
 import { logoutAdmin } from '../../store/slices/adminSlice';
@@ -24,7 +24,7 @@ const Layout = () => {
     fixSiderbar: true,
     layout: CONFIG.theme.sidebarLayout,
     route: {
-      routes: sidebar,
+      routes: (!!admin ? adminSidebar : userSidebar),
     },
   };
 

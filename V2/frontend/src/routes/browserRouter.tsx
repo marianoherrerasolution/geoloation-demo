@@ -16,6 +16,7 @@ import Register from '../components/auth/Register';
 import RequireAdmin from './requireAdmin';
 import Admins from '../components/admins';
 import Locations from '../components/locations';
+import Geoips from '../components/geoips';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -90,9 +91,16 @@ export const browserRouter = createBrowserRouter([
         path: adminRoutes.admins,
         element: <Admins />,
       },{
+        
         path: adminRoutes.locations,
         element: <Locations />,
-      },
+      },{
+        path: adminRoutes.geoips,
+        element: <Geoips />,
+      },{
+        path: adminRoutes.home,
+        element: <Admins />,
+      }
     ],
   },
 

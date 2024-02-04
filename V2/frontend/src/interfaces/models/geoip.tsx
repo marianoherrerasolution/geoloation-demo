@@ -54,3 +54,19 @@ export interface Geoip {
   res: VPNResult
 }
 
+export interface GeoipTable {
+  id: number;
+  ip_address: string;
+  latitude: number;
+  longitude: number;
+  city: string;
+  state: string;
+  country: string;
+  country_code: string;
+  organization: string;
+  timezone: string;
+  timezone_offset: number;
+  currency: string;
+  currency_symbol: string;
+  zipcode: string;
+}

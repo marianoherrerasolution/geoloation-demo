@@ -1,9 +1,7 @@
 import { adminRoutes, webRoutes } from '../../routes/web';
 import { BiGlobe, BiMap, BiMapPin, BiSolidUserCheck, BiUser, BiWorld } from 'react-icons/bi';
 import Icon from '@ant-design/icons';
-import { getAdmin } from '../../store/slices/adminSlice';
-
-const userSidebar = [
+export const userSidebar = [
   {
     path: webRoutes.lookup,
     key: webRoutes.lookup,
@@ -12,7 +10,7 @@ const userSidebar = [
   },
 ];
 
-const adminSidebar = [
+export const adminSidebar = [
   {
     path: adminRoutes.users,
     key: adminRoutes.users,
@@ -38,13 +36,3 @@ const adminSidebar = [
     icon: <Icon component={BiSolidUserCheck} />,
   },
 ];
-
-const getSidebar = () => {
-  console.log(getAdmin)
-  if (!!getAdmin()) {
-    return adminSidebar
-  }
-  return userSidebar
-}
-
-export const sidebar = getSidebar()
