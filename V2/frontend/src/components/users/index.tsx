@@ -8,7 +8,6 @@ import {
 } from '@ant-design/pro-components';
 import { Avatar, BreadcrumbProps, Modal, Space, Button, Form, Input } from 'antd';
 import { useRef, useState } from 'react';
-import { FiUsers } from 'react-icons/fi';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { User } from '../../interfaces/models/user';
@@ -16,10 +15,7 @@ import { apiRoutes } from '../../routes/api';
 import { adminRoutes, webRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
-  NotificationType,
-  showNotification,
 } from '../../utils';
-import http, { defaultHttp } from '../../utils/http';
 import BasePageContainer from '../layout/PageContainer';
 import Icon, {
   ExclamationCircleOutlined,
@@ -28,6 +24,7 @@ import Icon, {
 } from '@ant-design/icons';
 import AlertBadge from '../alert';
 import { errorCallback } from '../../utils/userHTTPCallback';
+import { defaultHttp } from '../../utils/http';
 
 enum ActionKey {
   DELETE = 'delete',
@@ -169,7 +166,7 @@ const Users = () => {
       .then(() => {
         setLoading(false)
         setAlertEdit("success", `User ID ${user.id} is updated successfully.`)
-        actionRef.current?.reloadAndRest?.();
+        actionRef.current?.reload(true);
       })
       .catch(({response}) => {
         if (!response) { return }
@@ -205,7 +202,7 @@ const Users = () => {
           .delete(`${apiRoutes.adminUsers}/${user.id}`)
           .then(() => {
             setAlertTable("success", `User ID ${user.id} is deleted successfully.`)
-            actionRef.current?.reloadAndRest?.();
+            actionRef.current?.reload(true);
           })
           .catch(({response}) => {
             if (!response) { return }
