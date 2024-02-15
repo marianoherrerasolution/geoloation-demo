@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -28,4 +30,20 @@ func (u *Widget) TableName() string {
 
 func (u *Widget) ValidID() bool {
 	return u.ID > 0
+}
+
+func (u *Widget) ValidateEmptyField() string {
+	if u.ClientID < 1 {
+		return "client_id"
+	}
+	if u.ProductID < 1 {
+		return "product_id"
+	}
+	if u.RestrictionType == "" {
+		return "restriction_type"
+	}
+	if strings.TrimSpace(u.Name) == "" {
+		return "name"
+	}
+	return ""
 }
