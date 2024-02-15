@@ -1,0 +1,16 @@
+backend/bin
+frontend/dist
+*.tar
+*.tar.gz
+*.zip
+.env
+backend/geonius
+backend/*.sql
+frontend/node_modules
+frontend/*.tar
+frontend/*.tar.gz
+frontend/*.zip
+backend/*.zip
+backend/*.tar
+backend/*.tar.gz
+frontend/.vite
