@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"geonius/database"
+	db "geonius/database"
 	"geonius/pkg/stringify"
+	"log"
 
 	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
@@ -74,6 +76,44 @@ func (sp *SearchPagination) Deliver(dest interface{}, orderBy string) {
 		})
 		sp.Ctx.Success("application/json", respBytes)
 	}
+}
+
+func ExistRecord(field string, value interface{}, dest interface{}, ctx *fasthttp.RequestCtx) bool {
+	statement := fmt.Sprintf("%s = ?", field)
+	if tx := db.Where(statement, value).First(&dest); tx.Error == nil {
+		UnprocessibleError(ctx, ErrorConfig{
+			Error: "exist",
+			Field: field,
+		})
+		return true
+	}
+	return false
+}
+
+func CreateRecord(entity interface{}, tableName string, ctx *fasthttp.RequestCtx) {
+	if tx := db.Create(&entity); tx.Error != nil {
+		fmt.Printf("[error] create %s %v", tableName, tx.Error)
+		InternalError(ctx)
+	} else {
+		SuccessJSON(ctx, entity)
+	}
+}
+
+func UpdateRecord(tableName string, ID interface{}, original interface{}, updateParams interface{}, ctx *fasthttp.RequestCtx) {
+	if tx := db.Pg.Model(original).Updates(updateParams); tx.Error != nil {
+		log.Fatalf("/%s/%v error: %v", tableName, ID, tx.Error)
+		InternalError(ctx)
+	} else {
+		SuccessJSON(ctx, original)
+	}
+}
+
+func FindByID(id interface{}, record interface{}, ctx *fasthttp.RequestCtx) bool {
+	if tx := database.Pg.Where("id = ?", id).First(record); tx.Error != nil {
+		NotFoundError(ctx)
+		return false
+	}
+	return true
 }
 
 type ErrorConfig struct {

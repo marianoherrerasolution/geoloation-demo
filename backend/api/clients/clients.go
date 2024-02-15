@@ -10,7 +10,7 @@ import (
 // List clients
 // @summary Client List
 // @id list
-// @tag admin
+// @tag client
 // @success 200 {object}
 // @Router /clients [get]
 func List(ctx *fasthttp.RequestCtx) {
@@ -20,8 +20,7 @@ func List(ctx *fasthttp.RequestCtx) {
 	if search.HasKeyword() {
 		keywordLike := search.CaseSensitiveKeyword()
 		search.SQLSearch = search.SQLSearch.Where("lower(company) LIKE ?", keywordLike).
-			Or("lower(website) LIKE ?", keywordLike).
-			Or("lower(email) LIKE ?", keywordLike)
+			Or("lower(website) LIKE ?", keywordLike)
 		search.SQLCount = search.SQLSearch
 	}
 

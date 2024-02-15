@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 const (
 	TableClient = "clients"
@@ -18,4 +22,16 @@ func (u *Client) TableName() string {
 
 func (u *Client) ValidID() bool {
 	return u.ID > 0
+}
+
+func (u *Client) ValidateEmptyField() string {
+	if strings.Trim(u.Company, " ") == "" {
+		return "company"
+	}
+
+	if strings.Trim(u.Website, " ") == "" {
+		return "website"
+	}
+
+	return ""
 }
