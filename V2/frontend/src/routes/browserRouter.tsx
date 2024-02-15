@@ -9,7 +9,6 @@ import loadable from '@loadable/component';
 import ProgressBar from '../components/loader/progressBar';
 import RequireAuth from './requireAuth';
 import Login from '../components/auth/Login';
-import About from '../components/demo-pages/about';
 import Lookup from '../components/lookup';
 import EditProfile from '../components/profile';
 import Register from '../components/auth/Register';
@@ -21,9 +20,6 @@ import Geoips from '../components/geoips';
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
 
-const Dashboard = loadable(() => import('../components/dashboard'), {
-  fallback: fallbackElement,
-});
 const Users = loadable(() => import('../components/users'), {
   fallback: fallbackElement,
 });
