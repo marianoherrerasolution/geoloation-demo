@@ -24,5 +24,5 @@ func List(ctx *fasthttp.RequestCtx) {
 	}
 
 	var widgets []model.Client
-	search.Deliver(widgets, "id ASC")
+	search.Deliver(&widgets, "id ASC")
 }

@@ -26,5 +26,5 @@ func List(ctx *fasthttp.RequestCtx) {
 	}
 
 	var locations []model.AccessedLocation
-	search.Deliver(locations, "gid ASC")
+	search.Deliver(&locations, "gid ASC")
 }

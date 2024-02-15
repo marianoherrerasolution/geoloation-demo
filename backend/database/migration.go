@@ -26,5 +26,25 @@ func Migrate() {
 		panic(err)
 	}
 
+	fmt.Println("Create Table clients.")
+	if err := Pg.AutoMigrate(&model.Client{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table products.")
+	if err := Pg.AutoMigrate(&model.Product{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table widgets.")
+	if err := Pg.AutoMigrate(&model.Widget{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table restrictions.")
+	if err := Pg.AutoMigrate(&model.Restriction{}); err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Done.")
 }

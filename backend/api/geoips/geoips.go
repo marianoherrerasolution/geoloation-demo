@@ -28,5 +28,5 @@ func List(ctx *fasthttp.RequestCtx) {
 	}
 
 	var geoips []model.GeoIP
-	search.Deliver(geoips, "id ASC")
+	search.Deliver(&geoips, "id ASC")
 }

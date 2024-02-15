@@ -2,8 +2,6 @@ package model
 
 import (
 	"strings"
-
-	"gorm.io/gorm"
 )
 
 const (
@@ -11,7 +9,7 @@ const (
 )
 
 type Restriction struct {
-	gorm.Model
+	Base
 	Name      string `gorm:"column:name;index:idx_restr_keyword,priority:1" json:"name" body:"name" query:"name" form:"name"`
 	Polygon   string `json:"polygon"`
 	Active    bool   `gorm:"column:active;index:idx_restr_active" json:"active" body:"active" query:"active" form:"active"`

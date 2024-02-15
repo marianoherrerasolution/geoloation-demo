@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
-	"gorm.io/gorm"
 )
 
 const (
@@ -12,7 +11,7 @@ const (
 )
 
 type Widget struct {
-	gorm.Model
+	Base
 	Name            string         `gorm:"column:name;index:idx_widget_name" json:"name" body:"name" query:"name" form:"name"`
 	Token           string         `gorm:"column:token;index:idx_widget_token" json:"token" body:"token" query:"token" form:"token"`
 	Active          bool           `gorm:"column:active;index:idx_widget_active" json:"active" body:"active" query:"active" form:"active"`

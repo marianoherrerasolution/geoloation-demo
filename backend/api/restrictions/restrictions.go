@@ -25,5 +25,5 @@ func List(ctx *fasthttp.RequestCtx) {
 	}
 
 	var restrictions []model.Client
-	search.Deliver(restrictions, "id ASC")
+	search.Deliver(&restrictions, "id ASC")
 }

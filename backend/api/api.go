@@ -54,7 +54,7 @@ func (sp *SearchPagination) Search(dest interface{}, orderBy string) (tx *gorm.D
 		Order(orderBy).
 		Limit(sp.PerPage).
 		Offset((sp.Page - 1) * sp.PerPage).
-		Find(&dest)
+		Find(dest)
 }
 
 func (sp *SearchPagination) Total() int64 {

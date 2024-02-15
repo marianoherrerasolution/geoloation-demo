@@ -1,14 +1,11 @@
 package model
 
-import "gorm.io/gorm"
-
 const (
 	TableGeoIP = "geoips"
 )
 
 type GeoIP struct {
-	gorm.Model
-	ID             uint    `gorm:"primaryKey;column:id" json:"id" body:"id" query:"id" form:"id"`
+	Base
 	IPAddress      string  `gorm:"column:ip_address;index:idx_geoip_ip;index:idx_geoip_keyword,priority:1" json:"ip_address" body:"ip_address" query:"ip_address" form:"ip_address"`
 	Latitude       float64 `gorm:"column:latitude" json:"latitude" body:"latitude" query:"latitude" form:"latitude"`
 	Longitude      float64 `gorm:"column:longitude" json:"longitude" body:"longitude" query:"longitude" form:"longitude"`
