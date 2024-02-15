@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	"gorm.io/gorm"
 )
 
@@ -25,4 +27,17 @@ func (u *Restriction) TableName() string {
 
 func (u *Restriction) ValidID() bool {
 	return u.ID > 0
+}
+
+func (u *Restriction) ValidateEmptyField() string {
+	if u.ClientID < 1 {
+		return "client_id"
+	}
+	if u.ProductID < 1 || u.Networks == "" {
+		return "product_id,networks"
+	}
+	if strings.TrimSpace(u.Name) == "" {
+		return "name"
+	}
+	return ""
 }

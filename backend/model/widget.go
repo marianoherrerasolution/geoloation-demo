@@ -42,6 +42,9 @@ func (u *Widget) ValidateEmptyField() string {
 	if u.RestrictionType == "" {
 		return "restriction_type"
 	}
+	if u.RestrictionType == "product" && u.ProductID < 1 {
+		return "production_id"
+	}
 	if strings.TrimSpace(u.Name) == "" {
 		return "name"
 	}

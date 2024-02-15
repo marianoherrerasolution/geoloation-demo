@@ -3,13 +3,17 @@ package routes
 import (
 	"geonius/api"
 	adminsapi "geonius/api/admins"
+	clientsapi "geonius/api/clients"
 	geoipsapi "geonius/api/geoips"
 	geoapi "geonius/api/geos"
 	locationsapi "geonius/api/locations"
-	sessionsapi "geonius/api/sessions"
+	productsapi "geonius/api/products"
 	profileapi "geonius/api/profile"
+	restrictionsapi "geonius/api/restrictions"
+	sessionsapi "geonius/api/sessions"
 	usersapi "geonius/api/users"
 	vpnsapi "geonius/api/vpns"
+	widgetsapi "geonius/api/widgets"
 	"geonius/pkg/encrypt"
 
 	"github.com/fasthttp/router"
@@ -77,5 +81,29 @@ func Init() *router.Router {
 	rV2.GET("/geoips", authToken(geoipsapi.List, "admin"))
 	rV2.GET("/geoips/{id}", authToken(geoipsapi.Show, "admin"))
 	rV2.DELETE("/geoips/{id}", authToken(geoipsapi.Delete, "admin"))
+
+	rV2.GET("/clients", authToken(clientsapi.List, "admin"))
+	rV2.GET("/clients/{id}", authToken(clientsapi.Show, "admin"))
+	rV2.PUT("/clients/{id}", authToken(clientsapi.Update, "admin"))
+	rV2.DELETE("/clients/{id}", authToken(clientsapi.Delete, "admin"))
+	rV2.POST("/clients", authToken(clientsapi.Create, "admin"))
+
+	rV2.GET("/products", authToken(productsapi.List, "admin"))
+	rV2.GET("/products/{id}", authToken(productsapi.Show, "admin"))
+	rV2.PUT("/products/{id}", authToken(productsapi.Update, "admin"))
+	rV2.DELETE("/products/{id}", authToken(productsapi.Delete, "admin"))
+	rV2.POST("/products", authToken(productsapi.Create, "admin"))
+
+	rV2.GET("/widgets", authToken(widgetsapi.List, "admin"))
+	rV2.GET("/widgets/{id}", authToken(widgetsapi.Show, "admin"))
+	rV2.PUT("/widgets/{id}", authToken(widgetsapi.Update, "admin"))
+	rV2.DELETE("/widgets/{id}", authToken(widgetsapi.Delete, "admin"))
+	rV2.POST("/widgets", authToken(widgetsapi.Create, "admin"))
+
+	rV2.GET("/restrictions", authToken(restrictionsapi.List, "admin"))
+	rV2.GET("/restrictions/{id}", authToken(restrictionsapi.Show, "admin"))
+	rV2.PUT("/restrictions/{id}", authToken(restrictionsapi.Update, "admin"))
+	rV2.DELETE("/restrictions/{id}", authToken(restrictionsapi.Delete, "admin"))
+	rV2.POST("/restrictions", authToken(restrictionsapi.Create, "admin"))
 	return r
 }
