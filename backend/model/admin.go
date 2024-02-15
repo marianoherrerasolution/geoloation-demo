@@ -2,6 +2,8 @@ package model
 
 import (
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -9,6 +11,7 @@ const (
 )
 
 type Admin struct {
+	gorm.Model
 	User
 	Role string `gorm:"column:role;index:idx_admin_role" json:"role" body:"role" query:"role" form:"role"`
 }

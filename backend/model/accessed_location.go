@@ -1,10 +1,13 @@
 package model
 
+import "gorm.io/gorm"
+
 const (
 	TableAccessedLocation = "accessed_locations"
 )
 
 type AccessedLocation struct {
+	gorm.Model
 	GID       int     `gorm:"primaryKey;column:gid" json:"gid" body:"gid" form:"gid"`
 	City      string  `json:"city" body:"city" form:"city" gorm:"column:city;index:idx_accloc_keyword,priority:3"`
 	Country   string  `json:"country" body:"country" form:"country" gorm:"column:country;index:idx_accloc_keyword,priority:2"`

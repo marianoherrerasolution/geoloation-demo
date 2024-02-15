@@ -1,13 +1,17 @@
 package model
 
-import "strings"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 const (
 	TableUser = "users"
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey;column:id" json:"id" body:"id" query:"id" form:"id"`
+	gorm.Model
 	FirstName string `gorm:"column:fname;index:idx_user_keyword,priority:1" json:"fName" body:"fName" query:"fName" form:"fName"`
 	LastName  string `gorm:"column:lname;index:idx_user_keyword,priority:2" json:"lName" body:"lName" query:"lName" form:"lName"`
 	Email     string `gorm:"column:email;index:idx_user_keyword,priority:3" json:"email" body:"email" query:"email" form:"email"`

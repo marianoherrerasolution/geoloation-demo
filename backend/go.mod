@@ -7,7 +7,9 @@ require (
 	github.com/fasthttp/router v1.4.22
 	github.com/imroc/req/v3 v3.42.3
 	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.8.1
+	github.com/twpayne/go-geom v1.5.3
 	github.com/valyala/fasthttp v1.51.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.6
