@@ -35,33 +35,41 @@ function App() {
   const { toggleTheme } = useTheme();
   const { theme } = useTheme();
   const initialized = useRef(false)
-  useEffect(() => {
-    fetch('http://localhost:5000/vpn')
+  const addLocation = (address, ip) => {
+    let {city, country, zip_code, latitude, longitude, country_name} = address
+    fetch(
+      `http://localhost:5000/location`, {
+        method: "post",
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ city, country, zip_code, latitude, longitude, ip, country: country_name })  
+      }
+    )
+  }
+
+  const checkVPN = ip => {
+    fetch(`http://localhost:5000/vpn?tz=${Intl.DateTimeFormat().resolvedOptions().timeZone}&ip=${ip}`)
       .then(response => response.json())
       .then(data => {
-        if (!initialized.current) {
-          initialized.current = true;
-          axios.post(`http://localhost:5000/location`, {
-            city: data[2].city,
-            country: data[2].country_name,
-            zip_code: data[2].zipcode,
-            lon: data[2].longitude,
-            lat: data[2].latitude,
-            ip: data[2].ip
-          })
-          .then(res => {
-            if (res.data.length > 0) {
-              // console.log(res.data);
-              // setGeofence('allowed');
-            }
-          });
-          setIPAddress(data[2])
-          if (data[1].real !== data[1].simulated) {
-            setVPN('Detected');
-          }
+        addLocation(data.address, ip)
+        setIPAddress(ip)
+        if (data.real !== data.simulated) {
+          setVPN('Detected');
         }
       })
       .catch(error => console.log(error));
+  }
+  
+  useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true
+      console.log('test')
+      fetch("https://api.ipify.org/?format=json")
+        .then(response => response.json())
+        .then(data => checkVPN(data.ip))
+    }
   }, []);
   return (
     <div className='App'>
