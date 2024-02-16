@@ -1,21 +1,15 @@
-export interface User {
-  id: number;
-  token: string;
-  fName: string;
-  lName: string;
-  email: string;
-  password: string;
-  avatar: string;
-}
-
-export interface FormUser {
-  fName: string,
-  lName: string,
-  email: string;
-  password: string;
-}
-
 export interface FormLogin {
   email: string;
   password: string;
+}
+
+export interface FormUser extends FormLogin{
+  fName: string;
+  lName: string;
+  client_id: number;
+}
+
+export interface User extends FormUser {
+  id: number;
+  avatar: string;
 }
