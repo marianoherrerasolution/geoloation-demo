@@ -83,12 +83,14 @@ func Init() *router.Router {
 	rV2.DELETE("/geoips/{id}", authToken(geoipsapi.Delete, "admin"))
 
 	rV2.GET("/clients", authToken(clientsapi.List, "admin"))
+	rV2.GET("/clients/select", authToken(clientsapi.Select, "admin"))
 	rV2.GET("/clients/{id}", authToken(clientsapi.Show, "admin"))
 	rV2.PUT("/clients/{id}", authToken(clientsapi.Update, "admin"))
 	rV2.DELETE("/clients/{id}", authToken(clientsapi.Delete, "admin"))
 	rV2.POST("/clients", authToken(clientsapi.Create, "admin"))
 
 	rV2.GET("/products", authToken(productsapi.List, "admin"))
+	rV2.GET("/products/select", authToken(productsapi.Select, "admin"))
 	rV2.GET("/products/{id}", authToken(productsapi.Show, "admin"))
 	rV2.PUT("/products/{id}", authToken(productsapi.Update, "admin"))
 	rV2.DELETE("/products/{id}", authToken(productsapi.Delete, "admin"))
@@ -101,6 +103,7 @@ func Init() *router.Router {
 	rV2.POST("/widgets", authToken(widgetsapi.Create, "admin"))
 
 	rV2.GET("/restrictions", authToken(restrictionsapi.List, "admin"))
+	rV2.GET("/restrictions/select", authToken(restrictionsapi.Select, "admin"))
 	rV2.GET("/restrictions/{id}", authToken(restrictionsapi.Show, "admin"))
 	rV2.PUT("/restrictions/{id}", authToken(restrictionsapi.Update, "admin"))
 	rV2.DELETE("/restrictions/{id}", authToken(restrictionsapi.Delete, "admin"))

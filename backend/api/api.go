@@ -99,6 +99,15 @@ func CreateRecord(entity interface{}, tableName string, ctx *fasthttp.RequestCtx
 	}
 }
 
+func RecordsForSelect(tableName string, fields []string, orderBy string, records interface{}, ctx *fasthttp.RequestCtx) {
+	if tx := db.Pg.Table(tableName).Select(fields).Order(orderBy).Find(records); tx.Error != nil {
+		fmt.Printf("[error] selects %s %v", tableName, tx.Error)
+		InternalError(ctx)
+	} else {
+		SuccessJSON(ctx, records)
+	}
+}
+
 func UpdateRecord(tableName string, ID interface{}, original interface{}, updateParams interface{}, ctx *fasthttp.RequestCtx) {
 	if tx := db.Pg.Model(original).Updates(updateParams); tx.Error != nil {
 		log.Fatalf("/%s/%v error: %v", tableName, ID, tx.Error)
