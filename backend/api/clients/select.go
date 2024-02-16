@@ -15,8 +15,8 @@ import (
 // @Router /clients/select [get]
 func Select(ctx *fasthttp.RequestCtx) {
 	var records []struct {
-		ID   uint   `json:"id"`
-		Name string `json:"name"`
+		ID      uint   `json:"id"`
+		Company string `json:"company"`
 	}
 	api.RecordsForSelect(model.TableClient, []string{"id", "company"}, "company ASC", &records, ctx)
 }

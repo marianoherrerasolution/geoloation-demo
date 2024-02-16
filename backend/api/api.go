@@ -22,6 +22,11 @@ type SearchPagination struct {
 	SQLSearch *gorm.DB
 }
 
+type SelectTag struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 func (sp *SearchPagination) Build() {
 	sp.Page = sp.Ctx.QueryArgs().GetUintOrZero("page")
 	sp.PerPage = sp.Ctx.QueryArgs().GetUintOrZero("per_page")
@@ -91,7 +96,7 @@ func ExistRecord(field string, value interface{}, dest interface{}, ctx *fasthtt
 }
 
 func CreateRecord(entity interface{}, tableName string, ctx *fasthttp.RequestCtx) {
-	if tx := db.Create(&entity); tx.Error != nil {
+	if tx := db.Create(entity); tx.Error != nil {
 		fmt.Printf("[error] create %s %v", tableName, tx.Error)
 		InternalError(ctx)
 	} else {

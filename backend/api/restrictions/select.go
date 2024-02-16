@@ -21,8 +21,10 @@ func Select(ctx *fasthttp.RequestCtx) {
 	productID := ctx.QueryArgs().GetUintOrZero("product_id")
 
 	var records []struct {
-		ID   uint   `json:"id"`
-		Name string `json:"name"`
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		ClientID  uint   `json:"client_id"`
+		ProductID uint   `json:"product_id"`
 	}
 
 	tx := db.Pg.Table(model.TableRestriction).Select([]string{"id", "name", "client_id", "product_id"})

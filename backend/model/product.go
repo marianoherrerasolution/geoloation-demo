@@ -2,8 +2,6 @@ package model
 
 import (
 	"strings"
-
-	"gorm.io/gorm"
 )
 
 const (
@@ -11,10 +9,15 @@ const (
 )
 
 type Product struct {
-	gorm.Model
+	Base
 	Name     string `gorm:"column:name;index:idx_product_uniq,priority:1" json:"name" body:"name" query:"name" form:"name"`
 	ClientID uint   `gorm:"column:client_id;index:idx_product_client_id;index:idx_product_uniq,priority:2" json:"client_id" body:"client_id" query:"client_id" form:"client_id"`
 	AppType  string `gorm:"column:app_type;index:idx_product_app_type;index:idx_product_uniq,priority:3" json:"app_type" body:"app_type" query:"app_type" form:"app_type"`
+}
+
+type ProductClientName struct {
+	Product
+	ClientName string `json:"client_name"`
 }
 
 func (u *Product) TableName() string {

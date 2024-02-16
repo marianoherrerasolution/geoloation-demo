@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Base struct {
@@ -11,15 +13,18 @@ type Base struct {
 	DeletedAt time.Time `gorm:"column:deleted_at;index" json:"deleted_at" body:"deleted_at" query:"deleted_at" form:"deleted_at"`
 }
 
-func (b *Base) BeforeCreate() {
+func (b *Base) BeforeCreate(tx *gorm.DB) error {
 	b.CreatedAt = time.Now()
 	b.UpdatedAt = time.Now()
+	return nil
 }
 
-func (b *Base) BeforeUpdate() {
+func (b *Base) BeforeUpdate(tx *gorm.DB) error {
 	b.UpdatedAt = time.Now()
+	return nil
 }
 
-func (b *Base) BeforeDelete() {
+func (b *Base) BeforeDelete(tx *gorm.DB) error {
 	b.DeletedAt = time.Now()
+	return nil
 }
