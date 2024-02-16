@@ -1,19 +1,27 @@
 import { API_URL } from '../utils';
+const V2Path = `${API_URL}/v2`;
+const V2AdminPath = `${V2Path}/admin`;
 
-export const apiRoutes = {
-  signin: `${API_URL}/v2/signin`,
-  signup: `${API_URL}/v2/signup`,
-  lookup: `${API_URL}/v2/lookup`,
-  profile: `${API_URL}/v2/profile`,
-  intersectLocation: `${API_URL}/v2/location/intersect`,
-  addLocation: `${API_URL}/v2/location/add`,
+export const apiURL = {
   logout: `${API_URL}/logout`,
-  users: `${API_URL}/users`,
-  reviews: `${API_URL}/unknown`,
-  adminLogin: `${API_URL}/v2/admin/signin`,
-  adminLogout: `${API_URL}/v2/admin/signout`,
-  adminUsers: `${API_URL}/v2/users`,
-  adminList: `${API_URL}/v2/admins`,
-  adminLocations: `${API_URL}/v2/locations`,
-  adminGeoips: `${API_URL}/v2/geoips`,
+  admin: {
+    login: `${V2AdminPath}/signin`,
+    logout: `${V2AdminPath}/signout`,
+  },
+  user: {
+    signin: `${V2Path}/signin`,
+    signup: `${V2Path}/signup`,
+    lookup: `${V2Path}/lookup`,
+    profile: `${V2Path}/profile`,
+    intersectLocation: `${V2Path}/location/intersect`,
+    addLocation: `${V2Path}/location/add`,
+  },
+  users: `${V2Path}/users`,
+  admins: `${V2Path}/admins`,
+  locations: `${V2Path}/locations`,
+  geoips: `${V2Path}/geoips`,
+  products: `${V2Path}/products`,
+  clients: `${V2Path}/clients`,
+  widgets: `${V2Path}/widgets`,
+  restrictions: `${V2Path}/restrictions`,
 };

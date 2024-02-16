@@ -5,6 +5,7 @@ export interface ProductSelect {
 
 export interface ProductForm extends ProductSelect {
   client_id: number;
+  app_type: string;
 }
 
 export interface Product extends ProductForm {

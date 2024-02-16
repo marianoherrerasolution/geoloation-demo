@@ -1,6 +1,6 @@
 import { Button, Form, Input } from 'antd';
 import { Fragment, useEffect, useState } from 'react';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUser } from '../../store/slices/userSlice';
 import { RootState } from '../../store';
@@ -43,9 +43,9 @@ const Login = () => {
 
   const loginURL = () => {
     if (isAdmin) {
-      return apiRoutes.adminLogin
+      return apiURL.admin.login
     }
-    return apiRoutes.signin
+    return apiURL.user.signin
   }
 
   const onSubmit = (values: FormLogin) => {

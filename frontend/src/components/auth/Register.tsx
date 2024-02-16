@@ -1,6 +1,6 @@
 import { Button, Form, Input } from 'antd';
 import { Fragment, useEffect, useState } from 'react';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUser } from '../../store/slices/userSlice';
 import { RootState } from '../../store';
@@ -37,7 +37,7 @@ const Register = () => {
     setLoading(true);
     setAlertTheme("")
     defaultHttp
-      .post(apiRoutes.signup, values)
+      .post(apiURL.user.signup, values)
       .then((response) => {
         setAlertMessage("Your account is successfully registered.")
         setAlertTheme("success")

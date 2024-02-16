@@ -1,5 +1,5 @@
 import { adminRoutes, webRoutes } from '../../routes/web';
-import { BiGlobe, BiMap, BiMapPin, BiSolidUserCheck, BiUser, BiWorld } from 'react-icons/bi';
+import { BiBuildings, BiGlobe, BiMap, BiMapPin, BiPackage, BiShieldQuarter, BiSolidUserCheck, BiSolidWidget, BiUser, BiWorld } from 'react-icons/bi';
 import Icon from '@ant-design/icons';
 export const userSidebar = [
   {
@@ -11,6 +11,30 @@ export const userSidebar = [
 ];
 
 export const adminSidebar = [
+  {
+    path: adminRoutes.restrictions,
+    key: adminRoutes.restrictions,
+    name: 'Restrictions',
+    icon: <Icon component={BiShieldQuarter} />,
+  },
+  {
+    path: adminRoutes.widgets,
+    key: adminRoutes.widgets,
+    name: 'Widgets',
+    icon: <Icon component={BiSolidWidget } />,
+  },
+  {
+    path: adminRoutes.products,
+    key: adminRoutes.products,
+    name: 'Products',
+    icon: <Icon component={BiPackage } />,
+  },
+  {
+    path: adminRoutes.clients,
+    key: adminRoutes.clients,
+    name: 'Clients',
+    icon: <Icon component={BiBuildings } />,
+  }, 
   {
     path: adminRoutes.users,
     key: adminRoutes.users,

@@ -48,6 +48,7 @@ const Layout = () => {
       navigate(adminRoutes.admins, {
         replace: true,
       });
+      return
     }
     navigate(webRoutes.editProfile, {
       replace: true,

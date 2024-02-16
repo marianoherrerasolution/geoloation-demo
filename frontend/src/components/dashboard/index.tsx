@@ -23,7 +23,7 @@ import { StatisticCard } from '@ant-design/pro-components';
 import LazyImage from '../lazy-image';
 import { User } from '../../interfaces/models/user';
 import http from '../../utils/http';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { handleErrorResponse } from '../../utils';
 import { Review } from '../../interfaces/models/review';
 
@@ -53,7 +53,7 @@ const Dashboard = () => {
 
   const loadUsers = () => {
     return http
-      .get(apiRoutes.users, {
+      .get(apiURL.users, {
         params: {
           per_page: 4,
         },
@@ -68,7 +68,7 @@ const Dashboard = () => {
 
   const loadReviews = () => {
     return http
-      .get(apiRoutes.reviews, {
+      .get(apiURL.admins, {
         params: {
           per_page: 5,
         },
@@ -210,7 +210,7 @@ const Dashboard = () => {
                         }
                       />
                     }
-                    title={`${user.firstName} ${user.lastName}`}
+                    title={`${user.fName} ${user.lName}`}
                     description={user.email}
                   />
                 </List.Item>

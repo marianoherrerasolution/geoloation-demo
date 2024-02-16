@@ -11,7 +11,7 @@ import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { User } from '../../interfaces/models/user';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { adminRoutes, webRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
@@ -162,7 +162,7 @@ const Users = () => {
     setLoading(true);
     setAlertTable("")
     defaultHttp
-      .put(`${apiRoutes.adminUsers}/${user.id}`, user)
+      .put(`${apiURL.users}/${user.id}`, user)
       .then(() => {
         setLoading(false)
         setAlertEdit("success", `User ID ${user.id} is updated successfully.`)
@@ -199,7 +199,7 @@ const Users = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiRoutes.adminUsers}/${user.id}`)
+          .delete(`${apiURL.users}/${user.id}`)
           .then(() => {
             setAlertTable("success", `User ID ${user.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -248,7 +248,7 @@ const Users = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiRoutes.users, {
+            .get(apiURL.users, {
               params: {
                 keyword,
                 page: params.current,

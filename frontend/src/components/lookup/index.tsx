@@ -15,7 +15,7 @@ import {
 import frowser from "frowser";
 import { setPageTitle, handleErrorResponse } from '../../utils';
 import http, { defaultHttp } from '../../utils/http';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { Geoip } from '../../interfaces/models/geoip';
 import GeoMap from '../geomap';
 import {
@@ -49,7 +49,7 @@ const Lookup = () => {
 
   const checkIPAddress = (ip: string) => {
     defaultHttp
-      .post(apiRoutes.lookup, {
+      .post(apiURL.user.lookup, {
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
         ip
       })
@@ -99,7 +99,7 @@ const Lookup = () => {
           setUsingGPS(true)
           setLoading(false)
           defaultHttp
-            .post(apiRoutes.intersectLocation, {
+            .post(apiURL.user.intersectLocation, {
               latitude,
               longitude,
             })

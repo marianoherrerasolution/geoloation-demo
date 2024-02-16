@@ -10,7 +10,7 @@ import { Avatar, BreadcrumbProps, Modal, Space, Button, Form, Input, Select } fr
 import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { adminRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
@@ -185,12 +185,12 @@ const Admins = () => {
     }
     if (isUpdate) {
       defaultHttp
-        .put(`${apiRoutes.adminList}/${admin.id}`, admin)
+        .put(`${apiURL.admins}/${admin.id}`, admin)
         .then(onSuccess)
         .catch(onError);
     } else {
       defaultHttp
-        .post(apiRoutes.adminList, admin)
+        .post(apiURL.admins, admin)
         .then(onSuccess)
         .catch(onError);
     }
@@ -217,7 +217,7 @@ const Admins = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiRoutes.adminList}/${admin.id}`)
+          .delete(`${apiURL.admins}/${admin.id}`)
           .then(() => {
             setAlertTable("success", `User ID ${admin.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -249,6 +249,19 @@ const Admins = () => {
     setLoading(false);
   }
 
+  const ModalButton = () => (
+    <Button
+      className="mt-4 bg-primary mb-4"
+      block
+      loading={loading}
+      type="primary"
+      size="large"
+      htmlType={'submit'}
+    >
+      { !!form.getFieldValue("id") ? 'Update' : 'Create'}
+    </Button>
+  )
+
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       {
@@ -276,7 +289,7 @@ const Admins = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiRoutes.adminList, {
+            .get(apiURL.admins, {
               params: {
                 keyword,
                 page: params.current,
@@ -436,16 +449,7 @@ const Admins = () => {
           </div>
 
           <div className="text-center">
-            <Button
-              className="mt-4 bg-primary mb-4"
-              block
-              loading={loading}
-              type="primary"
-              size="large"
-              htmlType={'submit'}
-            >
-              { !!form.getFieldValue("id") ? 'Update' : 'Create'}
-            </Button>
+            <ModalButton />
           </div>
         </Form>
       </Modal>

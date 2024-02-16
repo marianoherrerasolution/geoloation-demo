@@ -8,6 +8,9 @@ export const webRoutes = {
   dashboard: '/dashboard',
   users: '/users',
   about: '/about',
+  products: '/products',
+  restrictions: '/restrictions',
+  widgets: '/widgets',
 };
 
 export const adminRoutes = {
@@ -17,4 +20,8 @@ export const adminRoutes = {
   locations: '/admin/locations',
   geoips: '/admin/geoips',
   admins: '/admins',
+  products: '/admin/products',
+  clients: '/admin/clients',
+  restrictions: '/admin/restrictions',
+  widgets: '/admin/widgets',
 };

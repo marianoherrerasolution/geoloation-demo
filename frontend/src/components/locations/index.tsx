@@ -11,7 +11,7 @@ import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { Location } from '../../interfaces/models/location';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { adminRoutes, webRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
@@ -178,7 +178,7 @@ const Locations = () => {
     setLoading(true);
     setAlertTable("")
     defaultHttp
-      .put(`${apiRoutes.adminLocations}/${accLoc.gid}`, accLoc)
+      .put(`${apiURL.locations}/${accLoc.gid}`, accLoc)
       .then(() => {
         setLoading(false)
         setAlertEdit("success", `Location ID ${accLoc.gid} is updated successfully.`)
@@ -215,7 +215,7 @@ const Locations = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiRoutes.adminLocations}/${accLoc.gid}`)
+          .delete(`${apiURL.locations}/${accLoc.gid}`)
           .then(() => {
             setAlertTable("success", `Location ID ${accLoc.gid} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -264,7 +264,7 @@ const Locations = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiRoutes.adminLocations, {
+            .get(apiURL.locations, {
               params: {
                 keyword,
                 page: params.current,

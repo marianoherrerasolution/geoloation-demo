@@ -11,7 +11,7 @@ import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { GeoipTable } from '../../interfaces/models/geoip';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { adminRoutes } from '../../routes/web';
 import {
   handleErrorResponse,
@@ -185,7 +185,7 @@ const Geoips = () => {
     setLoading(true);
     setAlertTable("")
     defaultHttp
-      .put(`${apiRoutes.adminGeoips}/${geoip.id}`, geoip)
+      .put(`${apiURL.geoips}/${geoip.id}`, geoip)
       .then(() => {
         setLoading(false)
         setAlertEdit("success", `GeoIP ID ${geoip.id} is updated successfully.`)
@@ -222,7 +222,7 @@ const Geoips = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiRoutes.adminGeoips}/${geoip.id}`)
+          .delete(`${apiURL.geoips}/${geoip.id}`)
           .then(() => {
             setAlertTable("success", `GeoIP ID ${geoip.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -271,7 +271,7 @@ const Geoips = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiRoutes.adminGeoips, {
+            .get(apiURL.geoips, {
               params: {
                 keyword,
                 page: params.current,

@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import AlertBadge from '../alert';
 import { defaultHttp } from '../../utils/http';
-import { apiRoutes } from '../../routes/api';
+import { apiURL } from '../../routes/api';
 import { RootState } from '../../store';
 import { setCurrentUser } from '../../store/slices/userSlice';
 import { FormUser, User } from '../../interfaces/models/user';
@@ -57,7 +57,7 @@ const EditProfile = () => {
     setLoading(true);
     setAlertTheme("");
     defaultHttp
-      .post(apiRoutes.profile, values)
+      .post(apiURL.user.profile, values)
       .then(response => {
         const user: User = response.data;
         dispatch(setCurrentUser(user));
@@ -78,7 +78,7 @@ const EditProfile = () => {
 
   const getCurrentUser = () => {
     setLoading(true)
-    defaultHttp.get(apiRoutes.profile)
+    defaultHttp.get(apiURL.user.profile)
     .then((response) => {
       const user: User = response.data;
       dispatch(setCurrentUser(user));
