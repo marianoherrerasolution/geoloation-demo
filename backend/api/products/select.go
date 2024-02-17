@@ -1,7 +1,9 @@
 package productsapi
 
 import (
+	"fmt"
 	"geonius/api"
+	"geonius/database"
 	"geonius/model"
 
 	"github.com/valyala/fasthttp"
@@ -19,5 +21,18 @@ func Select(ctx *fasthttp.RequestCtx) {
 		Name    string `json:"name"`
 		AppType string `json:"app_type"`
 	}
-	api.RecordsForSelect(model.TableProduct, []string{"id", "name", "app_type"}, "name ASC", &records, ctx)
+
+	clientID := ctx.QueryArgs().GetUintOrZero("client_id")
+	tx := database.Pg.Table(model.TableProduct).Select("id", "name", "app_type", "client_id")
+
+	if clientID > 0 {
+		tx = tx.Where("client_id = ?", clientID)
+	}
+
+	if tx := tx.Order("name ASC").Find(&records); tx.Error != nil {
+		fmt.Printf("[error] selects products %v", tx.Error)
+		api.InternalError(ctx)
+	} else {
+		api.SuccessJSON(ctx, records)
+	}
 }
