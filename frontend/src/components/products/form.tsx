@@ -52,7 +52,9 @@ const FormProduct = (props: FormProps) => {
     setLoading(true);
     props.onSubmit();
     const isUpdate = !!record.id
-    const onSuccess = () => {
+    const onSuccess = (response: any) => {
+      let product = response.data as ProductForm
+      form.setFieldsValue(product)
       setLoading(false)
       setAlertEdit("success", `Product ${isUpdate ? ['ID',record.id].join(' ') : ''} is ${isUpdate ? 'updated' : 'created'} successfully.`)
       props.onSuccess()
@@ -86,8 +88,8 @@ const FormProduct = (props: FormProps) => {
   }
 
   const getTitle = () => {
-    if (props.formData?.id) {
-      return `Edit Product ${props.formData?.id}`
+    if (form.getFieldValue("id")) {
+      return `Edit Product ${form.getFieldValue("id")}`
     }
     return 'Create Product'
   }
@@ -237,7 +239,7 @@ const FormProduct = (props: FormProps) => {
             size="large"
             htmlType={'submit'}
           >
-            { props.formData?.id ? 'Update' : 'Create'}
+            { !!form.getFieldValue("id") ? 'Update' : 'Create'}
           </Button>
         </div>
       </Form>

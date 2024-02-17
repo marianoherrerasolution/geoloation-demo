@@ -43,7 +43,9 @@ const FormClient = (props: FormProps) => {
     setLoading(true);
     props.onSubmit();
     const isUpdate = !!record.id
-    const onSuccess = () => {
+    const onSuccess = (response: any) => {
+      let client = response.data as ClientForm
+      form.setFieldsValue(client)
       setLoading(false)
       setAlertEdit("success", `Client ${isUpdate ? ['ID',record.id].join(' ') : ''} is ${isUpdate ? 'updated' : 'created'} successfully.`)
       props.onSuccess()
@@ -71,8 +73,8 @@ const FormClient = (props: FormProps) => {
   }
 
   const getTitle = () => {
-    if (props.formData?.id) {
-      return `Edit Client ${props.formData?.id}`
+    if (form.getFieldValue("id")) {
+      return `Edit Client ${form.getFieldValue("id")}`
     }
     return 'Create Client'
   }
