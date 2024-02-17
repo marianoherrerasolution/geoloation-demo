@@ -6,8 +6,8 @@ import {
   TableDropdown,
   ProDescriptions,
 } from '@ant-design/pro-components';
-import { BreadcrumbProps, Modal, Select, Space, Button, Form, Input } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { BreadcrumbProps, Modal, Select, Space, Button, Form, Input, Tag } from 'antd';
+import { Children, useEffect, useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { Product, ProductForm } from '../../interfaces/models/product';
@@ -28,9 +28,10 @@ import { defaultHttp } from '../../utils/http';
 import { ClientForm } from '../../interfaces/models/client';
 import titleize  from 'titleize';
 import { SelectTag } from '../../interfaces/models/select';
-import { BiSolidPackage } from 'react-icons/bi';
-import FormProduct from './form';
+import { BiShieldQuarter, BiSolidPackage } from 'react-icons/bi';
+import FormRestriction from './form';
 import FormClient from '../clients/form';
+import { Restriction, RestrictionForm } from '../../interfaces/models/restriction';
 
 enum ActionKey {
   DELETE = 'delete',
@@ -45,20 +46,20 @@ const getColorBadge = () => {
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
-      key: adminRoutes.users,
-      title: <Link to={adminRoutes.users}>Products</Link>,
+      key: adminRoutes.restrictions,
+      title: <Link to={adminRoutes.restrictions}>Restrictions</Link>,
     },
   ],
 };
 
-const Products = () => {
+const Restrictions = () => {
   const actionRef = useRef<ActionType>();
   const [modal, modalContextHolder] = Modal.useModal();
   const [alertTableTheme, setAlertTableTheme] = useState<string>("");
   const [alertTableMessage, setAlertTableMessage] = useState<string>("");
   const [keyword, setKeyword] = useState<string>("");
   const [clientIDs, setClienttIDs] = useState<Array<number>>([]);
-  const [formData, setFormData] = useState<ProductForm>({} as ProductForm);
+  const [formData, setFormData] = useState<RestrictionForm>({} as RestrictionForm);
   const [formDataClient, setFormDataClient] = useState<ClientForm>({} as ClientForm);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showClient, setShowClient] = useState<boolean>(false);
@@ -99,7 +100,7 @@ const Products = () => {
       dataIndex: 'id',
       align: 'center',
       sorter: false,
-      render: (_, row: Product) => row.id
+      render: (_, row: Restriction) => row.id
     },
     {
       title: 'Name',
@@ -107,15 +108,7 @@ const Products = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Product) => row.name ? titleize(row.name) : ""
-    },
-    {
-      title: 'Type',
-      dataIndex: 'app_type',
-      sorter: false,
-      align: 'left',
-      ellipsis: true,
-      render: (_, row: Product) => row.app_type ? titleize(row.app_type) : ""
+      render: (_, row: Restriction) => row.name ? titleize(row.name) : ""
     },
     {
       title: 'Client',
@@ -123,16 +116,40 @@ const Products = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Product) => <>{ 
-        row.client_name ? <a onClick={() => filterByClient(row.client_id)} >{titleize(row.client_name)}</a> : <></>
+      render: (_, row: Restriction) => <>{ 
+        row.client_name ? <a onClick={() => filterByClient(row.client_id)} >{titleize(row.client_name || "")}</a> : <></>
       }</>
+    },
+    {
+      title: 'Product',
+      dataIndex: 'product_name',
+      sorter: false,
+      align: 'left',
+      ellipsis: true,
+      render: (_, row: Restriction) => row.product_name ? titleize(row.product_name || "") : ""
+    },
+    {
+      title: 'Access Type',
+      dataIndex: 'allow',
+      sorter: false,
+      align: 'left',
+      ellipsis: true,
+      render: (_, row: Restriction) => row.allow ? <Tag color="cyan">Allow</Tag> : <Tag color="magenta">Deny</Tag>
+    },
+    {
+      title: 'Status',
+      dataIndex: 'active',
+      sorter: false,
+      align: 'left',
+      ellipsis: true,
+      render: (_, row: Restriction) => row.active ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
     },
     {
       title: 'Action',
       align: 'center',
       key: 'option',
       fixed: 'right',
-      render: (_, row: Product) => [
+      render: (_, row: Restriction) => [
         <TableDropdown
           key="actionGroup"
           onSelect={(key) => handleActionOnSelect(key, row)}
@@ -163,25 +180,25 @@ const Products = () => {
     },
   ];
 
-  const handleActionOnSelect = (key: string, product: Product) => {
+  const handleActionOnSelect = (key: string, record: Restriction) => {
     switch(key) {
       case ActionKey.DELETE:
-        return showDeleteConfirmation(product)
+        return showDeleteConfirmation(record)
       case ActionKey.EDIT:
-        return showEditModal(product)
+        return showEditModal(record)
       default:
         return
     }
   };
 
-  const showEditModal = (record: ProductForm) => {
+  const showEditModal = (record: RestrictionForm) => {
     setFormData(record)
     setAlertTable("")
     setShowEdit(true)
   }
 
-  const showNewProduct = () =>{
-    let record:ProductForm = {} as ProductForm
+  const showNewRecord = () =>{
+    let record:RestrictionForm = {} as RestrictionForm
     setFormData(record)
     setAlertTable("")
     setShowEdit(true)
@@ -204,18 +221,18 @@ const Products = () => {
 
   }
 
-  const showDeleteConfirmation = (product: Product) => {
+  const showDeleteConfirmation = (record: Restriction) => {
     modal.confirm({
-      title: 'Are you sure to delete this Product?',
+      title: 'Are you sure to delete this Resstriction?',
       icon: <ExclamationCircleOutlined />,
       content: (
         <ProDescriptions column={1} title=" ">
-          <ProDescriptions.Item valueType="text" label="ID">{ product.id }</ProDescriptions.Item>
+          <ProDescriptions.Item valueType="text" label="ID">{ record.id }</ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Name">
-            {titleize(product.name || "")}
+            {titleize(record.name || "")}
           </ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Client">
-            {titleize(product.client_name || "")}
+            {titleize(record.client_name || "")}
           </ProDescriptions.Item>
         </ProDescriptions>
       ),
@@ -224,9 +241,9 @@ const Products = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiURL.products}/${product.id}`)
+          .delete(`${apiURL.restrictions}/${record.id}`)
           .then(() => {
-            setAlertTable("success", `Product ID ${product.id} is deleted successfully.`)
+            setAlertTable("success", `Restriction ID ${record.id} is deleted successfully.`)
             actionRef.current?.reload(true);
           })
           .catch(({response}) => {
@@ -244,10 +261,6 @@ const Products = () => {
   const searchByKeyword = (e:any) => {
     setKeyword(e.target.value)
     actionRef.current?.reload(true);
-  }
-
-  const changedClientForm = (e: any) => {
-    console.log(e)
   }
 
   const searchByClient = (ids: any) => {
@@ -289,15 +302,15 @@ const Products = () => {
         cardBordered={false}
         headerTitle={
           <>
-            <h5>Products</h5>
-            <Input placeholder='Search product name' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
+            <h5>Restrictions</h5>
+            <Input placeholder='Search restriction name, networks' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
             <Select
               mode='multiple'
               showSearch
               allowClear
               maxTagCount={1}
               style={{ width: 200 }}
-              placeholder="Select a client"
+              placeholder="Search by client"
               value={clientIDs}
               options={selectClients}
               onChange={(e) => searchByClient(e)}
@@ -317,7 +330,7 @@ const Products = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiURL.products, {
+            .get(apiURL.restrictions, {
               params: {
                 keyword,
                 client_ids: clientIDs.join(","),
@@ -326,12 +339,12 @@ const Products = () => {
               },
             })
             .then((response) => {
-              const products: [Product] = response.data.data;
+              const restrictions: [Restriction] = response.data.data;
               return {
-                data: products,
+                data: restrictions,
                 success: true,
                 total: response.data.total,
-              } as RequestData<Product>;
+              } as RequestData<Restriction>;
             })
             .catch((error) => {
               handleErrorResponse(error);
@@ -339,7 +352,7 @@ const Products = () => {
               return {
                 data: [],
                 success: false,
-              } as RequestData<Product>;
+              } as RequestData<Restriction>;
             });
         }}
         dateFormatter="string"
@@ -350,15 +363,15 @@ const Products = () => {
         }}
         toolbar={{
           actions: [
-            <Button onClick={() => showNewProduct()} key="show" type="primary" icon={<BiSolidPackage />} style={{background: "#4150e8"}}>
-              New Product
+            <Button onClick={() => showNewRecord()} key="show" type="primary" icon={<BiShieldQuarter />} style={{background: "#4150e8"}}>
+              New Restriction
             </Button>
           ]
         }}
       />
       {modalContextHolder}
       {
-        showEdit ? <FormProduct
+        showEdit ? <FormRestriction
           show={showEdit} 
           onClose={() => setShowEdit(false)} 
           clientOptions={selectClients} 
@@ -384,4 +397,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Restrictions;

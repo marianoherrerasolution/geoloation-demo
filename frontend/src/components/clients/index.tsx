@@ -6,11 +6,10 @@ import {
   TableDropdown,
   ProDescriptions,
 } from '@ant-design/pro-components';
-import { BreadcrumbProps, Modal, Select, Space, Button, Input } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { BreadcrumbProps, Modal, Space, Button, Input } from 'antd';
+import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
-import { Product, ProductForm } from '../../interfaces/models/product';
 import { apiURL } from '../../routes/api';
 import { adminRoutes } from '../../routes/web';
 import {
@@ -27,7 +26,6 @@ import { errorCallback } from '../../utils/userHTTPCallback';
 import { defaultHttp } from '../../utils/http';
 import { Client, ClientForm } from '../../interfaces/models/client';
 import titleize  from 'titleize';
-import { SelectTag } from '../../interfaces/models/select';
 import { BiSolidPackage } from 'react-icons/bi';
 import FormClient from './form';
 
