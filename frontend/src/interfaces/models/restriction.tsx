@@ -6,7 +6,7 @@ export interface RestrictionSelect {
 export interface RestrictionForm extends RestrictionSelect {
   client_id: number;
   product_id: number;
-  polygon: string;
+  polygon_coordinates: string;
   address: string;
   address_lat: number;
   address_lon: number;

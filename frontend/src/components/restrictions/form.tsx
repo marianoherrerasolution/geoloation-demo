@@ -193,7 +193,7 @@ const FormRestriction = (props: FormProps) => {
   }
 
   const onDrawedPolygon = (coords: Array<Coordinate>) => {
-    form.setFieldValue("polygon", JSON.stringify(coords))
+    form.setFieldValue("polygon_coordinates", JSON.stringify(coords))
     setDrawType("")
   }
 
@@ -455,7 +455,7 @@ const FormRestriction = (props: FormProps) => {
           </Col>
           <Col span={24}>
             <Form.Item
-              name="polygon"
+              name="polygon_coordinates"
               label={
                 <p className="block text-sm font-medium text-gray-900">Polygons</p>
               }
