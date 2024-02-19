@@ -12,4 +12,5 @@ export interface FormUser extends FormLogin{
 export interface User extends FormUser {
   id: number;
   avatar: string;
+  token: string;
 }

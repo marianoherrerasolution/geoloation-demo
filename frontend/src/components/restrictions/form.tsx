@@ -14,6 +14,7 @@ import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { RestrictionForm } from "../../interfaces/models/restriction";
 import titleize from "titleize";
 import FormProduct from "../products/form";
+import { Coordinate } from "ol/coordinate";
 
 export interface FormProps {
   onSuccess: () => void,
@@ -44,16 +45,26 @@ const FormRestriction = (props: FormProps) => {
     {label: "Active", value: true},
     {label: "Inactive", value: false},
   ]
+  const drawingOptions = [
+    {label: "Remove Polygon", value: "remove"},
+    {label: "Start Drawing", value: "draw"},
+  ]
   const [addressOptions, setAddressOptions] = useState<Array<SelectTag>>([]);
   const openStreetProvider = new OpenStreetMapProvider();
   const [centerLat, setCenterLat] = useState<number>(0)
   const [centerLon, setCenterLon] = useState<number>(0)
+  const [drawType, setDrawType] = useState<string>("")
   const [showProduct, setShowProduct] = useState<boolean>(false);
+  const [strokeColor, setStrokeColor] = useState<string>("rgba(0, 0, 0, 0.65)")
+  const [fillColor, setFillColor] = useState<string>("#0000ff")
 
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
+      setCenterLat(props.formData.address_lat)
+      setCenterLon(props.formData.address_lon)
       form.setFieldsValue(props.formData)
+      onSelectAccess(props.formData.allow)
       getProducts()
     }
   })
@@ -63,15 +74,15 @@ const FormRestriction = (props: FormProps) => {
     if (message) { setAlertEditMessage(message) }
   }
 
-  const onSubmitForm = (record: ProductForm) => {
+  const onSubmitForm = (record: RestrictionForm) => {
     setLoading(true);
     props.onSubmit();
     const isUpdate = !!record.id
     const onSuccess = (response: any) => {
-      let product = response.data as ProductForm
-      form.setFieldsValue(product)
+      let result = response.data as RestrictionForm
+      form.setFieldsValue(result)
       setLoading(false)
-      setAlertEdit("success", `Product ${isUpdate ? ['ID',record.id].join(' ') : ''} is ${isUpdate ? 'updated' : 'created'} successfully.`)
+      setAlertEdit("success", `Restriction ${isUpdate ? ['ID',record.id].join(' ') : ''} is ${isUpdate ? 'updated' : 'created'} successfully.`)
       props.onSuccess()
     }
     const onError = ({response}:any) => {
@@ -83,6 +94,7 @@ const FormRestriction = (props: FormProps) => {
       setLoading(false);
       setAlertEdit("error");
     }
+    
     if (isUpdate) {
       defaultHttp
         .put(`${apiURL.restrictions}/${record.id}`, record)
@@ -105,7 +117,7 @@ const FormRestriction = (props: FormProps) => {
   }
 
   const getProducts = () => {
-    if (!form.getFieldValue("client_id")) {return nil}
+    if (!form.getFieldValue("client_id")) {return}
     setAlertEdit("","")
     defaultHttp.get(`${apiURL.products}/select`,{params: {client_id: form.getFieldValue("client_id")}})
     .then(({data}) => {
@@ -176,6 +188,24 @@ const FormRestriction = (props: FormProps) => {
 
   const onProductSubmit = () => {}
 
+  const onSelectDrawing = (val:string) => {
+    setDrawType(val)
+  }
+
+  const onDrawedPolygon = (coords: Array<Coordinate>) => {
+    form.setFieldValue("polygon", JSON.stringify(coords))
+    setDrawType("")
+  }
+
+  const onSelectAccess = (val:boolean) => {
+    if (val) {
+      setFillColor("rgb(204, 255, 51, 0.70)")
+      setStrokeColor("rgb(51, 204, 51, 1)")
+    } else {
+      setFillColor("rgb(255, 153, 153, 0.70)")
+      setStrokeColor("rgb(204, 0, 0, 1)")
+    }
+  }
 
   return (
     <Modal
@@ -307,6 +337,7 @@ const FormRestriction = (props: FormProps) => {
           <Col span={8}>
             <Form.Item
               name="networks"
+              className="mb-0"
               label={
                 <p className="block text-sm font-medium text-gray-900">Networks</p>
               }
@@ -320,6 +351,7 @@ const FormRestriction = (props: FormProps) => {
           <Col span={8}>
             <Form.Item
               name="active"
+              className="mb-0"
               label={
                 <p className="block text-sm font-medium text-gray-900">Status</p>
               }
@@ -341,6 +373,7 @@ const FormRestriction = (props: FormProps) => {
           <Col span={8}>
             <Form.Item
               name="allow"
+              className="mb-0"
               label={
                 <p className="block text-sm font-medium text-gray-900">Access Type</p>
               }
@@ -355,14 +388,16 @@ const FormRestriction = (props: FormProps) => {
                 showSearch
                 allowClear
                 placeholder="Select allow"
+                onSelect={onSelectAccess}
                 options={allowanceOptions}
               />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={24}>
-          <Col span={24}>
+          <Col span={16}>
             <Form.Item
+              className="mb-0"
               name="address"
               label={
                 <p className="block text-sm font-medium text-gray-900">Search Address For Drawing Polygons</p>
@@ -391,11 +426,36 @@ const FormRestriction = (props: FormProps) => {
                 type='hidden'
               />
             </Form.Item>
-            <GeoMap lat={centerLat} lon={centerLon} />
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Drawing Tool</p>
+              }
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select tool"
+                onSelect={onSelectDrawing}
+                options={drawingOptions}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={24}>
+            <GeoMap lat={centerLat} lon={centerLon} 
+              drawType={drawType} 
+              onDrawEnd={onDrawedPolygon}
+              strokeColor={strokeColor}
+              fillColor={fillColor}
+            />
           </Col>
           <Col span={24}>
             <Form.Item
-              name="address"
+              name="polygon"
               label={
                 <p className="block text-sm font-medium text-gray-900">Polygons</p>
               }
