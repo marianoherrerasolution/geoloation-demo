@@ -10,16 +10,17 @@ const (
 
 type Restriction struct {
 	Base
-	Name       string  `gorm:"column:name;index:idx_restr_keyword,priority:1" json:"name" body:"name" query:"name" form:"name"`
-	Polygon    string  `json:"polygon"`
-	Active     bool    `gorm:"column:active;index:idx_restr_active" json:"active" body:"active" query:"active" form:"active"`
-	Allow      bool    `gorm:"column:allow;index:idx_restr_allow" json:"allow" body:"allow" query:"allow" form:"allow"`
-	Networks   string  `gorm:"column:networks;index:idx_restr_keyword,priority:2" json:"networks" body:"networks" query:"networks" form:"networks"`
-	ClientID   uint    `gorm:"column:client_id;index:idx_restr_client_id" json:"client_id" body:"client_id" query:"client_id" form:"client_id"`
-	ProductID  uint    `gorm:"column:product_id;index:idx_restr_product_id" json:"product_id" body:"product_id" query:"product_id" form:"product_id"`
-	Address    string  `gorm:"column:address;index:idx_restr_keyword,priority:3" json:"address" body:"address" query:"address" form:"address"`
-	AddressLat float64 `gorm:"column:address_lat" json:"address_lat" body:"address_lat" query:"address_lat" form:"address_lat"`
-	AddressLon float64 `gorm:"column:address_lat" json:"address_lon" body:"address_lon" query:"address_lon" form:"address_lon"`
+	Name               string  `gorm:"column:name;index:idx_restr_keyword,priority:1" json:"name"`
+	Polygon            string  `gorm:"column:polygon;type:geometry;index:idx_restr_polygon" json:"polygon"`
+	Active             bool    `gorm:"column:active;index:idx_restr_active" json:"active"`
+	Allow              bool    `gorm:"column:allow;index:idx_restr_allow" json:"allow"`
+	Networks           string  `gorm:"column:networks;index:idx_restr_keyword,priority:2" json:"networks"`
+	ClientID           uint    `gorm:"column:client_id;index:idx_restr_client_id" json:"client_id"`
+	ProductID          uint    `gorm:"column:product_id;index:idx_restr_product_id" json:"product_id"`
+	Address            string  `gorm:"column:address;index:idx_restr_keyword,priority:3" json:"address"`
+	AddressLat         float64 `gorm:"column:address_lat" json:"address_lat"`
+	AddressLon         float64 `gorm:"column:address_lon" json:"address_lon"`
+	PolygonCoordinates string  `gorm:"-" json:"polygon_coordinates"`
 }
 
 type RestrictionClientProduct struct {
@@ -36,15 +37,34 @@ func (u *Restriction) ValidID() bool {
 	return u.ID > 0
 }
 
+func (u *Restriction) PolygonToWKT() string {
+	if u.Polygon == "" {
+		return ""
+	}
+	return ""
+}
+
 func (u *Restriction) ValidateEmptyField() string {
 	if u.ClientID < 1 {
 		return "client_id"
 	}
-	if u.ProductID < 1 || u.Networks == "" {
+	if u.ProductID < 1 && u.Networks == "" {
 		return "product_id,networks"
 	}
 	if strings.TrimSpace(u.Name) == "" {
 		return "name"
 	}
+	if strings.TrimSpace(u.PolygonCoordinates) == "" {
+		return "polygon"
+	}
 	return ""
+}
+
+// CoordinatesToGEOM to convert [[lon,lat], [lon2,lat2]] to be ((lon lat), (lon2 lat2))
+func (u *Restriction) CoordinatesToGEOM() string {
+	txt := strings.ReplaceAll(u.PolygonCoordinates, ",", " ")
+	txt = strings.ReplaceAll(txt, "] [", ",")
+	txt = strings.ReplaceAll(txt, "]]", "))")
+	txt = strings.ReplaceAll(txt, "[[", "((")
+	return txt
 }

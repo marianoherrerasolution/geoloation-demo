@@ -2,6 +2,7 @@ package restrictionsapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"geonius/api"
 	"geonius/model"
 	"geonius/pkg/stringify"
@@ -33,6 +34,6 @@ func Create(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
-
+	params.Polygon = fmt.Sprintf("POLYGON%s", params.CoordinatesToGEOM())
 	api.CreateRecord(&params, model.TableRestriction, ctx)
 }
