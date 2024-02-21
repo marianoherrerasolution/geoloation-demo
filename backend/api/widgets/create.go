@@ -2,9 +2,12 @@ package widgetsapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"geonius/api"
 	"geonius/model"
+	"geonius/pkg/encrypt"
 	"geonius/pkg/stringify"
+	"strconv"
 
 	"github.com/valyala/fasthttp"
 )
@@ -33,6 +36,12 @@ func Create(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
+	if params.Token == "" {
+		params.Token = fmt.Sprintf("%s%s%s", encrypt.GenerateToken(), encrypt.GenerateToken(), encrypt.GenerateToken())
+	}
 
+	params.CreatorType = fmt.Sprintf("%v", ctx.UserValue("userType"))
+	userID, _ := strconv.Atoi(fmt.Sprintf("%v", ctx.UserValue("userID")))
+	params.CreatorID = uint(userID)
 	api.CreateRecord(&params, model.TableWidget, ctx)
 }

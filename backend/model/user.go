@@ -10,10 +10,10 @@ const (
 
 type User struct {
 	Base
-	FirstName string `gorm:"column:fname;index:idx_user_keyword,priority:1" json:"fName" body:"fName" query:"fName" form:"fName"`
-	LastName  string `gorm:"column:lname;index:idx_user_keyword,priority:2" json:"lName" body:"lName" query:"lName" form:"lName"`
-	Email     string `gorm:"column:email;index:idx_user_keyword,priority:3" json:"email" body:"email" query:"email" form:"email"`
-	Password  string `gorm:"column:password" json:"password,omitempty" body:"password" query:"password" form:"password"`
+	FirstName string `gorm:"column:fname;index:idx_user_keyword,priority:1" json:"fName"`
+	LastName  string `gorm:"column:lname;index:idx_user_keyword,priority:2" json:"lName"`
+	Email     string `gorm:"column:email;index:idx_user_keyword,priority:3" json:"email"`
+	Password  string `gorm:"column:password" json:"password,omitempty"`
 }
 
 func (u *User) TableName() string {

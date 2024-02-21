@@ -29,15 +29,15 @@ func GenerateToken() string {
 
 // ValidateRequest() to validate request token in header
 // format: unixstamp.encrypttext.userID.loginToken
-func ValidateRequest(auth string, accessType string) bool {
+func ValidateRequest(auth string, accessType string) (bool, string) {
 	bearer := strings.Replace(auth, "Bearer ", "", -1)
 	if bearer == "" {
-		return false
+		return false, ""
 	}
 
 	tokens := strings.Split(bearer, ".")
 	if len(tokens) < 4 || tokens[1] == "" {
-		return false
+		return false, ""
 	}
 
 	unixstampTxt := tokens[0]
@@ -47,16 +47,16 @@ func ValidateRequest(auth string, accessType string) bool {
 
 	unixstamp, err := strconv.ParseInt(unixstampTxt, 10, 64)
 	if err != nil {
-		return false //unixstamp invalid
+		return false, "" //unixstamp invalid
 	}
 
 	diff := time.Now().Unix() - unixstamp
 	if diff >= 65 {
-		return false //token expired if more than 65 seconds
+		return false, "" //token expired if more than 65 seconds
 	}
 
 	//
-	return ChiperAuthorization(userIDTxt, unixstampTxt, loginToken, accessType) == encryptedText //token ecryption valid
+	return ChiperAuthorization(userIDTxt, unixstampTxt, loginToken, accessType) == encryptedText, userIDTxt //token ecryption valid
 }
 
 // EncryptMD5() to encrypt md5

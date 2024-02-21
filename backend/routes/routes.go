@@ -28,10 +28,13 @@ func authToken(handler fasthttp.RequestHandler, accessType string) fasthttp.Requ
 			return
 		}
 
-		if !encrypt.ValidateRequest(string(authByte), accessType) {
+		ok, userIDTxt := encrypt.ValidateRequest(string(authByte), accessType)
+		if !ok {
 			api.UnauthorizeError(ctx)
 			return
 		}
+		ctx.SetUserValue("userType", "admin")
+		ctx.SetUserValue("userID", userIDTxt)
 		handler(ctx)
 	}
 }
