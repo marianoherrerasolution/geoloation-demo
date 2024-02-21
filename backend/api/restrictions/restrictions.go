@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"geonius/api"
-	"geonius/database"
 	"geonius/model"
 	"strconv"
 	"strings"
@@ -32,35 +31,35 @@ func List(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	search.SQLSearch.Select("id, name, active, allow, networks, client_id, product_id, address, address_lon, address_lat")
+	selectFields := []string{
+		"restrictions.id", "restrictions.name", "restrictions.active", "restrictions.allow",
+		"restrictions.networks", "restrictions.client_id", "restrictions.product_id",
+		"restrictions.address", "restrictions.address_lon", "restrictions.address_lat",
+		"clients.company as client_name", "products.name as product_name",
+	}
+
+	search.SQLSearch = search.SQLSearch.Select(strings.Join(selectFields, ",")).
+		Joins("left join clients on clients.id = restrictions.client_id").
+		Joins("left join products on products.id = restrictions.product_id")
+
 	if len(clientIDs) > 0 {
-		search.SQLSearch = search.SQLSearch.Where("client_id IN ?", clientIDs)
+		search.SQLSearch = search.SQLSearch.Where("restrictions.client_id IN ?", clientIDs)
+		search.SQLCount = search.SQLCount.Where("client_id IN ?", clientIDs)
 	}
 
 	if search.HasKeyword() {
 		keywordLike := search.CaseSensitiveKeyword()
-		search.SQLSearch = search.SQLSearch.Where("lower(name) LIKE ?", keywordLike).
+		search.SQLCount = search.SQLCount.Where("lower(name) LIKE ?", keywordLike).
 			Or("lower(networks) LIKE ?", keywordLike)
-		search.SQLCount = search.SQLSearch
+		search.SQLSearch = search.SQLSearch.Where("lower(restrictions.name) LIKE ?", keywordLike).
+			Or("lower(restrictions.networks) LIKE ?", keywordLike)
 	}
 
-	var restrictions []model.Restriction
-	tx := search.Search(&restrictions, "id ASC")
+	var results []model.RestrictionClientProduct
+	tx := search.Search(&results, "restrictions.id ASC")
 	if tx.Error != nil {
 		api.InternalError(ctx)
 	} else {
-		clientIDNames := getClientNames(restrictions)
-		productIDNames := getProductNames(restrictions)
-
-		results := []model.RestrictionClientProduct{}
-		for _, restriction := range restrictions {
-			results = append(results, model.RestrictionClientProduct{
-				Restriction: restriction,
-				ClientName:  clientIDNames[restriction.ClientID],
-				ProductName: productIDNames[restriction.ProductID],
-			})
-		}
-
 		respBytes, _ := json.Marshal(map[string]interface{}{
 			"data":    results,
 			"total":   search.Total(),
@@ -69,42 +68,4 @@ func List(ctx *fasthttp.RequestCtx) {
 		})
 		ctx.Success("application/json", respBytes)
 	}
-}
-
-func getUniqIDs(restrictions []model.Restriction, idType string) []uint {
-	uniqIDs := map[uint]bool{}
-	ids := []uint{}
-	for _, restriction := range restrictions {
-		if idType == "product" && restriction.ProductID > 0 && !uniqIDs[restriction.ProductID] {
-			uniqIDs[restriction.ProductID] = true
-			ids = append(ids, restriction.ProductID)
-		}
-		if idType == "client" && restriction.ClientID > 0 && !uniqIDs[restriction.ClientID] {
-			uniqIDs[restriction.ClientID] = true
-			ids = append(ids, restriction.ClientID)
-		}
-	}
-	return ids
-}
-
-func getClientNames(restrictions []model.Restriction) map[uint]string {
-	var records []model.Client
-	idNames := map[uint]string{}
-	database.Pg.Select("id", "company").Where("id IN ?", getUniqIDs(restrictions, "client")).Find(&records)
-	for _, client := range records {
-		idNames[client.ID] = client.Company
-	}
-
-	return idNames
-}
-
-func getProductNames(restrictions []model.Restriction) map[uint]string {
-	var records []model.Product
-	idNames := map[uint]string{}
-	database.Pg.Select("id", "name").Where("id IN ?", getUniqIDs(restrictions, "product")).Find(&records)
-	for _, record := range records {
-		idNames[record.ID] = record.Name
-	}
-
-	return idNames
 }

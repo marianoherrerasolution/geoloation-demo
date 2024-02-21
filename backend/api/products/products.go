@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"geonius/api"
-	"geonius/database"
 	"geonius/model"
 	"strconv"
 	"strings"
@@ -32,45 +31,25 @@ func List(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
+	search.SQLSearch = search.SQLSearch.Select("products.*, clients.company as client_name").
+		Joins("left join clients on clients.id = products.client_id")
+
 	if len(clientIDs) > 0 {
-		search.SQLSearch = search.SQLSearch.Where("client_id IN ?", clientIDs)
+		search.SQLSearch = search.SQLSearch.Where("products.client_id IN ?", clientIDs)
+		search.SQLCount = search.SQLCount.Where("client_id IN ?", clientIDs)
 	}
 
 	if search.HasKeyword() {
 		keywordLike := search.CaseSensitiveKeyword()
-		search.SQLSearch = search.SQLSearch.Where("lower(name) LIKE ?", keywordLike)
-		search.SQLCount = search.SQLSearch
+		search.SQLSearch = search.SQLSearch.Where("lower(products.name) LIKE ?", keywordLike)
+		search.SQLCount = search.SQLCount.Where("lower(name) LIKE ?", keywordLike)
 	}
 
-	var products []model.Product
-	tx := search.Search(&products, "id ASC")
+	var results []model.ProductClientName
+	tx := search.Search(&results, "products.id ASC")
 	if tx.Error != nil {
 		api.InternalError(ctx)
 	} else {
-		uniqClientIDs := map[uint]bool{}
-		clientIDs := []uint{}
-		for _, product := range products {
-			if product.ClientID > 0 && !uniqClientIDs[product.ClientID] {
-				uniqClientIDs[product.ClientID] = true
-				clientIDs = append(clientIDs, product.ClientID)
-			}
-		}
-
-		var clients []model.Client
-		clientIDNames := map[uint]string{}
-		database.Pg.Select("id", "company").Where("id IN ?", clientIDs).Find(&clients)
-		for _, client := range clients {
-			clientIDNames[client.ID] = client.Company
-		}
-
-		results := []model.ProductClientName{}
-		for _, product := range products {
-			results = append(results, model.ProductClientName{
-				Product:    product,
-				ClientName: clientIDNames[product.ClientID],
-			})
-		}
-
 		respBytes, _ := json.Marshal(map[string]interface{}{
 			"data":    results,
 			"total":   search.Total(),
