@@ -42,8 +42,8 @@ const getColorBadge = () => {
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
-      key: adminRoutes.users,
-      title: <Link to={adminRoutes.users}>Clients</Link>,
+      key: adminRoutes.clients,
+      title: <Link to={adminRoutes.clients}>Clients</Link>,
     },
   ],
 };

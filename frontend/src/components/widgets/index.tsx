@@ -6,11 +6,11 @@ import {
   TableDropdown,
   ProDescriptions,
 } from '@ant-design/pro-components';
-import { BreadcrumbProps, Modal, Select, Space, Button, Form, Input } from 'antd';
+import { BreadcrumbProps, Modal, Select, Space, Button, Input, Tag } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
-import { Product, ProductForm } from '../../interfaces/models/product';
+import { Widget, WidgetForm } from '../../interfaces/models/widget';
 import { apiURL } from '../../routes/api';
 import { adminRoutes } from '../../routes/web';
 import {
@@ -29,7 +29,7 @@ import { ClientForm } from '../../interfaces/models/client';
 import titleize  from 'titleize';
 import { SelectTag } from '../../interfaces/models/select';
 import { BiSolidPackage } from 'react-icons/bi';
-import FormProduct from './form';
+import FormWidget from './form';
 import FormClient from '../clients/form';
 
 enum ActionKey {
@@ -37,28 +37,23 @@ enum ActionKey {
   EDIT = 'edit'
 }
 
-const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#922B3E', '#252850'];
-const getColorBadge = () => {
-  return ColorList[Math.floor(Math.random()*ColorList.length)]
-}
-
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
-      key: adminRoutes.products,
-      title: <Link to={adminRoutes.products}>Products</Link>,
+      key: adminRoutes.widgets,
+      title: <Link to={adminRoutes.widgets}>Widgets</Link>,
     },
   ],
 };
 
-const Products = () => {
+const Widgets = () => {
   const actionRef = useRef<ActionType>();
   const [modal, modalContextHolder] = Modal.useModal();
   const [alertTableTheme, setAlertTableTheme] = useState<string>("");
   const [alertTableMessage, setAlertTableMessage] = useState<string>("");
   const [keyword, setKeyword] = useState<string>("");
   const [clientIDs, setClienttIDs] = useState<Array<number>>([]);
-  const [formData, setFormData] = useState<ProductForm>({} as ProductForm);
+  const [formData, setFormData] = useState<WidgetForm>({} as WidgetForm);
   const [formDataClient, setFormDataClient] = useState<ClientForm>({} as ClientForm);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showClient, setShowClient] = useState<boolean>(false);
@@ -99,7 +94,7 @@ const Products = () => {
       dataIndex: 'id',
       align: 'center',
       sorter: false,
-      render: (_, row: Product) => row.id
+      render: (_, row: Widget) => row.id
     },
     {
       title: 'Name',
@@ -107,15 +102,15 @@ const Products = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Product) => row.name ? titleize(row.name) : ""
+      render: (_, row: Widget) => row.name ? titleize(row.name) : ""
     },
     {
       title: 'Type',
-      dataIndex: 'app_type',
+      dataIndex: 'restriction_type',
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Product) => row.app_type ? titleize(row.app_type) : ""
+      render: (_, row: Widget) => row.restriction_type ? titleize(row.restriction_type) : ""
     },
     {
       title: 'Client',
@@ -123,16 +118,24 @@ const Products = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Product) => <>{ 
+      render: (_, row: Widget) => <>{ 
         row.client_name ? <a onClick={() => filterByClient(row.client_id)} >{titleize(row.client_name)}</a> : <></>
       }</>
+    },
+    {
+      title: 'Status',
+      dataIndex: 'active',
+      sorter: false,
+      align: 'left',
+      ellipsis: true,
+      render: (_, row: Widget) => row.active ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
     },
     {
       title: 'Action',
       align: 'center',
       key: 'option',
       fixed: 'right',
-      render: (_, row: Product) => [
+      render: (_, row: Widget) => [
         <TableDropdown
           key="actionGroup"
           onSelect={(key) => handleActionOnSelect(key, row)}
@@ -163,25 +166,25 @@ const Products = () => {
     },
   ];
 
-  const handleActionOnSelect = (key: string, product: Product) => {
+  const handleActionOnSelect = (key: string, widget: Widget) => {
     switch(key) {
       case ActionKey.DELETE:
-        return showDeleteConfirmation(product)
+        return showDeleteConfirmation(widget)
       case ActionKey.EDIT:
-        return showEditModal(product)
+        return showEditModal(widget)
       default:
         return
     }
   };
 
-  const showEditModal = (record: ProductForm) => {
+  const showEditModal = (record: WidgetForm) => {
     setFormData(record)
     setAlertTable("")
     setShowEdit(true)
   }
 
-  const showNewProduct = () =>{
-    let record:ProductForm = {} as ProductForm
+  const showNewWidget = () =>{
+    let record:WidgetForm = {} as WidgetForm
     setFormData(record)
     setAlertTable("")
     setShowEdit(true)
@@ -204,18 +207,21 @@ const Products = () => {
 
   }
 
-  const showDeleteConfirmation = (product: Product) => {
+  const showDeleteConfirmation = (widget: Widget) => {
     modal.confirm({
-      title: 'Are you sure to delete this Product?',
+      title: 'Are you sure to delete this Widget?',
       icon: <ExclamationCircleOutlined />,
       content: (
         <ProDescriptions column={1} title=" ">
-          <ProDescriptions.Item valueType="text" label="ID">{ product.id }</ProDescriptions.Item>
+          <ProDescriptions.Item valueType="text" label="ID">{ widget.id }</ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Name">
-            {titleize(product.name || "")}
+            {titleize(widget.name || "")}
           </ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Client">
-            {titleize(product.client_name || "")}
+            {titleize(widget.client_name || "")}
+          </ProDescriptions.Item>
+          <ProDescriptions.Item valueType="text" label="Restriction Type">
+            {titleize(widget.restriction_type || "")}
           </ProDescriptions.Item>
         </ProDescriptions>
       ),
@@ -224,9 +230,9 @@ const Products = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiURL.products}/${product.id}`)
+          .delete(`${apiURL.widgets}/${widget.id}`)
           .then(() => {
-            setAlertTable("success", `Product ID ${product.id} is deleted successfully.`)
+            setAlertTable("success", `Widget ID ${widget.id} is deleted successfully.`)
             actionRef.current?.reload(true);
           })
           .catch(({response}) => {
@@ -289,8 +295,8 @@ const Products = () => {
         cardBordered={false}
         headerTitle={
           <>
-            <h5>Products</h5>
-            <Input placeholder='Search product name' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
+            <h5>Widgets</h5>
+            <Input placeholder='Search widget name' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
             <Select
               mode='multiple'
               showSearch
@@ -317,7 +323,7 @@ const Products = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiURL.products, {
+            .get(apiURL.widgets, {
               params: {
                 keyword,
                 client_ids: clientIDs.join(","),
@@ -326,12 +332,12 @@ const Products = () => {
               },
             })
             .then((response) => {
-              const products: [Product] = response.data.data;
+              const widgets: [Widget] = response.data.data;
               return {
-                data: products,
+                data: widgets,
                 success: true,
                 total: response.data.total,
-              } as RequestData<Product>;
+              } as RequestData<Widget>;
             })
             .catch((error) => {
               handleErrorResponse(error);
@@ -339,7 +345,7 @@ const Products = () => {
               return {
                 data: [],
                 success: false,
-              } as RequestData<Product>;
+              } as RequestData<Widget>;
             });
         }}
         dateFormatter="string"
@@ -350,15 +356,15 @@ const Products = () => {
         }}
         toolbar={{
           actions: [
-            <Button onClick={() => showNewProduct()} key="show" type="primary" icon={<BiSolidPackage />} style={{background: "#4150e8"}}>
-              New Product
+            <Button onClick={() => showNewWidget()} key="show" type="primary" icon={<BiSolidPackage />} style={{background: "#4150e8"}}>
+              New Widget
             </Button>
           ]
         }}
       />
       {modalContextHolder}
       {
-        showEdit ? <FormProduct
+        showEdit ? <FormWidget
           show={showEdit} 
           onClose={() => setShowEdit(false)} 
           clientOptions={selectClients} 
@@ -384,4 +390,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Widgets;

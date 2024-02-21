@@ -19,6 +19,7 @@ import Locations from '../components/locations';
 import Geoips from '../components/geoips';
 import Clients from '../components/clients';
 import Restrictions from '../components/restrictions';
+import Widgets from '../components/widgets';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
@@ -111,6 +112,9 @@ export const browserRouter = createBrowserRouter([
       },{
         path: adminRoutes.restrictions,
         element: <Restrictions />,
+      },{
+        path: adminRoutes.widgets,
+        element: <Widgets />,
       }
     ],
   },
