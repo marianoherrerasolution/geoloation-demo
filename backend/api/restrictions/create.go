@@ -10,12 +10,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.Restriction {
+func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.RestrictionWithCoordinates {
 	body := ctx.PostBody()
-	var params model.Restriction
+	var params model.RestrictionWithCoordinates
 	json.Unmarshal(body, &params)
 	params.Name = stringify.LowerTrim(params.Name)
 	params.Networks = stringify.LowerTrim(params.Networks)
+
 	return params
 }
 
@@ -34,6 +35,8 @@ func Create(ctx *fasthttp.RequestCtx) {
 		})
 		return
 	}
-	params.Polygon = fmt.Sprintf("POLYGON%s", params.CoordinatesToGEOM())
-	api.CreateRecord(&params, model.TableRestriction, ctx)
+
+	restriction := params.Restriction
+	restriction.Polygon = fmt.Sprintf("POLYGON%s", params.CoordinatesToGEOM())
+	api.CreateRecord(&restriction, model.TableRestriction, ctx)
 }

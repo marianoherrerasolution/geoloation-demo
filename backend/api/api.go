@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"geonius/database"
 	db "geonius/database"
 	"geonius/pkg/stringify"
 	"log"
@@ -42,8 +41,8 @@ func (sp *SearchPagination) Build() {
 		sp.Page = 1
 	}
 
-	sp.SQLSearch = database.Pg.Table(sp.Tablename)
-	sp.SQLCount = database.Pg.Table(sp.Tablename)
+	sp.SQLSearch = db.Pg.Table(sp.Tablename)
+	sp.SQLCount = db.Pg.Table(sp.Tablename)
 }
 
 func (sp *SearchPagination) CaseSensitiveKeyword() string {
@@ -123,7 +122,7 @@ func UpdateRecord(tableName string, ID interface{}, original interface{}, update
 }
 
 func FindByID(id interface{}, record interface{}, ctx *fasthttp.RequestCtx) bool {
-	if tx := database.Pg.Where("id = ?", id).First(record); tx.Error != nil {
+	if tx := db.Pg.Where("id = ?", id).First(record); tx.Error != nil {
 		NotFoundError(ctx)
 		return false
 	}

@@ -1,6 +1,7 @@
 package restrictionsapi
 
 import (
+	"fmt"
 	"geonius/api"
 	"geonius/model"
 
@@ -17,11 +18,19 @@ func Update(ctx *fasthttp.RequestCtx) {
 	params := PrepareParamsBody(ctx)
 	paramsID := ctx.UserValue("id")
 
-	// check if id exist or not
-	var restriction model.Restriction
-	if ok := api.FindByID(paramsID, &restriction, ctx); !ok || !restriction.ValidID() {
+	existWithCoords, ok := FindByID(ctx)
+	if !ok {
 		return
 	}
 
-	api.UpdateRecord(model.TableRestriction, paramsID, &restriction, params, ctx)
+	existWithoutCoords := existWithCoords.Restriction
+	coords := params.PolygonCoordinates
+	newParams := params.Restriction
+	if coords != "" {
+		newParams.Polygon = fmt.Sprintf("POLYGON%s", params.CoordinatesToGEOM())
+	} else {
+		newParams.Polygon = existWithCoords.PolygonCoordinates
+	}
+
+	api.UpdateRecord(model.TableRestriction, paramsID, &existWithoutCoords, newParams, ctx)
 }

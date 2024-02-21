@@ -32,6 +32,7 @@ func List(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
+	search.SQLSearch.Select("id, name, active, allow, networks, client_id, product_id, address, address_lon, address_lat")
 	if len(clientIDs) > 0 {
 		search.SQLSearch = search.SQLSearch.Where("client_id IN ?", clientIDs)
 	}

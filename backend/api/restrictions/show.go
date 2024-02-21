@@ -2,10 +2,21 @@ package restrictionsapi
 
 import (
 	"geonius/api"
+	db "geonius/database"
 	"geonius/model"
+	"strings"
 
 	"github.com/valyala/fasthttp"
 )
+
+func FindByID(ctx *fasthttp.RequestCtx) (model.RestrictionWithCoordinates, bool) {
+	var restriction model.RestrictionWithCoordinates
+	tx := db.Pg.Select("*, ST_AsText(polygon) as polygon_coordinates").Where("id = ?", ctx.UserValue("id")).First(&restriction)
+	if tx.Error != nil {
+		api.NotFoundError(ctx)
+	}
+	return restriction, tx.Error == nil
+}
 
 // Show restriction detail
 // @summary Restriction Info
@@ -14,8 +25,22 @@ import (
 // @success 200 {object}
 // @Router /restrictions/{id} [get]
 func Show(ctx *fasthttp.RequestCtx) {
-	var restriction model.Restriction
-	if ok := api.FindByID(ctx.UserValue("id"), &restriction, ctx); ok && restriction.ValidID() {
-		api.SuccessJSON(ctx, restriction)
+	restriction, ok := FindByID(ctx)
+	if !ok {
+		return
 	}
+	restriction.Polygon = ""
+	txt := "[]"
+	if restriction.PolygonCoordinates != "" {
+		txt = strings.ReplaceAll(restriction.PolygonCoordinates, "POLYGON", "")
+		txt = strings.ReplaceAll(txt, "((", "[[")
+		txt = strings.ReplaceAll(txt, "))", "]]")
+		txt = strings.ReplaceAll(txt, ",", "],[")
+		txt = strings.ReplaceAll(txt, " ", ",")
+		if txt == "[[]]" {
+			txt = "[]"
+		}
+	}
+	restriction.PolygonCoordinates = txt
+	api.SuccessJSON(ctx, restriction)
 }
