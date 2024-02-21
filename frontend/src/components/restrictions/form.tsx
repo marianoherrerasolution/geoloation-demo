@@ -57,6 +57,7 @@ const FormRestriction = (props: FormProps) => {
   const [showProduct, setShowProduct] = useState<boolean>(false);
   const [strokeColor, setStrokeColor] = useState<string>("rgba(0, 0, 0, 0.65)")
   const [fillColor, setFillColor] = useState<string>("#0000ff")
+  const [coordinates, setCoordinates] = useState<Coordinate[][]>([])
 
   useEffect(() => {
     if (!mounted.current) {
@@ -66,8 +67,37 @@ const FormRestriction = (props: FormProps) => {
       form.setFieldsValue(props.formData)
       onSelectAccess(props.formData.allow)
       getProducts()
+      if (props.formData.id) {
+        getRestrictionDetail()
+      }
     }
   })
+
+  const getRestrictionDetail = () => {
+    defaultHttp
+      .get(`${apiURL.restrictions}/${props.formData.id}`)
+      .then((response: any) => {
+        let result = response.data as RestrictionForm
+        form.setFieldValue("address_lat", result.address_lat)
+        form.setFieldValue("address_lon", result.address_lon)
+        setCenterLat(result.address_lat)
+        setCenterLon(result.address_lon)
+        form.setFieldsValue(result)
+        if (result.polygon_coordinates != "") {
+          let polygonCoordinates = JSON.parse(result.polygon_coordinates)
+          setCoordinates(polygonCoordinates)
+          setDrawType("")
+        }
+      })
+      .catch(({response}:any) => {
+        if (!response) { return }
+        const {data} = response;
+        if (data) {
+          errorCallback(data, setAlertEditMessage)
+        }
+        setAlertEdit("error");
+      });
+  }
 
   const setAlertEdit = (theme: string, message?: string) => {
     setAlertEditTheme(theme)
@@ -189,6 +219,9 @@ const FormRestriction = (props: FormProps) => {
   const onProductSubmit = () => {}
 
   const onSelectDrawing = (val:string) => {
+    if (val == "remove") {
+      setCoordinates([])
+    }
     setDrawType(val)
   }
 
@@ -451,6 +484,7 @@ const FormRestriction = (props: FormProps) => {
               onDrawEnd={onDrawedPolygon}
               strokeColor={strokeColor}
               fillColor={fillColor}
+              polygonCoordinates={coordinates}
             />
           </Col>
           <Col span={24}>

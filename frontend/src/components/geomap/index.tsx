@@ -1,6 +1,6 @@
 import { useEffect, Fragment, useState} from "react";
 import { fromLonLat, toLonLat } from "ol/proj";
-import { Point } from "ol/geom";
+import { Point, Polygon } from "ol/geom";
 import "ol/ol.css";
 import "./custom.css";
 import Draw, { DrawEvent } from 'ol/interaction/Draw.js';
@@ -11,7 +11,7 @@ import { RView } from "rlayers/RMap";
 import { Coordinate } from "ol/coordinate";
 import { Map } from "ol";
 
-const initialView: RView = { center: fromLonLat([2.364, 48.82]), zoom: 15 };
+// const initialView: RView = { center: fromLonLat([2.364, 48.82]), zoom: 12 };
 
 interface MapProps {
   lat: number;
@@ -21,6 +21,7 @@ interface MapProps {
   fillColor: string;
   strokeColor: string;
   strokeWidth: number;
+  polygonCoordinates: Coordinate[][];
 }
 
 const GeoMap = ({
@@ -30,18 +31,23 @@ const GeoMap = ({
   strokeWidth,
   strokeColor,
   fillColor,
+  polygonCoordinates,
   onDrawEnd
 }: MapProps) => {
   const [latitude, setLatitude] = useState<number>(0)
   const [longitude, setLongitude] = useState<number>(0)
-  const [view, setView] = useState(initialView)
+  const [view, setView] = useState<RView>({ center: fromLonLat([0, 0]), zoom: 12 })
   const [drawing, setDrawing] = useState<string>("")
   const [colorFill, setColorFill] = useState<string>("")
   const [colorStroke, setColorStroke] = useState<string>("")
   const [widthStroke, setWidthStroke] = useState<number>(3)
   const [map, setMap] = useState<Map>()
+  const [coordinates, setCoordinates] = useState<Coordinate[][]>([])
+  const [polygonFeature, setPolygonFeature] = useState<Coordinate[][]>([])
+  const [mapUniqKey, setMapUniqKey] = useState<string>("v1")
+  const [initialView, setInitialView] = useState<RView>({ center: fromLonLat([0, 0]), zoom: 12 })
+  const [newInitialView, setNewInitialView] = useState<boolean>(false)
   // geometry
-
 
   useEffect(() => {
     if (drawing != drawType && view) {
@@ -59,19 +65,50 @@ const GeoMap = ({
     if (fillColor != "" && fillColor != colorFill) {
       setColorFill(fillColor)
     }
-    
+
     if (lat != latitude || lon != longitude) {
       setLatitude(lat)
       setLongitude(lon)
-      setView({ center: fromLonLat([lon, lat]), zoom: 15 })
+      setInitialView({ center: fromLonLat([lon, lat]), zoom: 12 })
+      setView({ center: fromLonLat([lon, lat]), zoom: 12 })
+      setTimeout(() => {
+        setNewInitialView(true)
+      },500)
+    }
+
+    if (polygonCoordinates != coordinates) {
+      // setNewInitialView(false)
+      setCoordinates(polygonCoordinates)
+      changeCoordinatesToPolygon(polygonCoordinates)
+      // setTimeout(() => {
+      //   setNewInitialView(true)
+      // },500)
     }
   })
 
+  const changeCoordinatesToPolygon = (coords:Coordinate[][]) => {
+    if (coords.length < 1) {
+      setPolygonFeature([])
+      return
+    }
+    
+    let geomCoords = []
+    for(let i = 0; i < coords.length; i += 1) {
+      let coord = coords[i]
+      let lon = Number(`${coord[0]}`)
+      let lat = Number(`${coord[1]}`)
+      geomCoords.push(fromLonLat([lon, lat]))
+    }
+    // setMapUniqKey((Math.random() + 1).toString(36).substring(7))
+    setPolygonFeature([geomCoords])
+    // setView({ center: fromLonLat([Number(`${coords[0][0]}`), Number(`${coords[0][0]}`)]), zoom: 12 })
+  }
+
   const onDrawedPolygon = (e: DrawEvent) => {
-    let coordinates = e.target.sketchCoords_[0]
+    let sketchCoords = e.target.sketchCoords_[0]
     let polygonCoords = []
-    for(let i = 0; i < coordinates.length; i += 1) {
-      let lonLat = toLonLat(coordinates[i])
+    for(let i = 0; i < sketchCoords.length; i += 1) {
+      let lonLat = toLonLat(sketchCoords[i])
       polygonCoords.push(lonLat)
     }
     polygonCoords.push(polygonCoords[0])
@@ -80,16 +117,12 @@ const GeoMap = ({
 
   const onMapClicked = (e:MapBrowserEvent<UIEvent>) => {
     setMap(e.map)
-    console.log(e.map)
-  }
-
-  const onStartDrawing = (e:DrawEvent) => {
-    console.log(e)
   }
 
   return (
     <Fragment>
-      <RMap
+      {
+        newInitialView ? <RMap
         className="map-container"
         initial={initialView}
         view={[view, setView]}
@@ -99,6 +132,7 @@ const GeoMap = ({
         <RLayerVector
         >
           <RFeature
+            // key={mapUniqKey}
             geometry={new Point(fromLonLat([longitude, latitude]))}
           >
             <RStyle.RStyle>
@@ -113,17 +147,27 @@ const GeoMap = ({
                 <RStyle.RStroke color={strokeColor} width={strokeWidth} />
                 <RStyle.RFill color={fillColor} />
               </RStyle.RStyle> 
+              {
+                polygonFeature.length > 0 ?  <RFeature
+                  geometry={
+                      new Polygon(polygonFeature)
+                  }
+                /> : ""
+              }
+             
+
               { drawing == "draw" ? 
                 <RInteraction.RDraw type={"Polygon"} onDrawEnd={onDrawedPolygon}/> : ""
               }
             </RLayerVector> : ""
         }
         
-      </RMap>
+        </RMap> : ""
+      }
       <div className="mx-0 mt-0 mb-3 p-1 w-100 jumbotron shadow shadow">
         <p>
           Longitude : Latitude{" "}
-          <strong>{`${latitude.toFixed(4)} : ${longitude.toFixed(4)}`}</strong>
+          <strong>{`${longitude.toFixed(4)} : ${latitude.toFixed(4)}`}</strong>
         </p>
       </div>
     </Fragment>
@@ -137,7 +181,8 @@ GeoMap.defaultProps = {
   onDrawEnd: (coords: Array<Coordinate>) => {},
   fillColor: "rgba(0, 0, 0, 0.65)",
   strokeColor: "#0000ff",
-  strokeWidth: 3
+  strokeWidth: 3,
+  polygonCoordinates: []
 }
 
 export default GeoMap;
