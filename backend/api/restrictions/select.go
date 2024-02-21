@@ -40,7 +40,7 @@ func Select(ctx *fasthttp.RequestCtx) {
 		tx = tx.Where(strings.Join(statements, " AND "))
 	}
 
-	if tx = tx.Order("name ASC").Find(records); tx.Error != nil {
+	if tx = tx.Order("name ASC").Find(&records); tx.Error != nil {
 		fmt.Printf("[error] selects restrictions %v", tx.Error)
 		api.InternalError(ctx)
 	} else {
