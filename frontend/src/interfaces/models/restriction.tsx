@@ -11,8 +11,8 @@ export interface RestrictionForm extends RestrictionSelect {
   address_lat: number;
   address_lon: number;
   networks: string;
-  active: boolean;
-  allow: boolean;
+  active: number;
+  allow: number;
 }
 
 export interface Restriction extends RestrictionForm {

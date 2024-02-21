@@ -38,12 +38,12 @@ const FormRestriction = (props: FormProps) => {
   const [productOptions, setProductOptions] = useState<Array<SelectTag>>([])
   const draggleRef = useRef<HTMLDivElement>(null);
   const allowanceOptions = [
-    {label: "Allow", value: true},
-    {label: "Deny", value: false},
+    {label: "Allow", value: 1},
+    {label: "Deny", value: 2},
   ]
   const statusOptions = [
-    {label: "Active", value: true},
-    {label: "Inactive", value: false},
+    {label: "Active", value: 1},
+    {label: "Inactive", value: 2},
   ]
   const drawingOptions = [
     {label: "Remove Polygon", value: "remove"},

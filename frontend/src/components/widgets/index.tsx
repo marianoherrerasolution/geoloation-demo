@@ -128,7 +128,7 @@ const Widgets = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Widget) => row.active ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
+      render: (_, row: Widget) => row.active < 2 ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
     },
     {
       title: 'Action',

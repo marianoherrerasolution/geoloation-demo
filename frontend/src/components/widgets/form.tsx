@@ -1,18 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { MouseEventHandler, useEffect, useRef, useState } from "react";
 import { ProductForm } from "../../interfaces/models/product";
-import { Button, Col, Form, Input, Modal, Row, Select } from "antd";
+import { Button, Card, Col, Form, Input, Modal, Row, Select, message } from "antd";
 import { defaultHttp } from "../../utils/http";
 import { apiURL } from "../../routes/api";
 import { errorCallback } from "../../utils/userHTTPCallback";
 import AlertBadge from "../alert";
-import { SelectGeoAddress, SelectTag } from "../../interfaces/models/select";
+import { SelectTag } from "../../interfaces/models/select";
 import type { DraggableData, DraggableEvent } from 'react-draggable';
 import Draggable from 'react-draggable';
-import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { WidgetForm } from "../../interfaces/models/widget";
 import titleize from "titleize";
 import FormProduct from "../products/form";
-import { Coordinate } from "ol/coordinate";
+import { generateRandomToken } from "../../utils";
 
 export interface FormProps {
   onSuccess: () => void,
@@ -35,23 +34,36 @@ const FormWidget = (props: FormProps) => {
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
   const [productOptions, setProductOptions] = useState<Array<SelectTag>>([])
   const [restrictionOptions, setRestrictionOptions] = useState<Array<SelectTag>>([])
+  const [widgetToken, setWidgetToken] = useState<string>("")
+  
   const draggleRef = useRef<HTMLDivElement>(null);
   const restrictionTypeOptions = [
     {label: "Product Base", value: "product_base"},
     {label: "Custom", value: "custom"},
   ]
   const statusOptions = [
-    {label: "Active", value: true},
-    {label: "Inactive", value: false},
+    {label: "Active", value: 1},
+    {label: "Inactive", value: 2},
   ]
   const [showProduct, setShowProduct] = useState<boolean>(false);
-  const [restrictionType, setRestrictionType] = useState<string>("product_base")
+  const [isProductBase, setIsProductBase] = useState<boolean>(true)
 
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      form.setFieldsValue(props.formData)
+      let record = props.formData;
+      if (!record.id) {
+        record.restriction_type = "product_base"
+        record.active = true
+        setWidgetToken(generateRandomToken(72))
+      } else {
+        setWidgetToken(record.token)
+      }
+      
+      form.setFieldsValue(record)
       getProducts()
+      getRestrictions()
+      setIsProductBase(record.restriction_type == "product_base")
     }
   })
 
@@ -80,13 +92,14 @@ const FormWidget = (props: FormProps) => {
       setLoading(false);
       setAlertEdit("error");
     }
-    
     if (isUpdate) {
+      record.token = ""
       defaultHttp
         .put(`${apiURL.widgets}/${record.id}`, record)
         .then(onSuccess)
         .catch(onError);
     } else {
+      record.token = widgetToken
       defaultHttp
         .post(apiURL.widgets, record)
         .then(onSuccess)
@@ -125,7 +138,7 @@ const FormWidget = (props: FormProps) => {
     setAlertEdit("","")
     defaultHttp.get(`${apiURL.products}/select`,{params: {client_id: form.getFieldValue("client_id")}})
     .then(({data}) => {
-      let selectOptions = [{value: "", label: "Create New Product"}]
+      let selectOptions = []
       let totalData = data.length
       for (let i = 0; i < totalData; i += 1) {
         selectOptions.push({value: data[i].id, label: titleize(data[i].name)})
@@ -173,7 +186,15 @@ const FormWidget = (props: FormProps) => {
   const onProductSubmit = () => {}
 
   const onSelectedRestrictionType = (val: string) => {
-    setRestrictionType(val)
+    setIsProductBase(val == "product_base")
+  }
+
+  const javascriptWidget = () => {
+    return `
+      <script type="text/javascript" src="https://lorem.ipsum/widget/restriction.js" async>
+        { "token": "${widgetToken}" } 
+      </script> 
+    `
   }
 
   return (
@@ -256,6 +277,28 @@ const FormWidget = (props: FormProps) => {
         <Row gutter={24}>
           <Col span={12}>
             <Form.Item
+              name="active"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Status</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'status should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select status"
+                options={statusOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
               name="client_id"
               className="mb-0"
               label={
@@ -274,28 +317,6 @@ const FormWidget = (props: FormProps) => {
                 placeholder="Select a client"
                 onSelect={(e) => onSelectedClient(e)}
                 options={props.clientOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="active"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Status</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'status should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select status"
-                options={statusOptions}
               />
             </Form.Item>
           </Col>
@@ -324,51 +345,60 @@ const FormWidget = (props: FormProps) => {
               />
             </Form.Item>
           </Col>
-          <Col key={form.getFieldValue("restriction_type")} span={12}>
-            {
-              restrictionType == "product_base" ? <Form.Item
-                name="product_ids"
-                className="mb-0"
-                label={
-                  <p className="block text-sm font-medium text-gray-900">Products</p>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'product should be selected',
-                  },
-                ]}
-              > 
-                <Select      
-                  mode='multiple'
-                  showSearch
-                  allowClear
-                  maxTagCount={1}
-                  placeholder="Select product(s)"
-                  options={productOptions}
-                />
-              </Form.Item> : <Form.Item
-                name="restriction_ids"
-                className="mb-0"
-                label={
-                  <p className="block text-sm font-medium text-gray-900">Restrictions</p>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'restriction should be selected',
-                  },
-                ]}
-              > 
-                <Select
-                  mode="multiple"
-                  showSearch
-                  allowClear
-                  placeholder="Select restriction(s)"
-                  options={restrictionOptions}
-                />
-              </Form.Item>
-            }
+          <Col span={12}>
+            <Form.Item
+              name={isProductBase ? "product_ids" : "restriction_ids"}
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">{isProductBase ? "Products" : "Restrictions"}</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'should be selected',
+                },
+              ]}
+            > 
+              <Select      
+                mode='multiple'
+                showSearch
+                allowClear
+                maxTagCount={1}
+                placeholder={`Select ${isProductBase ? 'product' : 'restriction'}(s)`}
+                options={isProductBase ? productOptions : restrictionOptions}
+              />
+            </Form.Item>
+            
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={24}>
+            <Card title="Token" style={{ width: "100%" }}
+              extra={
+                <a href="javascript:void(0)"
+                  onClick={() => {
+                    navigator.clipboard.writeText(widgetToken)
+                    message.success("copied token")
+                  }}
+                >copy</a>
+              }
+            >
+              { widgetToken }  
+            </Card>
+          </Col>
+          <Col span={24}>
+            <Card title="Javascript Widget" style={{ width: "100%" }}
+              extra={
+                <a href="javascript:void(0)"
+                  onClick={() => {
+                    navigator.clipboard.writeText(javascriptWidget())
+                    message.success("copied javascript")
+                  }}
+                >copy</a>
+              }
+            >
+              {javascriptWidget()}  
+            </Card>
           </Col>
         </Row>
         <div className="text-center">

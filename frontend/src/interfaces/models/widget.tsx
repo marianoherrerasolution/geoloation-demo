@@ -8,7 +8,7 @@ export interface WidgetForm extends WidgetSelect {
   product_ids: Array<number>;
   restriction_ids: Array<number>;
   restriction_type: string;
-  active: boolean;
+  active: number;
   token: string;
 }
 

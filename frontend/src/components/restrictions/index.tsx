@@ -134,7 +134,7 @@ const Restrictions = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Restriction) => row.allow ? <Tag color="cyan">Allow</Tag> : <Tag color="magenta">Deny</Tag>
+      render: (_, row: Restriction) => row.allow < 2 ? <Tag color="cyan">Allow</Tag> : <Tag color="magenta">Deny</Tag>
     },
     {
       title: 'Status',
@@ -142,7 +142,7 @@ const Restrictions = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Restriction) => row.active ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
+      render: (_, row: Restriction) => row.active < 2 ? <Tag color="lime">Active</Tag> : <Tag color="gray">Inactive</Tag>
     },
     {
       title: 'Action',

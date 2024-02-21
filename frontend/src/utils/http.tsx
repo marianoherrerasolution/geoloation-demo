@@ -26,8 +26,6 @@ const generateToken = () => {
   return `${unixstamp}.${reqToken}.${id}.${loginToken}`
 }
 
-
-
 defaultHttp.interceptors.request.use(
   (config) => {
     const state: RootState = store.getState();

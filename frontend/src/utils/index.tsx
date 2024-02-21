@@ -57,3 +57,14 @@ export const handleErrorResponse = (
     return callback();
   }
 };
+
+export const generateRandomToken = (size:number) => {
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  
+  for (let i = 0; i < size; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    token += charset.charAt(randomIndex);
+  }
+  return token;
+}
