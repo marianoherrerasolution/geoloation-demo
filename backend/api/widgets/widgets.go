@@ -2,7 +2,6 @@ package widgetsapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"geonius/api"
 	"geonius/model"
 	"strconv"
@@ -24,10 +23,11 @@ func List(ctx *fasthttp.RequestCtx) {
 	textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
 	clientIDs := []int{}
 	for _, textID := range textIDs {
-		clientID, e := strconv.Atoi(textID)
-		fmt.Println(e)
-		if clientID > 0 {
-			clientIDs = append(clientIDs, clientID)
+		if textID != "" {
+			clientID, _ := strconv.Atoi(textID)
+			if clientID > 0 {
+				clientIDs = append(clientIDs, clientID)
+			}
 		}
 	}
 

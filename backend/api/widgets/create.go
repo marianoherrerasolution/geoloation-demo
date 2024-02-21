@@ -43,5 +43,6 @@ func Create(ctx *fasthttp.RequestCtx) {
 	params.CreatorType = fmt.Sprintf("%v", ctx.UserValue("userType"))
 	userID, _ := strconv.Atoi(fmt.Sprintf("%v", ctx.UserValue("userID")))
 	params.CreatorID = uint(userID)
+
 	api.CreateRecord(&params, model.TableWidget, ctx)
 }
