@@ -32,6 +32,8 @@ import { BiShieldQuarter, BiSolidPackage } from 'react-icons/bi';
 import FormRestriction from './form';
 import FormClient from '../clients/form';
 import { Restriction, RestrictionForm } from '../../interfaces/models/restriction';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 enum ActionKey {
   DELETE = 'delete',
@@ -66,13 +68,16 @@ const Restrictions = () => {
  
   const mounted = useRef(false);
   const [selectClients, setSelectClients] = useState<Array<SelectTag>>([])
+  const admin = useSelector((state: RootState) => state.admin);
 
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      getClients();
+      if (admin) { getClients(); }
     }
   })
+
+  const restrictionURL = () => admin ? apiURL.restrictions : apiURL.user.restrictions
 
   const getClients = () => {
     defaultHttp.get(`${apiURL.clients}/select`)
@@ -241,7 +246,7 @@ const Restrictions = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiURL.restrictions}/${record.id}`)
+          .delete(`${restrictionURL()}/${record.id}`)
           .then(() => {
             setAlertTable("success", `Restriction ID ${record.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -330,7 +335,7 @@ const Restrictions = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiURL.restrictions, {
+            .get(restrictionURL(), {
               params: {
                 keyword,
                 client_ids: clientIDs.join(","),

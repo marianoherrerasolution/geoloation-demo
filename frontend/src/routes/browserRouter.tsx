@@ -75,6 +75,18 @@ export const browserRouter = createBrowserRouter([
         path: webRoutes.editProfile,
         element: <EditProfile />,
       },
+      {
+        path: webRoutes.widgets,
+        element: <Widgets />,
+      },
+      {
+        path: webRoutes.products,
+        element: <Products />,
+      },
+      {
+        path: webRoutes.restrictions,
+        element: <Restrictions />,
+      },
     ],
   },
 

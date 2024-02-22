@@ -8,6 +8,8 @@ import AlertBadge from "../alert";
 import { SelectTag } from "../../interfaces/models/select";
 import type { DraggableData, DraggableEvent } from 'react-draggable';
 import Draggable from 'react-draggable';
+import { RootState } from "../../store";
+import { useSelector } from "react-redux";
 
 export interface FormProps {
   onSuccess: () => void,
@@ -35,6 +37,7 @@ const FormProduct = (props: FormProps) => {
     {label: "Phone", value: "phone"},
     {label: "Other", value: "other"},
   ]
+  const admin = useSelector((state: RootState) => state.admin);
 
   useEffect(() => {
     if (!mounted.current) {
@@ -43,6 +46,7 @@ const FormProduct = (props: FormProps) => {
     }
   })
 
+  const productURL = () => admin ? apiURL.products : apiURL.user.products
   const setAlertEdit = (theme: string, message?: string) => {
     setAlertEditTheme(theme)
     if (message) { setAlertEditMessage(message) }
@@ -70,12 +74,12 @@ const FormProduct = (props: FormProps) => {
     }
     if (isUpdate) {
       defaultHttp
-        .put(`${apiURL.products}/${record.id}`, record)
+        .put(`${productURL()}/${record.id}`, record)
         .then(onSuccess)
         .catch(onError);
     } else {
       defaultHttp
-        .post(apiURL.products, record)
+        .post(productURL(), record)
         .then(onSuccess)
         .catch(onError);
     }
@@ -186,29 +190,32 @@ const FormProduct = (props: FormProps) => {
             />
           </Form.Item>
         </div>
+        {
+          admin ? <div>
+            <Form.Item
+              name="client_id"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Client</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'client should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                style={{ width: 200 }}
+                placeholder="Select a client"
+                onSelect={(e) => onSelectedClient(e)}
+                options={props.clientOptions}
+              />
+            </Form.Item>
+          </div> : ""
+        }
         <div>
-          <Form.Item
-            name="client_id"
-            label={
-              <p className="block text-sm font-medium text-gray-900">Client</p>
-            }
-            rules={[
-              {
-                required: true,
-                message: 'client should be selected',
-              },
-            ]}
-          > 
-            <Select
-              showSearch
-              allowClear
-              style={{ width: 200 }}
-              placeholder="Select a client"
-              onSelect={(e) => onSelectedClient(e)}
-              options={props.clientOptions}
-            />
-          </Form.Item>
-        </div><div>
           <Form.Item
             name="app_type"
             label={

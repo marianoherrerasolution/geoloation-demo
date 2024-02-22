@@ -6,8 +6,8 @@ import {
   TableDropdown,
   ProDescriptions,
 } from '@ant-design/pro-components';
-import { Avatar, BreadcrumbProps, Modal, Space, Button, Form, Input } from 'antd';
-import { useRef, useState } from 'react';
+import { Avatar, BreadcrumbProps, Modal, Space, Button, Form, Input, Select } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
 import { User } from '../../interfaces/models/user';
@@ -25,6 +25,10 @@ import Icon, {
 import AlertBadge from '../alert';
 import { errorCallback } from '../../utils/userHTTPCallback';
 import { defaultHttp } from '../../utils/http';
+import FormClient from '../clients/form';
+import { ClientForm } from '../../interfaces/models/client';
+import titleize from 'titleize';
+import { SelectTag } from '../../interfaces/models/select';
 
 enum ActionKey {
   DELETE = 'delete',
@@ -56,6 +60,39 @@ const Users = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [clientIDs, setClienttIDs] = useState<Array<number>>([]);
+  const [selectClients, setSelectClients] = useState<Array<SelectTag>>([]);
+  const [formDataClient, setFormDataClient] = useState<ClientForm>({} as ClientForm);
+  const [showClient, setShowClient] = useState<boolean>(false);
+ 
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      getClients();
+    }
+  })
+
+  const getClients = () => {
+    defaultHttp.get(`${apiURL.clients}/select`)
+    .then(({data}) => {
+      let clientForOptions = [{value: "0", label: "Select a client"}, {value: "", label: "Create New Client"}]
+      let totalData = data.length
+      for (let i = 0; i < totalData; i += 1) {
+        clientForOptions.push({value: data[i].id, label: titleize(data[i].company)})
+      }
+      setSelectClients(clientForOptions)
+    })
+    .catch(({response}) => {
+      setAlertTable("error", "Client list can not be loaded.")
+    });
+  }
+
+  const filterByClient = (clientID: number) => {
+    setClienttIDs([clientID])
+    actionRef.current?.reload(true);
+  }
 
   const columns: ProColumns[] = [
     {
@@ -88,6 +125,16 @@ const Users = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
+    },
+    {
+      title: 'Client',
+      dataIndex: 'client_name',
+      sorter: false,
+      align: 'left',
+      ellipsis: true,
+      render: (_, row: User) => <>{ 
+        row.client_name ? <a onClick={() => filterByClient(row.client_id)} >{titleize(row.client_name)}</a> : <></>
+      }</>
     },
     {
       title: 'Action',
@@ -136,16 +183,18 @@ const Users = () => {
     }
   };
 
-  const showEditModal = (user: User) => {
-    user.password = ""
-    form.setFieldsValue(user)
+  const showEditModal = (record: User) => {
+    record.password = ""
+    if (!record.client_id) {
+      record.client_id = "0"
+    }
+    form.setFieldsValue(record)
     setAlertTable("")
     setAlertEdit("")
-    setEditTitle(`Edit User ID: ${user.id}`)
+    setEditTitle(`Edit User ID: ${record.id}`)
     setShowEdit(true)
     setLoading(false);
   }
-
 
   const setAlertTable = (theme: string, message?: string) => {
     setAlertTableTheme(theme)
@@ -158,7 +207,6 @@ const Users = () => {
   }
 
   const onUpdate = (user: User) => {
-    console.log(user)
     setLoading(true);
     setAlertTable("")
     defaultHttp
@@ -221,6 +269,41 @@ const Users = () => {
     actionRef.current?.reload(true);
   }
 
+
+  const searchByClient = (ids: any) => {
+    setClienttIDs(ids.filter( (a:any) => Number(a) > 0))
+    actionRef.current?.reload(true);
+  }
+
+  const onSelectClient = (val: number) => {
+    if (val < 1) {
+      showClientForm()
+    }
+  }
+
+  const showClientForm = () => {
+    setShowClient(true)
+    setFormDataClient({} as ClientForm)
+  }
+
+  const onClientError = () => {
+
+  }
+
+  const onClientSuccess = () => {
+    getClients()
+  }
+
+  const onClientSubmit = () => {
+
+  }
+
+  const onSelectedClient = (val:string) => {
+    if (val == "") {
+      showClientForm()
+    }
+  }
+
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       {
@@ -233,7 +316,19 @@ const Users = () => {
         headerTitle={
           <>
             <h5>Users</h5>
-            <Input placeholder='Search name or email' className='ml-4' onChange={searchUserKeyword} />
+            <Input placeholder='Search name or email' className='ml-4 mr-4' onChange={searchUserKeyword} />
+            <Select
+              mode='multiple'
+              showSearch
+              allowClear
+              maxTagCount={1}
+              style={{ width: 200 }}
+              placeholder="Select by client"
+              value={clientIDs}
+              options={selectClients}
+              onChange={(e) => searchByClient(e)}
+              onSelect={(e) => onSelectClient(e)}
+            />
           </>
         }
         bordered={true}
@@ -251,6 +346,7 @@ const Users = () => {
             .get(apiURL.users, {
               params: {
                 keyword,
+                client_ids: clientIDs.join(","),
                 page: params.current,
                 per_page: params.pageSize,
               },
@@ -303,6 +399,21 @@ const Users = () => {
                 type='hidden'
               />
             </Form.Item>
+            <Form.Item
+              name="client_id"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Client</p>
+              }
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select a client"
+                onSelect={(e) => onSelectedClient(e)}
+                options={selectClients}
+              />
+            </Form.Item>
+          
             <Form.Item
               name="fName"
               label={
@@ -394,6 +505,16 @@ const Users = () => {
           </div>
         </Form>
       </Modal>
+      {
+        showClient ? <FormClient
+          show={showClient} 
+          onClose={() => setShowClient(false)} 
+          onError={onClientError}
+          onSubmit={onClientSubmit}
+          onSuccess={onClientSuccess}
+          formData={formDataClient}
+        /> : ""
+      }
     </BasePageContainer>
   );
 };

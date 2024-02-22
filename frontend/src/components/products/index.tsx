@@ -31,15 +31,12 @@ import { SelectTag } from '../../interfaces/models/select';
 import { BiSolidPackage } from 'react-icons/bi';
 import FormProduct from './form';
 import FormClient from '../clients/form';
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
 
 enum ActionKey {
   DELETE = 'delete',
   EDIT = 'edit'
-}
-
-const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#922B3E', '#252850'];
-const getColorBadge = () => {
-  return ColorList[Math.floor(Math.random()*ColorList.length)]
 }
 
 const breadcrumb: BreadcrumbProps = {
@@ -65,14 +62,16 @@ const Products = () => {
  
   const mounted = useRef(false);
   const [selectClients, setSelectClients] = useState<Array<SelectTag>>([])
+  const admin = useSelector((state: RootState) => state.admin);
 
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      getClients();
+      if (admin) { getClients(); }
     }
   })
 
+  const productURL = () => admin ? apiURL.products : apiURL.user.products
   const getClients = () => {
     defaultHttp.get(`${apiURL.clients}/select`)
     .then(({data}) => {
@@ -224,7 +223,7 @@ const Products = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiURL.products}/${product.id}`)
+          .delete(`${productURL()}/${product.id}`)
           .then(() => {
             setAlertTable("success", `Product ID ${product.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -244,10 +243,6 @@ const Products = () => {
   const searchByKeyword = (e:any) => {
     setKeyword(e.target.value)
     actionRef.current?.reload(true);
-  }
-
-  const changedClientForm = (e: any) => {
-    console.log(e)
   }
 
   const searchByClient = (ids: any) => {
@@ -274,10 +269,6 @@ const Products = () => {
     getClients()
   }
 
-  const onClientSubmit = () => {
-
-  }
-
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       {
@@ -291,18 +282,18 @@ const Products = () => {
           <>
             <h5>Products</h5>
             <Input placeholder='Search product name' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
-            <Select
+            { admin ? <Select
               mode='multiple'
               showSearch
               allowClear
               maxTagCount={1}
               style={{ width: 200 }}
-              placeholder="Select a client"
+              placeholder="Select by client"
               value={clientIDs}
               options={selectClients}
               onChange={(e) => searchByClient(e)}
               onSelect={(e) => onSelectClient(e)}
-            />
+            /> : "" }
           </>
         }
         bordered={true}
@@ -317,7 +308,7 @@ const Products = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiURL.products, {
+            .get(productURL(), {
               params: {
                 keyword,
                 client_ids: clientIDs.join(","),

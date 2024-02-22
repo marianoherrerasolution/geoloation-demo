@@ -31,6 +31,8 @@ import { SelectTag } from '../../interfaces/models/select';
 import { BiSolidPackage } from 'react-icons/bi';
 import FormWidget from './form';
 import FormClient from '../clients/form';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 enum ActionKey {
   DELETE = 'delete',
@@ -47,6 +49,7 @@ const breadcrumb: BreadcrumbProps = {
 };
 
 const Widgets = () => {
+  const admin = useSelector((state: RootState) => state.admin);
   const actionRef = useRef<ActionType>();
   const [modal, modalContextHolder] = Modal.useModal();
   const [alertTableTheme, setAlertTableTheme] = useState<string>("");
@@ -64,10 +67,11 @@ const Widgets = () => {
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      getClients();
+      if (admin) { getClients(); }
     }
   })
 
+  const widgetURL = () => admin ? apiURL.widgets : apiURL.user.widgets
   const getClients = () => {
     defaultHttp.get(`${apiURL.clients}/select`)
     .then(({data}) => {
@@ -110,7 +114,7 @@ const Widgets = () => {
       sorter: false,
       align: 'left',
       ellipsis: true,
-      render: (_, row: Widget) => row.restriction_type ? titleize(row.restriction_type) : ""
+      render: (_, row: Widget) => row.restriction_type ? titleize(row.restriction_type.replace("_", " ")) : ""
     },
     {
       title: 'Client',
@@ -221,7 +225,7 @@ const Widgets = () => {
             {titleize(widget.client_name || "")}
           </ProDescriptions.Item>
           <ProDescriptions.Item valueType="text" label="Restriction Type">
-            {titleize(widget.restriction_type || "")}
+            {titleize((widget.restriction_type || "").replace("_", ""))}
           </ProDescriptions.Item>
         </ProDescriptions>
       ),
@@ -230,7 +234,7 @@ const Widgets = () => {
       },
       onOk: () => {
         return defaultHttp
-          .delete(`${apiURL.widgets}/${widget.id}`)
+          .delete(`${widgetURL()}/${widget.id}`)
           .then(() => {
             setAlertTable("success", `Widget ID ${widget.id} is deleted successfully.`)
             actionRef.current?.reload(true);
@@ -297,7 +301,8 @@ const Widgets = () => {
           <>
             <h5>Widgets</h5>
             <Input placeholder='Search widget name' className='mr-4 ml-4' onChange={searchByKeyword} style={{width: 200}} />
-            <Select
+            {
+              admin ? <Select
               mode='multiple'
               showSearch
               allowClear
@@ -308,7 +313,8 @@ const Widgets = () => {
               options={selectClients}
               onChange={(e) => searchByClient(e)}
               onSelect={(e) => onSelectClient(e)}
-            />
+            /> : ""
+            }
           </>
         }
         bordered={true}
@@ -323,7 +329,7 @@ const Widgets = () => {
         actionRef={actionRef}
         request={(params) => {
           return defaultHttp
-            .get(apiURL.widgets, {
+            .get((widgetURL()), {
               params: {
                 keyword,
                 client_ids: clientIDs.join(","),

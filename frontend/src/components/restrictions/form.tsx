@@ -15,6 +15,8 @@ import { RestrictionForm } from "../../interfaces/models/restriction";
 import titleize from "titleize";
 import FormProduct from "../products/form";
 import { Coordinate } from "ol/coordinate";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 export interface FormProps {
   onSuccess: () => void,
@@ -37,6 +39,8 @@ const FormRestriction = (props: FormProps) => {
   const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
   const [productOptions, setProductOptions] = useState<Array<SelectTag>>([])
   const draggleRef = useRef<HTMLDivElement>(null);
+  const admin = useSelector((state: RootState) => state.admin);
+
   const allowanceOptions = [
     {label: "Allow", value: 1},
     {label: "Deny", value: 2},
@@ -49,6 +53,7 @@ const FormRestriction = (props: FormProps) => {
     {label: "Remove Polygon", value: "remove"},
     {label: "Start Drawing", value: "draw"},
   ]
+
   const [addressOptions, setAddressOptions] = useState<Array<SelectTag>>([]);
   const openStreetProvider = new OpenStreetMapProvider();
   const [centerLat, setCenterLat] = useState<number>(0)
@@ -73,9 +78,12 @@ const FormRestriction = (props: FormProps) => {
     }
   })
 
+  const restrictionURL = () => admin ? apiURL.restrictions : apiURL.user.restrictions
+  const productURL = () => admin ? apiURL.products : apiURL.user.products
+
   const getRestrictionDetail = () => {
     defaultHttp
-      .get(`${apiURL.restrictions}/${props.formData.id}`)
+      .get(`${restrictionURL()}/${props.formData.id}`)
       .then((response: any) => {
         let result = response.data as RestrictionForm
         form.setFieldValue("address_lat", result.address_lat)
@@ -127,12 +135,12 @@ const FormRestriction = (props: FormProps) => {
     
     if (isUpdate) {
       defaultHttp
-        .put(`${apiURL.restrictions}/${record.id}`, record)
+        .put(`${restrictionURL()}/${record.id}`, record)
         .then(onSuccess)
         .catch(onError);
     } else {
       defaultHttp
-        .post(apiURL.restrictions, record)
+        .post(restrictionURL(), record)
         .then(onSuccess)
         .catch(onError);
     }
@@ -147,9 +155,9 @@ const FormRestriction = (props: FormProps) => {
   }
 
   const getProducts = () => {
-    if (!form.getFieldValue("client_id")) {return}
+    if (admin && !form.getFieldValue("client_id")) {return}
     setAlertEdit("","")
-    defaultHttp.get(`${apiURL.products}/select`,{params: {client_id: form.getFieldValue("client_id")}})
+    defaultHttp.get(`${productURL()}/select`,{params: {client_id: form.getFieldValue("client_id")}})
     .then(({data}) => {
       let selectOptions = [{value: "", label: "Create New Product"}]
       let totalData = data.length
@@ -230,8 +238,8 @@ const FormRestriction = (props: FormProps) => {
     setDrawType("")
   }
 
-  const onSelectAccess = (val:boolean) => {
-    if (val) {
+  const onSelectAccess = (val:number) => {
+    if (val < 2) {
       setFillColor("rgb(204, 255, 51, 0.70)")
       setStrokeColor("rgb(51, 204, 51, 1)")
     } else {
@@ -318,30 +326,32 @@ const FormRestriction = (props: FormProps) => {
           />
         </Form.Item>
         <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              name="client_id"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Client</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'client should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select a client"
-                onSelect={(e) => onSelectedClient(e)}
-                options={props.clientOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
+          {
+            admin ?  <Col span={12}>
+              <Form.Item
+                name="client_id"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Client</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'client should be selected',
+                  },
+                ]}
+              > 
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder="Select a client"
+                  onSelect={(e) => onSelectedClient(e)}
+                  options={props.clientOptions}
+                />
+              </Form.Item>
+            </Col> : "" 
+          }
+          <Col span={admin ? 12 : 24}>
             <Form.Item
               name="product_id"
               className="mb-0"

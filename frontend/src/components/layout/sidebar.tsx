@@ -8,6 +8,24 @@ export const userSidebar = [
     name: 'Lookup',
     icon: <Icon component={BiMap} />,
   },
+  {
+    path: webRoutes.restrictions,
+    key: webRoutes.restrictions,
+    name: 'Restrictions',
+    icon: <Icon component={BiShieldQuarter} />,
+  },
+  {
+    path: webRoutes.widgets,
+    key: webRoutes.widgets,
+    name: 'Widgets',
+    icon: <Icon component={BiSolidWidget } />,
+  },
+  {
+    path: webRoutes.products,
+    key: webRoutes.products,
+    name: 'Products',
+    icon: <Icon component={BiPackage } />,
+  },
 ];
 
 export const adminSidebar = [

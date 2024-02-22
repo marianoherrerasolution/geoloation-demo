@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProductForm } from "../../interfaces/models/product";
 import { Button, Card, Col, Form, Input, Modal, Row, Select, message } from "antd";
 import { defaultHttp } from "../../utils/http";
@@ -12,6 +12,8 @@ import { WidgetForm } from "../../interfaces/models/widget";
 import titleize from "titleize";
 import FormProduct from "../products/form";
 import { generateRandomToken } from "../../utils";
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
 
 export interface FormProps {
   onSuccess: () => void,
@@ -25,6 +27,7 @@ export interface FormProps {
 }
 
 const FormWidget = (props: FormProps) => {
+  const admin = useSelector((state: RootState) => state.admin);
   const [alertEditTheme, setAlertEditTheme] = useState<string>("");
   const [alertEditMessage, setAlertEditMessage] = useState<string>(""); 
   const [loading, setLoading] = useState<boolean>(false);
@@ -54,7 +57,7 @@ const FormWidget = (props: FormProps) => {
       let record = props.formData;
       if (!record.id) {
         record.restriction_type = "product_base"
-        record.active = true
+        record.active = 1
         setWidgetToken(generateRandomToken(72))
       } else {
         setWidgetToken(record.token)
@@ -71,6 +74,10 @@ const FormWidget = (props: FormProps) => {
     setAlertEditTheme(theme)
     if (message) { setAlertEditMessage(message) }
   }
+
+  const widgetURL = () => admin ? apiURL.widgets : apiURL.user.widgets
+  const restrictionURL = () => admin ? apiURL.restrictions : apiURL.user.restrictions
+  const productURL = () => admin ? apiURL.products : apiURL.user.products
 
   const onSubmitForm = (record: WidgetForm) => {
     setLoading(true);
@@ -95,13 +102,13 @@ const FormWidget = (props: FormProps) => {
     if (isUpdate) {
       record.token = ""
       defaultHttp
-        .put(`${apiURL.widgets}/${record.id}`, record)
+        .put(`${widgetURL()}/${record.id}`, record)
         .then(onSuccess)
         .catch(onError);
     } else {
       record.token = widgetToken
       defaultHttp
-        .post(apiURL.widgets, record)
+        .post(widgetURL(), record)
         .then(onSuccess)
         .catch(onError);
     }
@@ -117,14 +124,16 @@ const FormWidget = (props: FormProps) => {
   }
 
   const getRestrictions = () => {
-    if (!form.getFieldValue("client_id")) {return}
+    if (admin && !form.getFieldValue("client_id")) {return}
     setAlertEdit("","")
-    defaultHttp.get(`${apiURL.restrictions}/select`,{params: {client_id: form.getFieldValue("client_id")}})
+    defaultHttp.get(`${restrictionURL()}/select`,{params: {client_id: form.getFieldValue("client_id")}})
     .then(({data}) => {
       let selectOptions = []
-      let totalData = data.length
-      for (let i = 0; i < totalData; i += 1) {
-        selectOptions.push({value: data[i].id, label: titleize(data[i].name)})
+      if (data && data.length > 0) {
+        let totalData = data.length
+        for (let i = 0; i < totalData; i += 1) {
+          selectOptions.push({value: data[i].id, label: titleize(data[i].name)})
+        }
       }
       setRestrictionOptions(selectOptions)
     })
@@ -134,14 +143,16 @@ const FormWidget = (props: FormProps) => {
   }
 
   const getProducts = () => {
-    if (!form.getFieldValue("client_id")) {return}
+    if (admin && !form.getFieldValue("client_id")) {return}
     setAlertEdit("","")
-    defaultHttp.get(`${apiURL.products}/select`,{params: {client_id: form.getFieldValue("client_id")}})
+    defaultHttp.get(`${productURL()}/select`,{params: {client_id: form.getFieldValue("client_id")}})
     .then(({data}) => {
       let selectOptions = []
-      let totalData = data.length
-      for (let i = 0; i < totalData; i += 1) {
-        selectOptions.push({value: data[i].id, label: titleize(data[i].name)})
+      if (data && data.length > 0) {
+        let totalData = data.length
+        for (let i = 0; i < totalData; i += 1) {
+          selectOptions.push({value: data[i].id, label: titleize(data[i].name)})
+        }
       }
       setProductOptions(selectOptions)
     })
@@ -275,7 +286,7 @@ const FormWidget = (props: FormProps) => {
           />
         </Form.Item>
         <Row gutter={24}>
-          <Col span={12}>
+          <Col span={admin ? 12 : 24}>
             <Form.Item
               name="active"
               className="mb-0"
@@ -297,7 +308,7 @@ const FormWidget = (props: FormProps) => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          { admin ? <Col span={12}>
             <Form.Item
               name="client_id"
               className="mb-0"
@@ -319,7 +330,7 @@ const FormWidget = (props: FormProps) => {
                 options={props.clientOptions}
               />
             </Form.Item>
-          </Col>
+          </Col> : "" }
         </Row>
         <Row gutter={24}>
           <Col span={12}>
