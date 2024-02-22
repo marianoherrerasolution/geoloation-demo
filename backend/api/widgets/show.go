@@ -16,6 +16,8 @@ import (
 func Show(ctx *fasthttp.RequestCtx) {
 	var widget model.Widget
 	if ok := api.FindByID(ctx.UserValue("id"), &widget, ctx); ok && widget.ValidID() {
-		api.SuccessJSON(ctx, widget)
+		if showable := api.CompareClientID(ctx, widget.ClientID, "not_found"); showable {
+			api.SuccessJSON(ctx, widget)
+		}
 	}
 }

@@ -4,11 +4,27 @@ import (
 	"encoding/json"
 	"geonius/api"
 	"geonius/model"
+	"geonius/pkg/stringify"
 	"strconv"
 	"strings"
 
 	"github.com/valyala/fasthttp"
 )
+
+func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.Widget {
+	body := ctx.PostBody()
+	var params model.Widget
+	json.Unmarshal(body, &params)
+	params.Name = stringify.LowerTrim(params.Name)
+	params.RestrictionType = stringify.LowerTrim(params.RestrictionType)
+
+	clientID, _, isAdmin := api.RequireAccessClientID(ctx)
+	if !isAdmin {
+		params.ClientID = clientID
+	}
+
+	return params
+}
 
 // List widgets
 // @summary Widget List
@@ -20,13 +36,25 @@ func List(ctx *fasthttp.RequestCtx) {
 	search := &api.SearchPagination{Ctx: ctx, Tablename: model.TableWidget}
 	search.Build()
 
-	textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
-	clientIDs := []int{}
-	for _, textID := range textIDs {
-		if textID != "" {
-			clientID, _ := strconv.Atoi(textID)
-			if clientID > 0 {
-				clientIDs = append(clientIDs, clientID)
+	clientIDs := []uint{}
+
+	isMember := strings.Contains(string(ctx.Path()), "/u/widgets")
+	if isMember {
+		var ok bool
+		clientID, ok := api.GetCurrentClientID(ctx)
+		if !ok || clientID < 1 {
+			search.Respond([]map[string]interface{}{}, 0)
+			return
+		}
+		clientIDs = append(clientIDs, clientID)
+	} else {
+		textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
+		for _, textID := range textIDs {
+			if textID != "" {
+				clientID, _ := strconv.Atoi(textID)
+				if clientID > 0 {
+					clientIDs = append(clientIDs, uint(clientID))
+				}
 			}
 		}
 	}
