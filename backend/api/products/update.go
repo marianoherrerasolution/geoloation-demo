@@ -24,6 +24,10 @@ func Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if updateable := api.CompareClientID(ctx, product.ClientID, "not_found"); !updateable {
+		return
+	}
+
 	changedName := (params.Name != "" && product.Name != params.Name)
 	changedClient := (params.ClientID > 0 && product.ClientID != params.ClientID)
 	changedAppType := (params.AppType != "" && product.AppType != params.AppType)

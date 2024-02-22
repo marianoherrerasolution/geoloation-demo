@@ -18,6 +18,12 @@ import (
 // @Router /widgets/ [post]
 func Create(ctx *fasthttp.RequestCtx) {
 	params := PrepareParamsBody(ctx)
+
+	clientID, _, isAdmin := api.RequireAccessClientID(ctx)
+	if !isAdmin {
+		params.ClientID = clientID
+	}
+
 	if field := params.ValidateEmptyField(); field != "" {
 		api.UnprocessibleError(ctx, api.ErrorConfig{
 			Error: "empty",

@@ -16,6 +16,8 @@ import (
 func Show(ctx *fasthttp.RequestCtx) {
 	var product model.Product
 	if ok := api.FindByID(ctx.UserValue("id"), &product, ctx); ok && product.ValidID() {
-		api.SuccessJSON(ctx, product)
+		if showable := api.CompareClientID(ctx, product.ClientID, "not_found"); showable {
+			api.SuccessJSON(ctx, product)
+		}
 	}
 }

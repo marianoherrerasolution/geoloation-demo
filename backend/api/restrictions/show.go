@@ -29,6 +29,11 @@ func Show(ctx *fasthttp.RequestCtx) {
 	if !ok {
 		return
 	}
+
+	if showable := api.CompareClientID(ctx, restriction.ClientID, "not_found"); !showable {
+		return
+	}
+
 	restriction.Polygon = ""
 	txt := "[]"
 	if restriction.PolygonCoordinates != "" {

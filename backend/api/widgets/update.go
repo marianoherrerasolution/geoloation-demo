@@ -23,5 +23,7 @@ func Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	api.UpdateRecord(model.TableWidget, paramsID, &widget, params, ctx)
+	if updateable := api.CompareClientID(ctx, widget.ClientID, "not_found"); updateable {
+		api.UpdateRecord(model.TableWidget, paramsID, &widget, params, ctx)
+	}
 }

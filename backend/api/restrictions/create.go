@@ -1,24 +1,12 @@
 package restrictionsapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"geonius/api"
 	"geonius/model"
-	"geonius/pkg/stringify"
 
 	"github.com/valyala/fasthttp"
 )
-
-func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.RestrictionWithCoordinates {
-	body := ctx.PostBody()
-	var params model.RestrictionWithCoordinates
-	json.Unmarshal(body, &params)
-	params.Name = stringify.LowerTrim(params.Name)
-	params.Networks = stringify.LowerTrim(params.Networks)
-
-	return params
-}
 
 // Create restriction data
 // @summary Restriction Create
@@ -28,6 +16,12 @@ func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.RestrictionWithCoordinate
 // @Router /restrictions/ [post]
 func Create(ctx *fasthttp.RequestCtx) {
 	params := PrepareParamsBody(ctx)
+
+	clientID, _, isAdmin := api.RequireAccessClientID(ctx)
+	if !isAdmin {
+		params.ClientID = clientID
+	}
+
 	if field := params.ValidateEmptyField(); field != "" {
 		api.UnprocessibleError(ctx, api.ErrorConfig{
 			Error: "empty",

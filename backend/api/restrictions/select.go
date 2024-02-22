@@ -17,9 +17,6 @@ import (
 // @success 200 {object}
 // @Router /restriction/select [get]
 func Select(ctx *fasthttp.RequestCtx) {
-	clientID := ctx.QueryArgs().GetUintOrZero("client_id")
-	productID := ctx.QueryArgs().GetUintOrZero("product_id")
-
 	var records []struct {
 		ID        uint   `json:"id"`
 		Name      string `json:"name"`
@@ -27,6 +24,17 @@ func Select(ctx *fasthttp.RequestCtx) {
 		ProductID uint   `json:"product_id"`
 	}
 
+	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
+	if !isMember && !isAdmin {
+		api.SuccessJSON(ctx, records)
+		return
+	}
+
+	if isAdmin {
+		clientID = uint(ctx.QueryArgs().GetUintOrZero("client_id"))
+	}
+
+	productID := ctx.QueryArgs().GetUintOrZero("product_id")
 	tx := db.Pg.Table(model.TableRestriction).Select([]string{"id", "name", "client_id", "product_id"})
 	statements := []string{}
 	if clientID > 0 {

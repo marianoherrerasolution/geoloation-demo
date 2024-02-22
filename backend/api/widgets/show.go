@@ -8,7 +8,7 @@ import (
 )
 
 // Show widget detail
-// @summary Widget Info
+// @summary Widget Detail
 // @id	show
 // @tag widget
 // @success 200 {object}

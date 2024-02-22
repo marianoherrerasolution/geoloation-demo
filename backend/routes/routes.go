@@ -33,7 +33,7 @@ func authToken(handler fasthttp.RequestHandler, accessType string) fasthttp.Requ
 			api.UnauthorizeError(ctx)
 			return
 		}
-		ctx.SetUserValue("userType", "admin")
+		ctx.SetUserValue("userType", accessType)
 		ctx.SetUserValue("userID", userIDTxt)
 		handler(ctx)
 	}
@@ -53,6 +53,9 @@ func Init() *router.Router {
 	r.POST("/location", geoapi.AddLocation)
 
 	rV2 := r.Group("/v2")
+
+	// === MEMBER AUTH ====
+
 	rV2.POST("/signin", sessionsapi.Signin)
 	rV2.POST("/signup", sessionsapi.Signup)
 	rV2.POST("/lookup", authToken(vpnsapi.Detect, "member"))
@@ -63,6 +66,29 @@ func Init() *router.Router {
 	rV2.POST("/profile", authToken(profileapi.Update, "member"))
 
 	rV2.POST("/vpn/check", authToken(vpnsapi.Detect, "member"))
+
+	rV2.GET("/u/widgets", authToken(widgetsapi.List, "member"))
+	rV2.GET("/u/widgets/{id}", authToken(widgetsapi.Show, "member"))
+	rV2.PUT("/u/widgets/{id}", authToken(widgetsapi.Update, "member"))
+	rV2.DELETE("/u/widgets/{id}", authToken(widgetsapi.Delete, "member"))
+	rV2.POST("/u/widgets", authToken(widgetsapi.Create, "member"))
+	
+	rV2.GET("/u/restrictions", authToken(restrictionsapi.List, "member"))
+	rV2.GET("/u/restrictions/select", authToken(restrictionsapi.Select, "member"))
+	rV2.GET("/u/restrictions/{id}", authToken(restrictionsapi.Show, "member"))
+	rV2.PUT("/u/restrictions/{id}", authToken(restrictionsapi.Update, "member"))
+	rV2.DELETE("/u/restrictions/{id}", authToken(restrictionsapi.Delete, "member"))
+	rV2.POST("/u/restrictions", authToken(restrictionsapi.Create, "member"))
+
+	rV2.GET("/u/products", authToken(productsapi.List, "member"))
+	rV2.GET("/u/products/select", authToken(productsapi.Select, "member"))
+	rV2.GET("/u/products/{id}", authToken(productsapi.Show, "member"))
+	rV2.PUT("/u/products/{id}", authToken(productsapi.Update, "member"))
+	rV2.DELETE("/u/products/{id}", authToken(productsapi.Delete, "member"))
+	rV2.POST("/u/products", authToken(productsapi.Create, "member"))
+
+	// ==== ADMIN AUTH =====
+
 
 	rV2.GET("/users", authToken(usersapi.List, "admin"))
 	rV2.GET("/users/{id}", authToken(usersapi.Show, "admin"))

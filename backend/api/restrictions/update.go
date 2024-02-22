@@ -23,6 +23,10 @@ func Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if updateable := api.CompareClientID(ctx, existWithCoords.ClientID, "not_found"); !updateable {
+		return
+	}
+
 	existWithoutCoords := existWithCoords.Restriction
 	coords := params.PolygonCoordinates
 	newParams := params.Restriction

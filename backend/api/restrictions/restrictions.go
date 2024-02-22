@@ -5,11 +5,21 @@ import (
 	"fmt"
 	"geonius/api"
 	"geonius/model"
+	"geonius/pkg/stringify"
 	"strconv"
 	"strings"
 
 	"github.com/valyala/fasthttp"
 )
+
+func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.RestrictionWithCoordinates {
+	body := ctx.PostBody()
+	var params model.RestrictionWithCoordinates
+	json.Unmarshal(body, &params)
+	params.Name = stringify.LowerTrim(params.Name)
+	params.Networks = stringify.LowerTrim(params.Networks)
+	return params
+}
 
 // List restrictions
 // @summary Restriction List
@@ -21,14 +31,24 @@ func List(ctx *fasthttp.RequestCtx) {
 	search := &api.SearchPagination{Ctx: ctx, Tablename: model.TableRestriction}
 	search.Build()
 
-	textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
 	clientIDs := []int{}
-	for _, textID := range textIDs {
-		clientID, e := strconv.Atoi(textID)
-		fmt.Println(e)
-		if clientID > 0 {
-			clientIDs = append(clientIDs, clientID)
+	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
+	if !isMember && !isAdmin {
+		search.Respond([]map[string]interface{}{}, 0)
+		return
+	}
+
+	if isAdmin {
+		textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
+		for _, textID := range textIDs {
+			clientID, e := strconv.Atoi(textID)
+			fmt.Println(e)
+			if clientID > 0 {
+				clientIDs = append(clientIDs, clientID)
+			}
 		}
+	} else {
+		clientIDs = append(clientIDs, int(clientID))
 	}
 
 	selectFields := []string{
@@ -60,12 +80,6 @@ func List(ctx *fasthttp.RequestCtx) {
 	if tx.Error != nil {
 		api.InternalError(ctx)
 	} else {
-		respBytes, _ := json.Marshal(map[string]interface{}{
-			"data":    results,
-			"total":   search.Total(),
-			"page":    search.Page,
-			"perPage": search.PerPage,
-		})
-		ctx.Success("application/json", respBytes)
+		search.Respond(results, search.Total())
 	}
 }

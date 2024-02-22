@@ -17,7 +17,9 @@ import (
 func Delete(ctx *fasthttp.RequestCtx) {
 	var product model.Product
 	if ok := api.FindByID(ctx.UserValue("id"), &product, ctx); ok && product.ValidID() {
-		tx := db.Delete(&product)
-		api.SuccessJSON(ctx, map[string]interface{}{"success": (tx.Error == nil), "error": tx.Error})
+		if deleteable := api.CompareClientID(ctx, product.ClientID, "unprocessible"); deleteable {
+			tx := db.Delete(&product)
+			api.SuccessJSON(ctx, map[string]interface{}{"success": (tx.Error == nil), "error": tx.Error})
+		}
 	}
 }

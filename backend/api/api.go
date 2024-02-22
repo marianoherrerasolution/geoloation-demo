@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	db "geonius/database"
+	"geonius/model"
 	"geonius/pkg/stringify"
 	"log"
+	"strconv"
+	"strings"
 
 	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
@@ -24,6 +27,16 @@ type SearchPagination struct {
 type SelectTag struct {
 	ID   uint   `json:"id"`
 	Name string `json:"name"`
+}
+
+func (sp *SearchPagination) Respond(results interface{}, total interface{}) {
+	respBytes, _ := json.Marshal(map[string]interface{}{
+		"data":    results,
+		"total":   total,
+		"page":    sp.Page,
+		"perPage": sp.PerPage,
+	})
+	sp.Ctx.Success("application/json", respBytes)
 }
 
 func (sp *SearchPagination) Build() {
@@ -127,6 +140,53 @@ func FindByID(id interface{}, record interface{}, ctx *fasthttp.RequestCtx) bool
 		return false
 	}
 	return true
+}
+
+func RequireAccessClientID(ctx *fasthttp.RequestCtx) (clientID uint, isMember bool, isAdmin bool) {
+	if strings.Contains(string(ctx.Path()), "/u/") {
+		clientID, ok := GetCurrentClientID(ctx)
+		return clientID, ok, false
+	}
+	return clientID, false, true
+}
+
+func GetCurrentUserID(ctx *fasthttp.RequestCtx) uint {
+	userID, _ := strconv.Atoi(fmt.Sprintf("%v", ctx.UserValue("userID")))
+	return uint(userID)
+}
+
+func GetCurrentClientID(ctx *fasthttp.RequestCtx) (uint, bool) {
+	userID := GetCurrentUserID(ctx)
+	if userID < 1 {
+		return 0, false
+	}
+
+	var member model.User
+	tx := db.Pg.Where("id = ?", userID).First(&member)
+	if tx.Error != nil || member.ClientID < 1 {
+		return 0, false
+	}
+
+	return member.ClientID, true
+}
+
+func CompareClientID(ctx *fasthttp.RequestCtx, requiredClientID uint, errorAction string) bool {
+	clientID, isMember, isAdmin := RequireAccessClientID(ctx)
+	acceptable := isAdmin || (isMember && clientID == requiredClientID)
+
+	if !acceptable {
+		if errorAction == "unprocessible" {
+			UnprocessibleError(ctx, ErrorConfig{
+				Error: "invalid",
+				Field: "client_id",
+			})
+		}
+
+		if errorAction == "not_found" {
+			NotFoundError(ctx)
+		}
+	}
+	return acceptable
 }
 
 type ErrorConfig struct {

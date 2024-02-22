@@ -3,7 +3,7 @@ package productsapi
 import (
 	"fmt"
 	"geonius/api"
-	"geonius/database"
+	db "geonius/database"
 	"geonius/model"
 
 	"github.com/valyala/fasthttp"
@@ -21,10 +21,19 @@ func Select(ctx *fasthttp.RequestCtx) {
 		Name    string `json:"name"`
 		AppType string `json:"app_type"`
 	}
+	
+	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
+	if !isMember && !isAdmin {
+		fmt.Println(records)
+		api.SuccessJSON(ctx, records)
+		return
+	}
 
-	clientID := ctx.QueryArgs().GetUintOrZero("client_id")
-	tx := database.Pg.Table(model.TableProduct).Select("id", "name", "app_type", "client_id")
+	if isAdmin {
+		clientID = uint(ctx.QueryArgs().GetUintOrZero("client_id"))
+	}
 
+	tx := db.Pg.Table(model.TableProduct).Select("id", "name", "app_type", "client_id")
 	if clientID > 0 {
 		tx = tx.Where("client_id = ?", clientID)
 	}

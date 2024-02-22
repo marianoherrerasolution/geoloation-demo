@@ -18,11 +18,6 @@ func PrepareParamsBody(ctx *fasthttp.RequestCtx) model.Widget {
 	params.Name = stringify.LowerTrim(params.Name)
 	params.RestrictionType = stringify.LowerTrim(params.RestrictionType)
 
-	clientID, _, isAdmin := api.RequireAccessClientID(ctx)
-	if !isAdmin {
-		params.ClientID = clientID
-	}
-
 	return params
 }
 
@@ -37,26 +32,24 @@ func List(ctx *fasthttp.RequestCtx) {
 	search.Build()
 
 	clientIDs := []uint{}
+	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
+	if !isMember && !isAdmin {
+		search.Respond([]map[string]interface{}{}, 0)
+		return
+	}
 
-	isMember := strings.Contains(string(ctx.Path()), "/u/widgets")
-	if isMember {
-		var ok bool
-		clientID, ok := api.GetCurrentClientID(ctx)
-		if !ok || clientID < 1 {
-			search.Respond([]map[string]interface{}{}, 0)
-			return
-		}
-		clientIDs = append(clientIDs, clientID)
-	} else {
+	if isAdmin {
 		textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
 		for _, textID := range textIDs {
 			if textID != "" {
-				clientID, _ := strconv.Atoi(textID)
+				selectedClientID, _ := strconv.Atoi(textID)
 				if clientID > 0 {
-					clientIDs = append(clientIDs, uint(clientID))
+					clientIDs = append(clientIDs, uint(selectedClientID))
 				}
 			}
 		}
+	} else {
+		clientIDs = append(clientIDs, clientID)
 	}
 
 	search.SQLSearch = search.SQLSearch.Select("widgets.*, clients.company as client_name").

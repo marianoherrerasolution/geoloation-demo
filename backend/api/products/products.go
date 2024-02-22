@@ -21,14 +21,24 @@ func List(ctx *fasthttp.RequestCtx) {
 	search := &api.SearchPagination{Ctx: ctx, Tablename: model.TableProduct}
 	search.Build()
 
-	textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
+	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
+	if !isMember && !isAdmin {
+		search.Respond(map[string]interface{}{}, 0)
+		return
+	}
+
 	clientIDs := []int{}
-	for _, textID := range textIDs {
-		clientID, e := strconv.Atoi(textID)
-		fmt.Println(e)
-		if clientID > 0 {
-			clientIDs = append(clientIDs, clientID)
+	if isAdmin {
+		textIDs := strings.Split(string(ctx.QueryArgs().Peek("client_ids")), ",")
+		for _, textID := range textIDs {
+			clientID, e := strconv.Atoi(textID)
+			fmt.Println(e)
+			if clientID > 0 {
+				clientIDs = append(clientIDs, clientID)
+			}
 		}
+	} else {
+		clientIDs = append(clientIDs, int(clientID))
 	}
 
 	search.SQLSearch = search.SQLSearch.Select("products.*, clients.company as client_name").
