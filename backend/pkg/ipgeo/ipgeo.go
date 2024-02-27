@@ -66,6 +66,11 @@ func Request() *req.Request {
 // Lookup() requests api to detail information by ip-address
 func Lookup(ipaddress string) (GeoLocation, error) {
 	var info GeoLocation
+
+	if info, err := ReadLocal(ipaddress); err == nil {
+		return info, nil
+	}
+
 	resp, err := Request().
 		SetQueryParams(map[string]string{
 			"apiKey": config.Env.GEOAPI_KEY,

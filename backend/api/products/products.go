@@ -23,7 +23,7 @@ func List(ctx *fasthttp.RequestCtx) {
 
 	clientID, isMember, isAdmin := api.RequireAccessClientID(ctx)
 	if !isMember && !isAdmin {
-		search.Respond(map[string]interface{}{}, 0)
+		search.Respond([]map[string]interface{}{}, 0)
 		return
 	}
 
