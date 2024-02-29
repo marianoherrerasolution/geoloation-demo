@@ -14,3 +14,5 @@ backend/*.zip
 backend/*.tar
 backend/*.tar.gz
 frontend/.vite
+microservice/*.mmdb
+*.mmdb
