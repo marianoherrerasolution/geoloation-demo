@@ -46,5 +46,10 @@ func Migrate() {
 		panic(err)
 	}
 
+	fmt.Println("Create Table widget_usages.")
+	if err := Pg.AutoMigrate(&model.WidgetUsage{}); err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Done.")
 }

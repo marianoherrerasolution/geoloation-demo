@@ -68,11 +68,12 @@ func Init() *router.Router {
 	rV2.POST("/vpn/check", authToken(vpnsapi.Detect, "member"))
 
 	rV2.GET("/u/widgets", authToken(widgetsapi.List, "member"))
+	rV2.GET("/u/widgets/{id}/usages", authToken(widgetsapi.Show, "member"))
 	rV2.GET("/u/widgets/{id}", authToken(widgetsapi.Show, "member"))
 	rV2.PUT("/u/widgets/{id}", authToken(widgetsapi.Update, "member"))
 	rV2.DELETE("/u/widgets/{id}", authToken(widgetsapi.Delete, "member"))
 	rV2.POST("/u/widgets", authToken(widgetsapi.Create, "member"))
-	
+
 	rV2.GET("/u/restrictions", authToken(restrictionsapi.List, "member"))
 	rV2.GET("/u/restrictions/select", authToken(restrictionsapi.Select, "member"))
 	rV2.GET("/u/restrictions/{id}", authToken(restrictionsapi.Show, "member"))
@@ -88,7 +89,6 @@ func Init() *router.Router {
 	rV2.POST("/u/products", authToken(productsapi.Create, "member"))
 
 	// ==== ADMIN AUTH =====
-
 
 	rV2.GET("/users", authToken(usersapi.List, "admin"))
 	rV2.GET("/users/{id}", authToken(usersapi.Show, "admin"))
@@ -126,6 +126,7 @@ func Init() *router.Router {
 	rV2.POST("/products", authToken(productsapi.Create, "admin"))
 
 	rV2.GET("/widgets", authToken(widgetsapi.List, "admin"))
+	rV2.GET("/widgets/{id}/usages", authToken(widgetsapi.Usages, "admin"))
 	rV2.GET("/widgets/{id}", authToken(widgetsapi.Show, "admin"))
 	rV2.PUT("/widgets/{id}", authToken(widgetsapi.Update, "admin"))
 	rV2.DELETE("/widgets/{id}", authToken(widgetsapi.Delete, "admin"))
