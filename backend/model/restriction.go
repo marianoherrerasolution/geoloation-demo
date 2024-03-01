@@ -21,6 +21,7 @@ type Restriction struct {
 	Address    string  `gorm:"column:address;index:idx_restr_keyword,priority:3" json:"address"`
 	AddressLat float64 `gorm:"column:address_lat" json:"address_lat"`
 	AddressLon float64 `gorm:"column:address_lon" json:"address_lon"`
+	Offsets 	 string `gorm:"column:offsets" json:"offsets"`
 }
 
 type RestrictionWithCoordinates struct {
