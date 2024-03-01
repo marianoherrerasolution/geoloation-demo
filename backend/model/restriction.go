@@ -14,6 +14,7 @@ type Restriction struct {
 	Polygon    string  `gorm:"column:polygon;type:geometry;index:idx_restr_polygon" json:"polygon,omitempty"`
 	Active     int16   `gorm:"column:active;index:idx_restr_active" json:"active"`
 	Allow      int16   `gorm:"column:allow;index:idx_restr_allow" json:"allow"`
+	VPN        int16   `gorm:"column:vpn;index:idx_restr_vpn" json:"vpn"`
 	Networks   string  `gorm:"column:networks;index:idx_restr_keyword,priority:2" json:"networks"`
 	ClientID   uint    `gorm:"column:client_id;index:idx_restr_client_id" json:"client_id"`
 	ProductID  uint    `gorm:"column:product_id;index:idx_restr_product_id" json:"product_id"`

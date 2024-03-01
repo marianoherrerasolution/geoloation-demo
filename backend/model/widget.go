@@ -21,6 +21,12 @@ type Widget struct {
 	RestrictionIDs  pq.Int64Array `gorm:"column:restriction_ids;type:integer[];index:idx_widget_restriction_ids" json:"restriction_ids,omitempty" `
 	CreatorType     string        `gorm:"column:creator_type;index:idx_widget_creator_type,priority:1" json:"creator_type"`
 	CreatorID       uint          `gorm:"column:creator_id;index:idx_widget_creator_id,priority:2" json:"creator_id"`
+	RejectAction    string        `gorm:"column:reject_action" json:"reject_action"`
+	RejectRedirect  string        `gorm:"column:reject_redirect" json:"reject_redirect"`
+	RejectAlert     string        `gorm:"column:reject_alert" json:"reject_alert"`
+	AcceptAction    string        `gorm:"column:allow_action" json:"allow_action"`
+	AcceptRedirect  string        `gorm:"column:allow_redirect" json:"allow_redirect"`
+	AcceptAlert     string        `gorm:"column:allow_alert" json:"allow_alert"`
 }
 
 type WidgetClientName struct {
