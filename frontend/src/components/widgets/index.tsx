@@ -465,6 +465,173 @@ async fn main() {
           }
         </SyntaxHighlighter>,
       },
+      
+      {
+        key: '7',
+        label: 'Android',
+        children: <SyntaxHighlighter language="java" style={docco}>
+          {`
+import android.os.AsyncTask;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class MyHttpGetTask extends AsyncTask<Void, Void, String> {
+
+    private static final String BASE_URL = "${WidgetAPI}";
+
+    @Override
+    protected String doInBackground(Void... voids) {
+        try {
+            // Construct the complete URL with query parameters
+            String name = "YOUR-API-TOKEN";
+            String urlString = BASE_URL + "?token=" + token;
+
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            return response.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        super.onPostExecute(result);
+        if (result != null) {
+            // Handle the response here
+            // ...
+        } else {
+            // Handle error case
+            // ...
+        }
+    }
+}
+
+          ` }
+        </SyntaxHighlighter>,
+      },
+      {
+        key: '8',
+        label: 'Swift/IOS',
+        children: <SyntaxHighlighter language="swift" style={docco}>
+          {`
+import Foundation
+
+func makeGETRequest(withToken token: String) {
+    let baseURLString = "${WidgetAPI}"
+    var components = URLComponents(string: baseURLString)!
+    components.queryItems = [URLQueryItem(name: "token", value: token)]
+
+    guard let url = components.url else {
+        print("Invalid URL")
+        return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            // Handle the response error
+            print("Error: (error.localizedDescription)")
+            return
+        }
+        
+        if let data = data {
+            // Handle the response data (e.g., parse JSON)
+            print("Received data: (data)")
+        }
+    }
+    task.resume()
+}
+
+makeGETRequest(withToken: "YOUR-API-TOKEN")
+
+          ` }         
+        </SyntaxHighlighter>,
+      },
+      {
+        key: '9',
+        label: 'C',
+        children: <SyntaxHighlighter language="C" style={docco}>
+        {`
+#include <stdio.h>
+#include <curl/curl.h>
+
+// Callback function to handle the response data
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    // You can process the response data here (e.g., print it)
+    printf("%.*s", (int)(size * nmemb), (char*)contents);
+    return size * nmemb;
+}
+
+int main() {
+    CURL* curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl) {
+        const char* url = "${WidgetAPI}?token=YOUR-API-TOKEN";
+
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+
+        curl_easy_cleanup(curl);
+    }
+
+    return 0;
+}          
+
+        ` }         
+        </SyntaxHighlighter>,
+      },
+      {
+        key: '10',
+        label: 'PHP',
+        children: <SyntaxHighlighter language="php" style={docco}>
+        {`
+<?php
+$url = '${WidgetAPI}?token=YOUR-API-TOKEN';
+
+$ch = curl_init($url);
+
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPGET, true);
+
+$response = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    echo 'Error: ' . curl_error($ch);
+} else {
+    echo $response;
+}
+
+curl_close($ch);
+?>
+
+        `}         
+        </SyntaxHighlighter>,
+      },
     ] as TabsProps['items'] 
   }
 
