@@ -16,6 +16,7 @@ export const apiURL = {
     intersectLocation: `${V2Path}/location/intersect`,
     addLocation: `${V2Path}/location/add`,
     widgets: `${V2Path}/u/widgets`,
+    widgetUsages: `${V2Path}/u/widget-usages`,
     products: `${V2Path}/u/products`,
     restrictions: `${V2Path}/u/restrictions`,
   },
@@ -26,5 +27,6 @@ export const apiURL = {
   products: `${V2Path}/products`,
   clients: `${V2Path}/clients`,
   widgets: `${V2Path}/widgets`,
+  widgetUsages: `${V2Path}/widget-usages`,
   restrictions: `${V2Path}/restrictions`,
 };

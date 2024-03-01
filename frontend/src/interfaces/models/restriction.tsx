@@ -14,6 +14,7 @@ export interface RestrictionForm extends RestrictionSelect {
   active: number;
   allow: number;
   vpn: number;
+  offsets: string;
 }
 
 export interface Restriction extends RestrictionForm {

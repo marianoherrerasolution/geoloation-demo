@@ -15,6 +15,7 @@
   "dependencies": {
     "@types/ol": "^7.0.0",
     "blueimp-md5": "^2.19.0",
+    "dayjs": "^1.11.10",
     "frowser": "^1.1.0",
     "hash.js": "^1.1.7",
     "highlight.js": "^11.9.0",

@@ -324,10 +324,6 @@ const Widgets = () => {
     actionRef.current?.reload(true);
   };
 
-  const changedClientForm = (e: any) => {
-    console.log(e);
-  };
-
   const searchByClient = (ids: any) => {
     setClienttIDs(ids.filter((a: any) => Number(a) > 0));
     actionRef.current?.reload(true);
@@ -349,8 +345,6 @@ const Widgets = () => {
   const onClientSuccess = () => {
     getClients();
   };
-
-  const onClientSubmit = () => {};
 
   const tabHTMLs = () => {
     return [
@@ -1087,13 +1081,13 @@ int main() {
           padding: "6px 0px",
         }}
       >
-        To determine the access is allowed or rejected. The value is:
+        To determine the access is allowed or denied. The value is:
         <ul>
           <li className="mt-2 mb-2">
             <Tag color="green">allow</Tag> for allowed access.
           </li>
           <li className="mt-2 mb-2">
-            <Tag color="volcano">reject</Tag> for rejected access.
+            <Tag color="volcano">deny</Tag> for denied access.
           </li>
         </ul>
       </Col>

@@ -15,6 +15,7 @@ import { generateRandomToken } from "../../utils";
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 import type { TabsProps } from 'antd';
+import WidgetHistories from "./histories";
 
 export interface FormProps {
   onSuccess: () => void,
@@ -51,7 +52,7 @@ const FormWidget = (props: FormProps) => {
   ]
   
   const rejectActionOptions = [
-    {label: "Close Browser Automatically", value: "close"},
+    {label: "Close App Automatically", value: "close"},
     {label: "Alert Only", value: "alert"},
     {label: "Alert and Close", value: "alert_close"},
     {label: "Redirect Automatically", value: "redirect"},
@@ -68,6 +69,7 @@ const FormWidget = (props: FormProps) => {
 
   const [showProduct, setShowProduct] = useState<boolean>(false);
   const [isProductBase, setIsProductBase] = useState<boolean>(true)
+  const [showUsage, setShowUsage] = useState<boolean>(false);
 
   useEffect(() => {
     if (!mounted.current) {
@@ -78,6 +80,7 @@ const FormWidget = (props: FormProps) => {
         record.active = 1
         setWidgetToken(generateRandomToken(72))
       } else {
+        setShowUsage(true)
         setWidgetToken(record.token)
       }
       
@@ -102,6 +105,7 @@ const FormWidget = (props: FormProps) => {
     props.onSubmit();
     const isUpdate = !!record.id
     const onSuccess = (response: any) => {
+      setShowUsage(true)
       let result = response.data as WidgetForm
       form.setFieldsValue(result)
       setLoading(false)
@@ -264,6 +268,286 @@ const FormWidget = (props: FormProps) => {
     ] as TabsProps['items'] 
   }
 
+  const FormTab = () => {
+    return <Form
+      className="space-y-0 md:space-y-6"
+      form={form}
+      name="login"
+      onFinish={onSubmitForm}
+      layout={'vertical'}
+      requiredMark={false}
+    >
+      {
+        alertEditTheme == "" ? "" : 
+        <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
+      }
+      <Form.Item
+          name="id"
+          style={{display:"none"}}
+        >
+        <Input
+          type='hidden'
+        />
+      </Form.Item>
+      <Form.Item
+        name="name"
+        label={
+          <p className="block text-sm font-medium text-gray-900">Widget Name</p>
+        }
+        rules={[
+          {
+            required: true,
+            message: 'widget name should be filled',
+          },
+        ]}
+      >
+        <Input
+          placeholder="please enter widget name"
+          className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+        />
+      </Form.Item>
+      <Row gutter={24}>
+        <Col span={admin ? 12 : 24}>
+          <Form.Item
+            name="active"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Status</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'status should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select status"
+              options={statusOptions}
+            />
+          </Form.Item>
+        </Col>
+        { admin ? <Col span={12}>
+          <Form.Item
+            name="client_id"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Client</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'client should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select a client"
+              onSelect={(e) => onSelectedClient(e)}
+              options={props.clientOptions}
+            />
+          </Form.Item>
+        </Col> : "" }
+      </Row>
+      <Row gutter={24}>
+        <Col span={12}>
+          <Form.Item
+            name="restriction_type"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Restriction Type</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'restriction type should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select restriction type"
+              onSelect={(e) => onSelectedRestrictionType(e)}
+              options={restrictionTypeOptions}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name={isProductBase ? "product_ids" : "restriction_ids"}
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">{isProductBase ? "Products" : "Restrictions"}</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'should be selected',
+              },
+            ]}
+          > 
+            <Select      
+              mode='multiple'
+              showSearch
+              allowClear
+              maxTagCount={1}
+              placeholder={`Select ${isProductBase ? 'product' : 'restriction'}(s)`}
+              options={isProductBase ? productOptions : restrictionOptions}
+            />
+          </Form.Item>
+          
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={24}>
+          <Tabs defaultActiveKey="1" items={tabTokensItems()} />
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={8}>
+          <Form.Item
+            name="reject_action"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Action on rejected</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'action should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select allow action"
+              options={rejectActionOptions}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            name="reject_alert"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Rejection Alert</p>
+            }
+          > 
+            <Input
+              placeholder="write your message"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            name="reject_redirect"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
+            }
+          > 
+            <Input
+              placeholder="write address url or in-app"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={8}>
+          <Form.Item
+            name="allow_action"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Action on allowed</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'action should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select allow action"
+              options={rejectActionOptions}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            name="allow_alert"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Allowed Message</p>
+            }
+          > 
+            <Input
+              placeholder="write your message"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            name="allow_redirect"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
+            }
+          > 
+            <Input
+              placeholder="write address url or in-app"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <div className="text-center">
+        <Button
+          className="mt-4 bg-primary mb-4"
+          block
+          loading={loading}
+          type="primary"
+          size="large"
+          htmlType={'submit'}
+        >
+          { !!form.getFieldValue("id") ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </Form>
+  }
+
+  const mainTabItems = () => {
+    return (showUsage ? [
+      {
+        key: "1",
+        label: "Form",
+        children: FormTab(),
+      },
+      {
+        key: "2",
+        label: "Usages",
+        children: <WidgetHistories widgetID={form.getFieldValue("id")} />
+      }
+    ] : [
+      {
+        key: "1",
+        label: "Form",
+        children: FormTab(),
+      }
+    ])
+  }
+
   return (
     <Modal
       open={props.show}
@@ -305,262 +589,8 @@ const FormWidget = (props: FormProps) => {
         </Draggable>
       )}
     >
-      <Form
-        className="space-y-0 md:space-y-6"
-        form={form}
-        name="login"
-        onFinish={onSubmitForm}
-        layout={'vertical'}
-        requiredMark={false}
-      >
-        {
-          alertEditTheme == "" ? "" : 
-          <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
-        }
-        <Form.Item
-            name="id"
-            style={{display:"none"}}
-          >
-          <Input
-            type='hidden'
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={
-            <p className="block text-sm font-medium text-gray-900">Widget Name</p>
-          }
-          rules={[
-            {
-              required: true,
-              message: 'widget name should be filled',
-            },
-          ]}
-        >
-          <Input
-            placeholder="please enter widget name"
-            className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-          />
-        </Form.Item>
-        <Row gutter={24}>
-          <Col span={admin ? 12 : 24}>
-            <Form.Item
-              name="active"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Status</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'status should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select status"
-                options={statusOptions}
-              />
-            </Form.Item>
-          </Col>
-          { admin ? <Col span={12}>
-            <Form.Item
-              name="client_id"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Client</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'client should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select a client"
-                onSelect={(e) => onSelectedClient(e)}
-                options={props.clientOptions}
-              />
-            </Form.Item>
-          </Col> : "" }
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <Form.Item
-              name="restriction_type"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Restriction Type</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'restriction type should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select restriction type"
-                onSelect={(e) => onSelectedRestrictionType(e)}
-                options={restrictionTypeOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name={isProductBase ? "product_ids" : "restriction_ids"}
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">{isProductBase ? "Products" : "Restrictions"}</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'should be selected',
-                },
-              ]}
-            > 
-              <Select      
-                mode='multiple'
-                showSearch
-                allowClear
-                maxTagCount={1}
-                placeholder={`Select ${isProductBase ? 'product' : 'restriction'}(s)`}
-                options={isProductBase ? productOptions : restrictionOptions}
-              />
-            </Form.Item>
-            
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={24}>
-            <Tabs defaultActiveKey="1" items={tabTokensItems()} />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="reject_action"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Action on rejected</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'action should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select allow action"
-                options={rejectActionOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="reject_alert"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Rejection Alert</p>
-              }
-            > 
-              <Input
-                placeholder="write your message"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="reject_redirect"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
-              }
-            > 
-              <Input
-                placeholder="write address url or in-app"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={8}>
-            <Form.Item
-              name="allow_action"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Action on allowed</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'action should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select allow action"
-                options={rejectActionOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="allow_alert"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Allowed Message</p>
-              }
-            > 
-              <Input
-                placeholder="write your message"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="allow_redirect"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
-              }
-            > 
-              <Input
-                placeholder="write address url or in-app"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <div className="text-center">
-          <Button
-            className="mt-4 bg-primary mb-4"
-            block
-            loading={loading}
-            type="primary"
-            size="large"
-            htmlType={'submit'}
-          >
-            { !!form.getFieldValue("id") ? 'Update' : 'Create'}
-          </Button>
-        </div>
-      </Form>
+      <Tabs defaultActiveKey="1" items={mainTabItems()} /> 
+      
       {
         showProduct ? <FormProduct
           show={showProduct} 

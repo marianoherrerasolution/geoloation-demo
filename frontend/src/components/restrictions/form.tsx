@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ProductForm } from "../../interfaces/models/product";
-import { AutoComplete, Button, Col, Flex, Form, Input, Modal, Row, Select } from "antd";
+import { AutoComplete, Button, Col, Flex, Form, Input, Modal, Row, Select, Tooltip, Badge, Tabs } from "antd";
 import { defaultHttp } from "../../utils/http";
 import { apiURL } from "../../routes/api";
 import { errorCallback } from "../../utils/userHTTPCallback";
@@ -17,6 +17,8 @@ import FormProduct from "../products/form";
 import { Coordinate } from "ol/coordinate";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { InfoCircleOutlined } from '@ant-design/icons';
+import AnalyticRestriction from './analytic';
 
 export interface FormProps {
   onSuccess: () => void,
@@ -70,6 +72,9 @@ const FormRestriction = (props: FormProps) => {
       setCenterLat(props.formData.address_lat)
       setCenterLon(props.formData.address_lon)
       form.setFieldsValue(props.formData)
+      if (props.formData.vpn == 0) {
+        form.setFieldValue("vpn", 1)
+      }
       onSelectAccess(props.formData.allow)
       getProducts()
       if (props.formData.id) {
@@ -248,11 +253,307 @@ const FormRestriction = (props: FormProps) => {
     }
   }
 
+  const FormTabItem = () => {
+    return <Form
+      className="space-y-0 md:space-y-6"
+      form={form}
+      name="login"
+      onFinish={onSubmitForm}
+      layout={'vertical'}
+      requiredMark={false}
+    >
+      {
+        alertEditTheme == "" ? "" : 
+        <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
+      }
+      <Form.Item
+          name="id"
+          style={{display:"none"}}
+        >
+        <Input
+          type='hidden'
+        />
+      </Form.Item>
+      <Form.Item
+        name="name"
+        label={
+          <p className="block text-sm font-medium text-gray-900">Restriction Name</p>
+        }
+        rules={[
+          {
+            required: true,
+            message: 'restriction name should be filled',
+          },
+        ]}
+      >
+        <Input
+          placeholder="please enter restriction name"
+          className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+        />
+      </Form.Item>
+      <Row gutter={24}>
+        {
+          admin ?  <Col span={12}>
+            <Form.Item
+              name="client_id"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Client</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'client should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select a client"
+                onSelect={(e) => onSelectedClient(e)}
+                options={props.clientOptions}
+              />
+            </Form.Item>
+          </Col> : "" 
+        }
+        <Col span={admin ? 12 : 24}>
+          <Form.Item
+            name="product_id"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Product</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'product should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select a product"
+              onSelect={(e) => onSelectedProduct(e)}
+              options={productOptions}
+            />
+          </Form.Item>
+
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={4}>
+          <Form.Item
+            name="networks"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">
+                Networks
+                <Tooltip title="whitelist access by domain or ip-address. If empty then any one and every one can use this restriction">
+                  <Badge count={<InfoCircleOutlined style={{ color: '#4287f5', paddingLeft: "4px" }} />} />
+                </Tooltip>
+              </p>
+            }
+          >
+            <Input
+              placeholder="please enter domain, ip or ip range"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={4}>
+          <Form.Item
+            name="active"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Status</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'status should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select status"
+              options={statusOptions}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={4}>
+          <Form.Item
+            name="allow"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Access Type</p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'access type should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select allow"
+              onSelect={onSelectAccess}
+              options={allowanceOptions}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={4}>
+          <Form.Item
+            name="vpn"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">
+                VPN Access
+                <Tooltip title="Allow or deny user for using VPN. If VPN is denied, please provide offset timezone from the polygon">
+                  <Badge count={<InfoCircleOutlined style={{ color: '#4287f5', paddingLeft: "4px" }} />} />
+                </Tooltip>
+              </p>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'VPN should be selected',
+              },
+            ]}
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select VPN Role"
+              options={allowanceOptions}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={4}>
+          <Form.Item
+            name="offsets"
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">
+                Offset Timezone
+                <Tooltip title="Timezone offset should be related with polygon and in minute format example GMT+1, the offset is 60, GMT-5 hour, the offset is -300. Use comma for multiple value, example: 60, -300">
+                  <Badge count={<InfoCircleOutlined style={{ color: '#4287f5', paddingLeft: "4px" }} />} />
+                </Tooltip>
+              </p>
+            }
+          > 
+            <Input
+              placeholder="please enter offsets with comma"
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={16}>
+          <Form.Item
+            className="mb-0"
+            name="address"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Search Address For Drawing Polygons</p>
+            }
+          >
+            <AutoComplete
+              onSearch={handleSearchAddress}
+              placeholder="search address for map center"
+              options={addressOptions}
+              onSelect={selectSearchAddress}
+            />
+          </Form.Item>
+          <Form.Item
+              name="address_lat"
+              style={{display:"none"}}
+            >
+            <Input
+              type='hidden'
+            />
+          </Form.Item>
+          <Form.Item
+              name="address_lon"
+              style={{display:"none"}}
+            >
+            <Input
+              type='hidden'
+            />
+          </Form.Item>
+        </Col>
+        <Col span={8}>
+          <Form.Item
+            className="mb-0"
+            label={
+              <p className="block text-sm font-medium text-gray-900">
+                Drawing Tool
+                <Tooltip title="one map only can have one polygon, to edit the polygon, please remove then start drawing">
+                  <Badge count={<InfoCircleOutlined style={{ color: '#4287f5', paddingLeft: "4px" }} />} />
+                </Tooltip>
+              </p>
+            }
+          > 
+            <Select
+              showSearch
+              allowClear
+              placeholder="Select tool"
+              onSelect={onSelectDrawing}
+              options={drawingOptions}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={24}>
+        <Col span={24}>
+          <GeoMap lat={centerLat} lon={centerLon} 
+            drawType={drawType} 
+            onDrawEnd={onDrawedPolygon}
+            strokeColor={strokeColor}
+            fillColor={fillColor}
+            polygonCoordinates={coordinates}
+          />
+        </Col>
+        <Col span={24}>
+          <Form.Item
+            name="polygon_coordinates"
+            label={
+              <p className="block text-sm font-medium text-gray-900">Polygons</p>
+            }
+          > 
+            <TextArea
+              className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <div className="text-center">
+        <Button
+          className="mt-4 bg-primary mb-4"
+          block
+          loading={loading}
+          type="primary"
+          size="large"
+          htmlType={'submit'}
+        >
+          { !!form.getFieldValue("id") ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </Form>
+  }
+
   return (
     <Modal
       open={props.show}
       onCancel={() => props.onClose()}
       width={1200}
+      style={{top: 0}}
       footer=""
       title={
         <div
@@ -288,263 +589,19 @@ const FormRestriction = (props: FormProps) => {
         </Draggable>
       )}
     >
-      <Form
-        className="space-y-0 md:space-y-6"
-        form={form}
-        name="login"
-        onFinish={onSubmitForm}
-        layout={'vertical'}
-        requiredMark={false}
-      >
+      <Tabs defaultActiveKey="1" items={[
         {
-          alertEditTheme == "" ? "" : 
-          <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
-        }
-        <Form.Item
-            name="id"
-            style={{display:"none"}}
-          >
-          <Input
-            type='hidden'
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={
-            <p className="block text-sm font-medium text-gray-900">Restriction Name</p>
-          }
-          rules={[
-            {
-              required: true,
-              message: 'restriction name should be filled',
-            },
-          ]}
-        >
-          <Input
-            placeholder="please enter restriction name"
-            className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-          />
-        </Form.Item>
-        <Row gutter={24}>
-          {
-            admin ?  <Col span={12}>
-              <Form.Item
-                name="client_id"
-                className="mb-0"
-                label={
-                  <p className="block text-sm font-medium text-gray-900">Client</p>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'client should be selected',
-                  },
-                ]}
-              > 
-                <Select
-                  showSearch
-                  allowClear
-                  placeholder="Select a client"
-                  onSelect={(e) => onSelectedClient(e)}
-                  options={props.clientOptions}
-                />
-              </Form.Item>
-            </Col> : "" 
-          }
-          <Col span={admin ? 12 : 24}>
-            <Form.Item
-              name="product_id"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Product</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'product should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select a product"
-                onSelect={(e) => onSelectedProduct(e)}
-                options={productOptions}
-              />
-            </Form.Item>
-
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={6}>
-            <Form.Item
-              name="networks"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Networks</p>
-              }
-            >
-              <Input
-                placeholder="please enter domain, ip or ip range"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              name="active"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Status</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'status should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select status"
-                options={statusOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              name="allow"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Access Type</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'access type should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select allow"
-                onSelect={onSelectAccess}
-                options={allowanceOptions}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              name="vpn"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Using VPN</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'VPN should be selected',
-                },
-              ]}
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select VPN Role"
-                options={allowanceOptions}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={16}>
-            <Form.Item
-              className="mb-0"
-              name="address"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Search Address For Drawing Polygons</p>
-              }
-            >
-              <AutoComplete
-                onSearch={handleSearchAddress}
-                placeholder="search address for map center"
-                options={addressOptions}
-                onSelect={selectSearchAddress}
-              />
-            </Form.Item>
-            <Form.Item
-                name="address_lat"
-                style={{display:"none"}}
-              >
-              <Input
-                type='hidden'
-              />
-            </Form.Item>
-            <Form.Item
-                name="address_lon"
-                style={{display:"none"}}
-              >
-              <Input
-                type='hidden'
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Drawing Tool</p>
-              }
-            > 
-              <Select
-                showSearch
-                allowClear
-                placeholder="Select tool"
-                onSelect={onSelectDrawing}
-                options={drawingOptions}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={24}>
-            <GeoMap lat={centerLat} lon={centerLon} 
-              drawType={drawType} 
-              onDrawEnd={onDrawedPolygon}
-              strokeColor={strokeColor}
-              fillColor={fillColor}
-              polygonCoordinates={coordinates}
-            />
-          </Col>
-          <Col span={24}>
-            <Form.Item
-              name="polygon_coordinates"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Polygons</p>
-              }
-            > 
-              <TextArea
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <div className="text-center">
-          <Button
-            className="mt-4 bg-primary mb-4"
-            block
-            loading={loading}
-            type="primary"
-            size="large"
-            htmlType={'submit'}
-          >
-            { !!form.getFieldValue("id") ? 'Update' : 'Create'}
-          </Button>
-        </div>
-      </Form>
+          key: "1",
+          label: "Form",
+          children: FormTabItem(),
+        },
+        {
+          key: "2",
+          label: "Analytic",
+          children: <AnalyticRestriction restrictionID={props.formData.id}/>,
+        },
+      ]}/>
+      
       {
         showProduct ? <FormProduct
           show={showProduct} 
