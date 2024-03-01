@@ -10,6 +10,12 @@ export interface WidgetForm extends WidgetSelect {
   restriction_type: string;
   active: number;
   token: string;
+  reject_action: string;
+  reject_alert: string;
+  reject_redirect: string;
+  allow_action: string;
+  allow_alert: string;
+  allow_redirect: string;
 }
 
 export interface Widget extends WidgetForm {

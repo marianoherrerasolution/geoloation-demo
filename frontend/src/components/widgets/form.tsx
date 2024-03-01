@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ProductForm } from "../../interfaces/models/product";
-import { Button, Card, Col, Form, Input, Modal, Row, Select, message } from "antd";
+import { Button, Card, Col, Form, Input, Modal, Row, Select, message, Tabs } from "antd";
 import { defaultHttp } from "../../utils/http";
 import { apiURL } from "../../routes/api";
 import { errorCallback } from "../../utils/userHTTPCallback";
@@ -14,6 +14,7 @@ import FormProduct from "../products/form";
 import { generateRandomToken } from "../../utils";
 import { RootState } from '../../store';
 import { useSelector } from 'react-redux';
+import type { TabsProps } from 'antd';
 
 export interface FormProps {
   onSuccess: () => void,
@@ -48,6 +49,23 @@ const FormWidget = (props: FormProps) => {
     {label: "Active", value: 1},
     {label: "Inactive", value: 2},
   ]
+  
+  const rejectActionOptions = [
+    {label: "Close Browser Automatically", value: "close"},
+    {label: "Alert Only", value: "alert"},
+    {label: "Alert and Close", value: "alert_close"},
+    {label: "Redirect Automatically", value: "redirect"},
+    {label: "Alert and Redirect", value: "alert_redirect"},
+    {label: "No Action", value: "nothing"},
+  ]
+
+  const allowActionOptions = [
+    {label: "No Action", value: "nothing"},
+    {label: "Alert Only", value: "alert"},
+    {label: "Alert and Redirect", value: "alert_close"},
+    {label: "Redirect Automatically", value: "redirect"}
+  ]
+
   const [showProduct, setShowProduct] = useState<boolean>(false);
   const [isProductBase, setIsProductBase] = useState<boolean>(true)
 
@@ -202,10 +220,48 @@ const FormWidget = (props: FormProps) => {
 
   const javascriptWidget = () => {
     return `
-      <script type="text/javascript" src="https://lorem.ipsum/widget/restriction.js" async>
-        { "token": "${widgetToken}" } 
-      </script> 
+      <script type="text/javascript" src="${import.meta.env.VITE_WIDGET_JS}?token=${widgetToken}" async></script> 
     `
+  }
+
+  const tabTokensItems = () => {
+    return [
+      {
+        key: '1',
+        label: 'API Token',
+        children: <Card title="Token" style={{ width: "100%" }}
+          extra={
+            <a href="javascript:void(0)"
+              onClick={() => {
+                navigator.clipboard.writeText(widgetToken)
+                message.success("copied token")
+              }}
+            >copy</a>
+          }
+        >
+          { widgetToken }  
+        </Card>,
+      },
+      {
+        key: '2',
+        label: 'Web Script',
+        children: <Card title="Javascript Widget" style={{ width: "100%" }}
+          extra={
+            <a href="javascript:void(0)"
+              onClick={() => {
+                navigator.clipboard.writeText(javascriptWidget())
+                message.success("copied javascript")
+              }}
+            >copy</a>
+          }
+        >
+          <p style={{fontSize: "14px"}}>Copy javascript widget then paste it before <b>{"</head>"}</b> or <b>{"</body>"}</b></p>
+          <p>&nbsp;</p>
+          <div style={{background:"rgb(251, 251, 251)", padding:"10px"}}>{javascriptWidget()}</div>
+          
+        </Card>,
+      },
+    ] as TabsProps['items'] 
   }
 
   return (
@@ -213,6 +269,7 @@ const FormWidget = (props: FormProps) => {
       open={props.show}
       onCancel={() => props.onClose()}
       width={1200}
+      style={{top: 0}}
       footer=""
       title={
         <div
@@ -384,32 +441,111 @@ const FormWidget = (props: FormProps) => {
         </Row>
         <Row gutter={24}>
           <Col span={24}>
-            <Card title="Token" style={{ width: "100%" }}
-              extra={
-                <a href="javascript:void(0)"
-                  onClick={() => {
-                    navigator.clipboard.writeText(widgetToken)
-                    message.success("copied token")
-                  }}
-                >copy</a>
-              }
-            >
-              { widgetToken }  
-            </Card>
+            <Tabs defaultActiveKey="1" items={tabTokensItems()} />
           </Col>
-          <Col span={24}>
-            <Card title="Javascript Widget" style={{ width: "100%" }}
-              extra={
-                <a href="javascript:void(0)"
-                  onClick={() => {
-                    navigator.clipboard.writeText(javascriptWidget())
-                    message.success("copied javascript")
-                  }}
-                >copy</a>
+        </Row>
+        <Row gutter={24}>
+          <Col span={8}>
+            <Form.Item
+              name="reject_action"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Action on rejected</p>
               }
-            >
-              {javascriptWidget()}  
-            </Card>
+              rules={[
+                {
+                  required: true,
+                  message: 'action should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select allow action"
+                options={rejectActionOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="reject_alert"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Rejection Alert</p>
+              }
+            > 
+              <Input
+                placeholder="write your message"
+                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="reject_redirect"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
+              }
+            > 
+              <Input
+                placeholder="write address url or in-app"
+                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={8}>
+            <Form.Item
+              name="allow_action"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Action on allowed</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'action should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select allow action"
+                options={rejectActionOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="allow_alert"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Allowed Message</p>
+              }
+            > 
+              <Input
+                placeholder="write your message"
+                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="allow_redirect"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Redirect or in-app URL</p>
+              }
+            > 
+              <Input
+                placeholder="write address url or in-app"
+                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+              />
+            </Form.Item>
           </Col>
         </Row>
         <div className="text-center">

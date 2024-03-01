@@ -13,6 +13,7 @@ export interface RestrictionForm extends RestrictionSelect {
   networks: string;
   active: number;
   allow: number;
+  vpn: number;
 }
 
 export interface Restriction extends RestrictionForm {

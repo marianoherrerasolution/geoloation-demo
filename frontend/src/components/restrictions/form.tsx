@@ -377,7 +377,7 @@ const FormRestriction = (props: FormProps) => {
           </Col>
         </Row>
         <Row gutter={24}>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               name="networks"
               className="mb-0"
@@ -391,7 +391,7 @@ const FormRestriction = (props: FormProps) => {
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               name="active"
               className="mb-0"
@@ -413,7 +413,7 @@ const FormRestriction = (props: FormProps) => {
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               name="allow"
               className="mb-0"
@@ -432,6 +432,28 @@ const FormRestriction = (props: FormProps) => {
                 allowClear
                 placeholder="Select allow"
                 onSelect={onSelectAccess}
+                options={allowanceOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              name="vpn"
+              className="mb-0"
+              label={
+                <p className="block text-sm font-medium text-gray-900">Using VPN</p>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'VPN should be selected',
+                },
+              ]}
+            > 
+              <Select
+                showSearch
+                allowClear
+                placeholder="Select VPN Role"
                 options={allowanceOptions}
               />
             </Form.Item>
