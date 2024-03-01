@@ -678,7 +678,7 @@ curl_close($ch);
 
   const DocTabItem = () => <>
     <Card title="WEBSITE INTEGRATION">
-      <Row span={24}>
+      <Row gutter={24}>
         <Col span={24}>
           <Tabs defaultActiveKey="1" items={tabHTMLs()} />
         </Col>
@@ -766,7 +766,7 @@ curl_close($ch);
     }}
   />
 
-  const APIDocTabItem = () => <Row span={24} >
+  const APIDocTabItem = () => <Row gutter={24} >
     <Col span={24} className="mb-2" style={{background: "#fcfcfc", padding:"8px 0px"}}>
       <b>REQUEST</b>
     </Col>
@@ -842,7 +842,7 @@ curl_close($ch);
     </Col>
   </Row>
 
-  const SuccessRespItem = () => <Row span={24} >
+  const SuccessRespItem = () => <Row gutter={24} >
     <Col span={24} className="mb-2" style={{background: "#fcfcfc", padding:"8px 0px"}}>
       <b>Response</b>
     </Col>
@@ -908,7 +908,7 @@ curl_close($ch);
     </Col>
   </Row>
 
-  const ErrorRespItem = () => <Row span={24}  className="mb-4">
+  const ErrorRespItem = () => <Row gutter={24}  className="mb-4">
     <Col span={24} className="mb-2" style={{background: "#fcfcfc", padding:"8px 0px"}}>
       <b>Status Code</b>
     </Col>
