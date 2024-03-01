@@ -103,5 +103,8 @@ func Lookup(ipaddress string) (GeoLocation, error) {
 		return info, err
 	}
 
+	// convert timezone into minute
+	info.Timezone.Offset = info.Timezone.Offset * 60
+
 	return info, nil
 }

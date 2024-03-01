@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,24 +82,29 @@ func Remote(ip string) (GeoLocation, error) {
 			result.CountryName = s.Next().Text()
 			notfound = false
 		}
+
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "state") {
 			result.StateProv = s.Next().Text()
 			notfound = false
 		}
+
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "city") {
 			result.City = s.Next().Text()
 			notfound = false
 		}
+
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "zip") {
 			result.Zipcode = s.Next().Text()
 			notfound = false
 		}
+
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "coordinates") {
 			coordinates := strings.Split(s.Next().Text(), ",")
 			result.Latitude = coordinates[0]
 			result.Longitude = coordinates[1]
 			notfound = false
 		}
+
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "timezone") {
 			timezone := s.Next().Text()
 			re := regexp.MustCompile(`(?i)\(UTC.*?\)`)
@@ -107,7 +113,16 @@ func Remote(ip string) (GeoLocation, error) {
 			if offset != "" {
 				timezone = strings.TrimSpace(strings.ReplaceAll(timezone, offset, ""))
 			}
+
 			result.Timezone = GeoTimezone{Name: timezone}
+			re = regexp.MustCompile(`(?i)(\(|UTC|\)|\+)`)
+			offset = strings.TrimSpace(re.ReplaceAllString(offset, ""))
+			if offset != "" {
+				offsetDecimal, _ := strconv.ParseFloat(offset, 64)
+				offsetMinute := int(offsetDecimal * 30)
+				result.Timezone.Offset = offsetMinute
+			}
+
 			notfound = false
 		}
 		if notfound && strings.Contains(strings.ToLower(s.Text()), "currency") {

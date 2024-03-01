@@ -32,7 +32,7 @@ func Scan(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	tx := dal.RestrictionQueryByWidget(payload.Widget, payload.Geo.Latitude, payload.Geo.Longitude)
+	tx := dal.RestrictionQueryByWidget(payload.Widget, payload.Latitude, payload.Longitude)
 
 	var restrictions []model.Restriction
 	tx.Select("id, networks, allow, client_id, product_id, vpn").Find(&restrictions)
@@ -46,16 +46,20 @@ func Scan(ctx *fasthttp.RequestCtx) {
 	rejectBytes, _ := json.Marshal(respReject)
 
 	widgetUsage := &model.WidgetUsage{
-		ClientID:      0,
-		RestrictionID: 0,
-		ProductID:     0,
-		Allow:         2,
-		ParamsIP:      payload.IpAddress,
-		Referer:       string(ctx.Request.Header.Peek("Referer")),
-		RemoteIP:      ctx.RemoteIP().String(),
-		Point:         fmt.Sprintf("POINT(%g %g)", payload.Longitude, payload.Latitude),
-		Latitude:      payload.Latitude,
-		Longitude:     payload.Longitude,
+		ClientID:       payload.Widget.ClientID,
+		RestrictionID:  0,
+		ProductID:      0,
+		WidgetID: 			payload.Widget.ID,
+		Allow:          2,
+		ParamsIP:       payload.IpAddress,
+		Referer:        string(ctx.Request.Header.Peek("Referer")),
+		RemoteIP:       ctx.RemoteIP().String(),
+		Point:          fmt.Sprintf("POINT(%g %g)", payload.Longitude, payload.Latitude),
+		Latitude:       payload.Latitude,
+		Longitude:      payload.Longitude,
+		City:           payload.Geo.City,
+		TimezoneOffset: payload.Offset,
+		Country:        payload.Geo.CountryName,
 	}
 
 	ctx.SetContentType("application/json")
