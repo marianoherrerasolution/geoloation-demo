@@ -1,11 +1,9 @@
 import { ActionType, ProColumns, ProTable, RequestData } from "@ant-design/pro-components";
-import { Restriction } from "../../interfaces/models/restriction";
 import { WidgetUsage } from "../../interfaces/models/widget_usage";
 import { Col, Input, Row, Tag } from "antd";
 import titleize from "titleize";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
-import AlertBadge from "../alert";
 import { RootState } from "../../store";
 import { useSelector } from "react-redux";
 import { apiURL } from "../../routes/api";

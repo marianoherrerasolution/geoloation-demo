@@ -245,11 +245,11 @@ const FormRestriction = (props: FormProps) => {
 
   const onSelectAccess = (val:number) => {
     if (val < 2) {
-      setFillColor("rgb(204, 255, 51, 0.70)")
-      setStrokeColor("rgb(51, 204, 51, 1)")
+      setFillColor("rgb(204, 255, 51, 0.30)")
+      setStrokeColor("rgb(51, 204, 51, 0.5)")
     } else {
-      setFillColor("rgb(255, 153, 153, 0.70)")
-      setStrokeColor("rgb(204, 0, 0, 1)")
+      setFillColor("rgb(255, 153, 153, 0.30)")
+      setStrokeColor("rgb(204, 0, 0, 0.5)")
     }
   }
 
@@ -512,12 +512,13 @@ const FormRestriction = (props: FormProps) => {
       </Row>
       <Row gutter={24}>
         <Col span={24}>
-          <GeoMap lat={centerLat} lon={centerLon} 
+          <GeoMap 
             drawType={drawType} 
             onDrawEnd={onDrawedPolygon}
             strokeColor={strokeColor}
             fillColor={fillColor}
             polygonCoordinates={coordinates}
+            lat={centerLat} lon={centerLon} 
           />
         </Col>
         <Col span={24}>
@@ -546,6 +547,30 @@ const FormRestriction = (props: FormProps) => {
         </Button>
       </div>
     </Form>
+  }
+
+  const restrictionTabItems = () => {
+    return !props.formData.id ? [{
+      key: "1",
+      label: "Form",
+      children: FormTabItem(),
+    }] : [
+    {
+      key: "1",
+      label: "Form",
+      children: FormTabItem(),
+    },
+    {
+      key: "2",
+      label: "Analytic",
+      children: <AnalyticRestriction 
+        restrictionID={props.formData.id}
+        strokeColor={strokeColor}
+        fillColor={fillColor}
+        polygon={coordinates}
+        centerLat={centerLat} centerLon={centerLon} 
+      />,
+    }]
   }
 
   return (
@@ -589,18 +614,7 @@ const FormRestriction = (props: FormProps) => {
         </Draggable>
       )}
     >
-      <Tabs defaultActiveKey="1" items={[
-        {
-          key: "1",
-          label: "Form",
-          children: FormTabItem(),
-        },
-        {
-          key: "2",
-          label: "Analytic",
-          children: <AnalyticRestriction restrictionID={props.formData.id}/>,
-        },
-      ]}/>
+      <Tabs defaultActiveKey="1" items={restrictionTabItems()}/>
       
       {
         showProduct ? <FormProduct

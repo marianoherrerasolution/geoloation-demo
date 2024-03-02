@@ -3,13 +3,14 @@ import { fromLonLat, toLonLat } from "ol/proj";
 import { Point, Polygon } from "ol/geom";
 import "ol/ol.css";
 import "./custom.css";
-import Draw, { DrawEvent } from 'ol/interaction/Draw.js';
+import { DrawEvent } from 'ol/interaction/Draw.js';
 
-import { RMap, ROSM, RLayerVector, RFeature, ROverlay, RStyle, RInteraction, MapBrowserEvent } from "rlayers";
+import { RMap, ROSM, RLayerVector, RFeature, RStyle, RInteraction, MapBrowserEvent } from "rlayers";
 import locationIcon from "./location.svg";
 import { RView } from "rlayers/RMap";
 import { Coordinate } from "ol/coordinate";
 import { Map } from "ol";
+import { Marker } from "../../interfaces/models/marker";
 
 // const initialView: RView = { center: fromLonLat([2.364, 48.82]), zoom: 12 };
 
@@ -22,6 +23,7 @@ interface MapProps {
   strokeColor: string;
   strokeWidth: number;
   polygonCoordinates: Coordinate[][];
+  markers: Array<Marker>; // [{point: new Point(...), icon: "path"}]
 }
 
 const GeoMap = ({
@@ -32,6 +34,7 @@ const GeoMap = ({
   strokeColor,
   fillColor,
   polygonCoordinates,
+  markers,
   onDrawEnd
 }: MapProps) => {
   const [latitude, setLatitude] = useState<number>(0)
@@ -84,6 +87,10 @@ const GeoMap = ({
       //   setNewInitialView(true)
       // },500)
     }
+
+    if (markers && markers.length > 0) {
+      // prepare markers
+    }
   })
 
   const changeCoordinatesToPolygon = (coords:Coordinate[][]) => {
@@ -129,17 +136,6 @@ const GeoMap = ({
         onClick={onMapClicked}
       >
         <ROSM />
-        <RLayerVector
-        >
-          <RFeature
-            // key={mapUniqKey}
-            geometry={new Point(fromLonLat([longitude, latitude]))}
-          >
-            <RStyle.RStyle>
-              <RStyle.RIcon src={locationIcon} anchor={[0.5, 0.8]} />
-            </RStyle.RStyle>
-          </RFeature>
-        </RLayerVector>
         {
           drawing != "remove" ?
             <RLayerVector>
@@ -161,6 +157,30 @@ const GeoMap = ({
               }
             </RLayerVector> : ""
         }
+        <RLayerVector
+        >
+          <RFeature
+            // key={mapUniqKey}
+            geometry={new Point(fromLonLat([longitude, latitude]))}
+          >
+            <RStyle.RStyle>
+              <RStyle.RIcon src={locationIcon} anchor={[0.5, 0.8]} />
+            </RStyle.RStyle>
+          </RFeature>
+        </RLayerVector>
+        <RLayerVector>
+          
+        {markers ? markers.map((marker, mIndex) => (
+          <RFeature
+            key={`marker${mIndex}`}
+            geometry={marker.point}
+          >
+            <RStyle.RStyle>
+              <RStyle.RIcon src={marker.icon} anchor={[0.5, 0.8]} />
+            </RStyle.RStyle>
+          </RFeature>
+        )) : ""}
+        </RLayerVector>
         
         </RMap> : ""
       }
@@ -179,10 +199,11 @@ GeoMap.defaultProps = {
   lon: 0,
   drawType: "",
   onDrawEnd: (coords: Array<Coordinate>) => {},
-  fillColor: "rgba(0, 0, 0, 0.65)",
+  fillColor: "rgba(0, 0, 0, 0.45)",
   strokeColor: "#0000ff",
   strokeWidth: 3,
-  polygonCoordinates: []
+  polygonCoordinates: [],
+  markers: []
 }
 
 export default GeoMap;

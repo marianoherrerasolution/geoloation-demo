@@ -7,10 +7,9 @@ import {
   ProDescriptions,
 } from '@ant-design/pro-components';
 import { BreadcrumbProps, Modal, Select, Space, Button, Form, Input, Tag } from 'antd';
-import { Children, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
-import { Product, ProductForm } from '../../interfaces/models/product';
 import { apiURL } from '../../routes/api';
 import { adminRoutes } from '../../routes/web';
 import {
