@@ -68,7 +68,7 @@ func Init() *router.Router {
 	rV2.POST("/vpn/check", authToken(vpnsapi.Detect, "member"))
 
 	rV2.GET("/u/widgets", authToken(widgetsapi.List, "member"))
-	rV2.GET("/u/widgets/{id}/usages", authToken(widgetsapi.Show, "member"))
+	rV2.GET("/u/widgets/{id}/usages", authToken(widgetsapi.Usages, "member"))
 	rV2.GET("/u/widgets/{id}", authToken(widgetsapi.Show, "member"))
 	rV2.PUT("/u/widgets/{id}", authToken(widgetsapi.Update, "member"))
 	rV2.DELETE("/u/widgets/{id}", authToken(widgetsapi.Delete, "member"))

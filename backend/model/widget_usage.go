@@ -25,6 +25,7 @@ type WidgetUsage struct {
 	City           string         `gorm:"column:city;index:idx_wu_searcy;priority:4" json:"city,omitempty"`
 	Country        string         `gorm:"column:country;index:idx_wu_searcy;priority:5" json:"country,omitempty"`
 	TimezoneOffset int16          `gorm:"column:timezone_offset" json:"timezone_offset,omitempty"`
+	Distance       float64        `gorm:"column:distance" json:"distance"`
 }
 
 func (u *WidgetUsage) TableName() string {
