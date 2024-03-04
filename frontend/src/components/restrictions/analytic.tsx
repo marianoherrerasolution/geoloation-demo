@@ -13,8 +13,8 @@ import GeoMap from "../geomap";
 import { Coordinate } from "ol/coordinate";
 import { fromLonLat } from "ol/proj";
 import { Point } from "ol/geom";
-import GreenPin from "./pin_green.png"
-import RedPin from "./pin_red.png"
+import GreenPin from "./pin_correct2.png"
+import RedPin from "./pin_wrong2.png"
 import { Marker } from "../../interfaces/models/marker";
 
 
@@ -35,6 +35,7 @@ const AnalyticRestriction = (props: AnalyticProps) => {
   const [keyword, setKeyword] = useState<string>("");
   const [showMap, setShowMap] = useState<boolean>(false);
   const [mapMarkers, setMapMarkers] = useState<Array<Marker>>([])
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const columns: ProColumns[] = [
     {
@@ -117,7 +118,6 @@ const AnalyticRestriction = (props: AnalyticProps) => {
   const widgetsURL = () => (admin ? apiURL.restrictions : apiURL.user.restrictions);
 
   const prepareUniqMarkers = (histories: [WidgetUsage]) => {
-    console.log(histories)
     setShowMap(false)    
     let uniqMarkers:any = {}
     let markers:Marker[] = []
@@ -170,10 +170,13 @@ const AnalyticRestriction = (props: AnalyticProps) => {
           rowSelection={false}
           pagination={{
             showQuickJumper: true,
-            pageSize: 10,
+            pageSize: pageSize,
           }}
           actionRef={actionRef}
           request={(params) => {
+            if (params.pageSize && params.pageSize != pageSize) {
+              setPageSize(params.pageSize)
+            }
             return defaultHttp
               .get(`${widgetsURL()}/${props.restrictionID}/histories`, {
                 params: {

@@ -56,6 +56,7 @@ const Clients = () => {
   const [keyword, setKeyword] = useState<string>("");
   const [formData, setFormData] = useState<ClientForm>({} as ClientForm);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10);
  
   const columns: ProColumns[] = [
     {
@@ -222,10 +223,13 @@ const Clients = () => {
         rowSelection={false}
         pagination={{
           showQuickJumper: true,
-          pageSize: 10,
+          pageSize: pageSize,
         }}
         actionRef={actionRef}
         request={(params) => {
+          if (params.pageSize && params.pageSize != pageSize) {
+              setPageSize(params.pageSize)
+            }
           return defaultHttp
             .get(apiURL.clients, {
               params: {

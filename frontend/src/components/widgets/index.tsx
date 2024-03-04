@@ -97,6 +97,7 @@ const Widgets = () => {
   );
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showClient, setShowClient] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const mounted = useRef(false);
   const [selectClients, setSelectClients] = useState<Array<SelectTag>>([]);
@@ -749,10 +750,13 @@ int main() {
       rowSelection={false}
       pagination={{
         showQuickJumper: true,
-        pageSize: 10,
+        pageSize: pageSize,
       }}
       actionRef={actionRef}
       request={(params) => {
+        if (params.pageSize && params.pageSize != pageSize) {
+          setPageSize(params.pageSize)
+        }
         return defaultHttp
           .get(widgetURL(), {
             params: {

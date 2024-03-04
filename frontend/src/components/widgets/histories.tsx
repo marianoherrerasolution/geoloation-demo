@@ -20,6 +20,7 @@ const WidgetHistories = (props: HistoryProps) => {
   const admin = useSelector((state: RootState) => state.admin);
   const actionRef = useRef<ActionType>();
   const [keyword, setKeyword] = useState<string>("");
+  const [pageSize, setPageSize] = useState<number>(10)
 
   const columns: ProColumns[] = [
     {
@@ -120,10 +121,13 @@ const WidgetHistories = (props: HistoryProps) => {
           rowSelection={false}
           pagination={{
             showQuickJumper: true,
-            pageSize: 10,
+            pageSize: pageSize,
           }}
           actionRef={actionRef}
           request={(params) => {
+            if (params.pageSize && params.pageSize != pageSize) {
+              setPageSize(params.pageSize)
+            }
             return defaultHttp
               .get(`${widgetsURL()}/${props.widgetID}/usages`, {
                 params: {

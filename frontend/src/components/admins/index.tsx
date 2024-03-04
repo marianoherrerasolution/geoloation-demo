@@ -57,6 +57,7 @@ const Admins = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const columns: ProColumns[] = [
     {
@@ -284,10 +285,13 @@ const Admins = () => {
         rowSelection={false}
         pagination={{
           showQuickJumper: true,
-          pageSize: 10,
+          pageSize: pageSize,
         }}
         actionRef={actionRef}
         request={(params) => {
+          if (params.pageSize && params.pageSize != pageSize) {
+              setPageSize(params.pageSize)
+            }
           return defaultHttp
             .get(apiURL.admins, {
               params: {

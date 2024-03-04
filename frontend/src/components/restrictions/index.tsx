@@ -64,6 +64,7 @@ const Restrictions = () => {
   const [formDataClient, setFormDataClient] = useState<ClientForm>({} as ClientForm);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showClient, setShowClient] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10);
  
   const mounted = useRef(false);
   const [selectClients, setSelectClients] = useState<Array<SelectTag>>([])
@@ -329,10 +330,13 @@ const Restrictions = () => {
         rowSelection={false}
         pagination={{
           showQuickJumper: true,
-          pageSize: 10,
+          pageSize: pageSize,
         }}
         actionRef={actionRef}
         request={(params) => {
+          if (params.pageSize && params.pageSize != pageSize) {
+            setPageSize(params.pageSize)
+          }
           return defaultHttp
             .get(restrictionURL(), {
               params: {
