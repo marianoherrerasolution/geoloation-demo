@@ -12,14 +12,16 @@ import (
 )
 
 type Payload struct {
-	Token     string
-	Offset    int16
-	Latitude  float64
-	Longitude float64
-	IpAddress string
-	Ctx       *fasthttp.RequestCtx
-	Geo       ipgeo.GeoLocation
-	Widget    model.Widget
+	Token       string
+	Offset      int16
+	Latitude    float64
+	Longitude   float64
+	IpAddress   string
+	Ctx         *fasthttp.RequestCtx
+	Geo         ipgeo.GeoLocation
+	Widget      model.Widget
+	RejectBytes []byte
+	AcceptBytes []byte
 }
 
 func Scan(ctx *fasthttp.RequestCtx) {
@@ -31,52 +33,13 @@ func Scan(ctx *fasthttp.RequestCtx) {
 	if ok := payload.GetCoordinate(); !ok {
 		return
 	}
-
-	tx := dal.RestrictionQueryByWidget(payload.Widget, payload.Latitude, payload.Longitude)
-
-	var restrictions []model.Restriction
-	tx.Select("id, networks, allow, client_id, product_id, vpn").Find(&restrictions)
-
-	respReject := map[string]interface{}{
-		"access":   "deny",
-		"action":   payload.Widget.RejectAction,
-		"message":  payload.Widget.RejectAlert,
-		"redirect": payload.Widget.RejectRedirect,
-	}
-	rejectBytes, _ := json.Marshal(respReject)
-
-	widgetUsage := &model.WidgetUsage{
-		ClientID:       payload.Widget.ClientID,
-		RestrictionID:  0,
-		ProductID:      0,
-		WidgetID: 			payload.Widget.ID,
-		Allow:          2,
-		ParamsIP:       payload.IpAddress,
-		Referer:        string(ctx.Request.Header.Peek("Referer")),
-		RemoteIP:       ctx.RemoteIP().String(),
-		Point:          fmt.Sprintf("POINT(%g %g)", payload.Longitude, payload.Latitude),
-		Latitude:       payload.Latitude,
-		Longitude:      payload.Longitude,
-		City:           payload.Geo.City,
-		TimezoneOffset: payload.Offset,
-		Country:        payload.Geo.CountryName,
-	}
-
-	ctx.SetContentType("application/json")
+	payload.PrepareResponseBytes()
+	var restrictions []model.RestrictionV2
+	dal.RestrictionQueryByWidget(payload.Widget, payload.Latitude, payload.Longitude).Find(&restrictions)
 	if len(restrictions) < 1 {
-		ctx.SetStatusCode(403)
-		dal.Create(widgetUsage)
-		ctx.SetBody(rejectBytes)
+		payload.ScanNearby()
 		return
 	}
-
-	respAccept := map[string]interface{}{
-		"access":   "allow",
-		"action":   payload.Widget.AcceptAction,
-		"message":  payload.Widget.AcceptAlert,
-		"redirect": payload.Widget.AcceptRedirect,
-	}
-	acceptBytes, _ := json.Marshal(respAccept)
 
 	disallow := false
 	for _, restriction := range restrictions {
@@ -85,6 +48,24 @@ func Scan(ctx *fasthttp.RequestCtx) {
 			disallow = true
 			allow = 2
 		}
+		widgetUsage := &model.WidgetUsage{
+			ClientID:       payload.Widget.ClientID,
+			RestrictionID:  0,
+			ProductID:      0,
+			WidgetID:       payload.Widget.ID,
+			Allow:          2,
+			ParamsIP:       payload.IpAddress,
+			Referer:        string(ctx.Request.Header.Peek("Referer")),
+			RemoteIP:       ctx.RemoteIP().String(),
+			Point:          fmt.Sprintf("POINT(%g %g)", payload.Longitude, payload.Latitude),
+			Latitude:       payload.Latitude,
+			Longitude:      payload.Longitude,
+			City:           payload.Geo.City,
+			TimezoneOffset: payload.Offset,
+			Country:        payload.Geo.CountryName,
+			Distance:       0,
+		}
+
 		widgetUsage.ClientID = restriction.ClientID
 		widgetUsage.RestrictionID = restriction.ID
 		widgetUsage.ProductID = restriction.ProductID
@@ -92,12 +73,39 @@ func Scan(ctx *fasthttp.RequestCtx) {
 		dal.Create(widgetUsage)
 	}
 
-	ctx.SetStatusCode(200)
-	if disallow {
-		ctx.SetBody(rejectBytes)
+	payload.Respond(disallow)
+}
+
+func (p *Payload) Respond(isReject bool) {
+	p.Ctx.SetStatusCode(200)
+	if isReject {
+		p.Ctx.SetBody(p.RejectBytes)
 	} else {
-		ctx.SetBody(acceptBytes)
+		p.Ctx.SetBody(p.AcceptBytes)
 	}
+}
+
+func (p *Payload) PrepareResponseBytes() {
+	respReject := map[string]interface{}{
+		"access":   "deny",
+		"action":   p.Widget.RejectAction,
+		"message":  p.Widget.RejectAlert,
+		"redirect": p.Widget.RejectRedirect,
+	}
+	rejectBytes, _ := json.Marshal(respReject)
+	p.RejectBytes = rejectBytes
+
+	respAccept := map[string]interface{}{
+		"access":   "allow",
+		"action":   p.Widget.AcceptAction,
+		"message":  p.Widget.AcceptAlert,
+		"redirect": p.Widget.AcceptRedirect,
+	}
+	acceptBytes, _ := json.Marshal(respAccept)
+	p.AcceptBytes = acceptBytes
+
+	p.Ctx.SetContentType("application/json")
+
 }
 
 func (p *Payload) Validate() bool {
@@ -168,4 +176,45 @@ func (p *Payload) BadRequest() bool {
 	p.Ctx.SetContentType("application/json")
 	p.Ctx.SetBody([]byte("{\"error\": \"bad_ip_address\"}"))
 	return false
+}
+
+func (p *Payload) ScanNearby() {
+	var restrictions []model.RestrictionV3
+	referer := string(p.Ctx.Request.Header.Peek("Referer"))
+	remoteIP := p.Ctx.RemoteIP().String()
+
+	allowedRestrictionIDs := []uint{}
+	tx := dal.RestrictionsByRadiusWidget(50000, p.Widget, p.Latitude, p.Longitude)
+	tx.Find(&restrictions)
+
+	for _, restriction := range restrictions {
+		allow := 2
+		if restriction.Allow != 1 {
+			allow = 1
+			allowedRestrictionIDs = append(allowedRestrictionIDs, restriction.ID)
+		}
+
+		usage := &model.WidgetUsage{
+			ClientID:       restriction.ClientID,
+			RestrictionID:  restriction.ID,
+			ProductID:      restriction.ProductID,
+			WidgetID:       p.Widget.ID,
+			Allow:          int16(allow),
+			ParamsIP:       p.IpAddress,
+			Referer:        referer,
+			RemoteIP:       remoteIP,
+			Point:          fmt.Sprintf("POINT(%g %g)", p.Longitude, p.Latitude),
+			Latitude:       p.Latitude,
+			Longitude:      p.Longitude,
+			City:           p.Geo.City,
+			TimezoneOffset: p.Offset,
+			Country:        p.Geo.CountryName,
+			Distance:       restriction.Distance,
+		}
+
+		dal.Create(usage)
+	}
+
+	p.Respond(len(allowedRestrictionIDs) < 1)
+
 }
