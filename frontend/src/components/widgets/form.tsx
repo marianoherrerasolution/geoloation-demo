@@ -224,7 +224,7 @@ const FormWidget = (props: FormProps) => {
 
   const javascriptWidget = () => {
     return `
-      <script type="text/javascript" src="${import.meta.env.VITE_WIDGET_JS}?token=${widgetToken}" async></script> 
+      <script id="geoniuscript" type="text/javascript" src="${import.meta.env.VITE_WIDGET_JS}?token=${widgetToken}" async></script> 
     `
   }
 

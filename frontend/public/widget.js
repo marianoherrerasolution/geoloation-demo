@@ -40,7 +40,7 @@
       }
     }
 
-    const endpoint = "https://widget.geo.taeqr.com/scan?token=${token}&offset=${offset}"
+    const endpoint = `https://widget.geo.taeqr.com/scan?token=${token}&offset=${offset}`
     fetch(endpoint).
     then(successCallback).
     catch(function(err) {

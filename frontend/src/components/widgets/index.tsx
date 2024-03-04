@@ -673,7 +673,7 @@ int main() {
 <html>
   <head>
       ... 
-    <script type="text/javascript" src="${WidgetJS}?token=YOUR-WIDGET-TOKEN" async></script> 
+    <script id="geoniuscript" type="text/javascript" src="${WidgetJS}?token=YOUR-WIDGET-TOKEN" async></script> 
   </head>
   <body>
   </body>
@@ -688,7 +688,7 @@ int main() {
   </head>
   <body>
     ...
-    <script type="text/javascript" src="${WidgetJS}?token=YOUR-WIDGET-TOKEN" async></script> 
+    <script id="geoniuscript" type="text/javascript" src="${WidgetJS}?token=YOUR-WIDGET-TOKEN" async></script> 
   </body>
 </html>
     `;
@@ -826,7 +826,7 @@ int main() {
           padding: "6px 0px",
         }}
       >
-        GET
+        <Tag color="default">GET</Tag>
       </Col>
       <Col
         span={2}
@@ -844,7 +844,7 @@ int main() {
           padding: "6px 0px",
         }}
       >
-        {WidgetAPI}
+        <b>{WidgetAPI}</b>
       </Col>
       <Col
         span={2}
