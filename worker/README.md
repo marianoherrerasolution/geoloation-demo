@@ -1,5 +1,5 @@
-# 🌎 GEONIUS-BACKEND
-### Geonius microserviec as API to handle admin and client from Frontend
+# 🌎 GEONIUS-WORKER
+### Geonius microservice as Cron and Background Jobs to build analytic data
 
 ### Stacks
 
@@ -18,29 +18,25 @@ Please install the following stacks
 
 Please learn from the following links about the features:
 
-- [Fasthttp-router framework](https://github.com/fasthttp/router)
+- [Distributed task queue](https://github.com/hibiken/asynq)
 
 
 ### Prerequisite
 - Install dependencies: `go mod tidy`
-- Restore data for development: `pg_restore -U db_user --host localhost -d geolocation < geolocation.sql`
-- Migration: `make migrate-dev`
-- Server: `make dev`
-- Download from GeoIPDB github file `dbip-city-ipv4.csv.gz` and extract `gzip -d dbip-city-ipv4.csv.gz`
-- Convert `mmdbctl import --in dbip-city-ipv4.csv --out dbip-city-ipv4.mmdb`
+- Server: `go run main.go --worker`
+- Cron: `go run main.go --cron`
 
 
 ### Folder Structures
-|-- `api`: all api handlers
+|-- `config`: configuration for local envrionment variables
 
-|-- `config`: configuration for local envrionment variable
-
-|-- `db`: database connection and migration
+|-- `database`: connection for postgresql and redis
 
 |-- `model`: object relational mapping for tables
 
 |-- `pkg`: library for helper modules
 
-|-- `routes`: router for api
+....|-- `cron`: handle scheduled or cron job
+....|-- `queue`: handle worker to execute queue or task
 
 |-- `main.go`: The start of everything

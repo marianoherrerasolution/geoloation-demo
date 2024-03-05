@@ -1,5 +1,5 @@
-# 🌎 GEONIUS-BACKEND
-### Geonius microserviec as API to handle admin and client from Frontend
+# 🌎 GEONIUS-WIDGET
+### Geonius microservice as API to handle widget request from any application
 
 ### Stacks
 
@@ -33,14 +33,12 @@ Please learn from the following links about the features:
 ### Folder Structures
 |-- `api`: all api handlers
 
-|-- `config`: configuration for local envrionment variable
+|-- `config`: configuration for local envrionment variables, routers and databases
 
-|-- `db`: database connection and migration
+|-- `dal`: data access layer functions
 
 |-- `model`: object relational mapping for tables
 
 |-- `pkg`: library for helper modules
-
-|-- `routes`: router for api
 
 |-- `main.go`: The start of everything
