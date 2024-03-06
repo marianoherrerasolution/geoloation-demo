@@ -15,6 +15,8 @@ import (
 func registerWorkers() *asynq.ServeMux {
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(enums.TaskStatistic, statisticWorker)
+	mux.HandleFunc(enums.TaskStatisticUniq, statisticWorker)
+	mux.HandleFunc(enums.TaskStatisticAggregate, statisticWorker)
 	return mux
 }
 
@@ -22,13 +24,37 @@ func statisticWorker(ctx context.Context, t *asynq.Task) error {
 	var params string
 	sonic.Unmarshal(t.Payload(), &params)
 	switch params {
+	case "uniq":
+		return runUniqWidget()
 	case "uniq_widget_point":
 		return uniqstat.UniqWidgetPoint()
 	case "uniq_restriction_point":
 		return uniqstat.UniqRestrictionPoint()
 	case "aggregate":
-		return aggregatestat.Run()
+		return runAggregation()
+	case "aggregate_widget":
+		return aggregatestat.AggregateWidget()
+	case "aggregate_restriction":
+		return aggregatestat.AggregateRestriction()
 	}
+	return nil
+}
+
+func runUniqWidget() error {
+	task := asynq.NewTask(enums.TaskStatisticUniq, []byte("uniq_widget_point"))
+	AsynqClient().Enqueue(task, asynq.MaxRetry(0), asynq.Queue(enums.TaskStatisticUniq))
+
+	task = asynq.NewTask(enums.TaskStatisticUniq, []byte("uniq_restriction_point"))
+	AsynqClient().Enqueue(task, asynq.MaxRetry(0), asynq.Queue(enums.TaskStatisticUniq))
+	return nil
+}
+
+func runAggregation() error {
+	task := asynq.NewTask(enums.TaskStatisticAggregate, []byte("aggregate_widget"))
+	AsynqClient().Enqueue(task, asynq.MaxRetry(0), asynq.Queue(enums.TaskStatisticAggregate))
+
+	task = asynq.NewTask(enums.TaskStatisticAggregate, []byte("aggregate_restriction"))
+	AsynqClient().Enqueue(task, asynq.MaxRetry(0), asynq.Queue(enums.TaskStatisticAggregate))
 	return nil
 }
 

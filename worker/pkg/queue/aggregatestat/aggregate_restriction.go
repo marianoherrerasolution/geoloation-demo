@@ -1,5 +1,5 @@
 package aggregatestat
 
-func Run() error {
+func AggregateRestriction() error {
 	return nil
 }

@@ -37,6 +37,7 @@ Please learn from the following links about the features:
 |-- `pkg`: library for helper modules
 
 ....|-- `cron`: handle scheduled or cron job
+
 ....|-- `queue`: handle worker to execute queue or task
 
 |-- `main.go`: The start of everything

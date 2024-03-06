@@ -38,9 +38,9 @@ func getDistinctRestrictionUsages(fields string, starthour int64, endhour int64)
 	FROM %s 
 	WHERE restriction_id > 0 
 	AND
-	EXTRACT(EPOCH FROM created_at)::bigint >= %d
+	EXTRACT(EPOCH FROM created_at)::int >= %d
 	AND 
-	EXTRACT(EPOCH FROM created_at)::bigint < %d`,
+	EXTRACT(EPOCH FROM created_at)::int < %d`,
 		model.TableWidgetUsage, fields, starthour, endhour,
 	)
 }
