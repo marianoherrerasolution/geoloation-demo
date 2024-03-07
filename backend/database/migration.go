@@ -66,5 +66,15 @@ func Migrate() {
 		panic(err)
 	}
 
+	fmt.Println("Create Table total_daily_restriction.")
+	if err := Pg.AutoMigrate(&model.TotalDailyRestriction{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table total_daily_widgets.")
+	if err := Pg.AutoMigrate(&model.TotalDailyWidget{}); err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Done.")
 }
