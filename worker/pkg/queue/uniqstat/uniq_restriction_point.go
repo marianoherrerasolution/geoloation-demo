@@ -4,26 +4,28 @@ import (
 	"fmt"
 	db "geonius/worker/database"
 	"geonius/worker/model"
-	"time"
 )
 
 // UniqRestrictionPoint() to filter uniq user which access Restriction by its point location within 1 hour range
 // if now is 2.05pm then all restriction usages from 1.00pm to 2.00pm will be uniqued by their geo point and restriction id
 func UniqRestrictionPoint() error {
-	now := time.Now().UTC()
-	endhour := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 0, 0, 0, time.UTC)
-	starthour := endhour.Add(-1 * time.Hour)
 	var restrictionIDs []int64
-	db.Raw(getDistinctRestrictionUsages("restriction_id", starthour.Unix(), endhour.Unix())).Find(&restrictionIDs)
+	db.Raw(getDistinctRestrictionUsages("restriction_id")).Find(&restrictionIDs)
 
 	var results []model.UniqRestrictionPoint
 	db.Raw(
 		fmt.Sprintf(`
-			SELECT restriction_id, point FROM (%s) as widgetpoints
+		SELECT restriction_id, point, date 
+			FROM (%s) as t1
 			EXCEPT
-			SELECT restriction_id, point FROM %s WHERE restriction_id IN (?)
+				SELECT restriction_id, point, date 
+				FROM %s 
+				WHERE restriction_id IN (?) AND 
+					date < CURRENT_DATE
+				AND 
+					date >= (CURRENT_DATE - 1)
 		`,
-			getDistinctRestrictionUsages("restriction_id, point", starthour.Unix(), endhour.Unix()),
+			getDistinctRestrictionUsages("restriction_id, point, created_at::date as date"),
 			model.TableUniqRestrictionPoint,
 		),
 		restrictionIDs,
@@ -33,14 +35,15 @@ func UniqRestrictionPoint() error {
 	return nil
 }
 
-func getDistinctRestrictionUsages(fields string, starthour int64, endhour int64) string {
+func getDistinctRestrictionUsages(fields string) string {
 	return fmt.Sprintf(`SELECT DISTINCT %s 
 	FROM %s 
 	WHERE restriction_id > 0 
 	AND
-	EXTRACT(EPOCH FROM created_at)::int >= %d
+	created_at::date < CURRENT_DATE
 	AND 
-	EXTRACT(EPOCH FROM created_at)::int < %d`,
-		model.TableWidgetUsage, fields, starthour, endhour,
+	created_at::date >= (CURRENT_DATE - 1)`,
+		fields,
+		model.TableWidgetUsage,
 	)
 }

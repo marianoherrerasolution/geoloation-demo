@@ -22,8 +22,8 @@ func AggregateWidget() error {
 		JOIN %s ON t1.date = t2.date 
 		AND t1.widget_id = t2.widget_id
 		`,
-		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t1", ",total as total_hit", ""),
-		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t2", ", count(total) as total_uniq", ", point"),
+		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t1", "widget_id ,total as total_hit", ""),
+		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t2", "widget_id, count(total) as total_uniq", ", point"),
 	)
 
 	var results []model.TotalDailyWidget
@@ -35,13 +35,12 @@ func buildQueryAggr(starthour int64, endhour int64, aliastable string, morefield
 	return fmt.Sprintf(`
 		(
 			SELECT 
-				date, widget_id %s 
+				date, %s 
 			FROM 
 				(
 					SELECT 
 						COUNT(*) AS total_count,
-						DATE_TRUNC('day', created_at) AS date,
-						widget_id %s
+						DATE_TRUNC('day', created_at) AS date%s
 					FROM 
 						widget_usages 
 					WHERE 
@@ -49,12 +48,10 @@ func buildQueryAggr(starthour int64, endhour int64, aliastable string, morefield
 					AND 
 						EXTRACT(EPOCH FROM created_at)::int < %d
 					GROUP BY 
-						date, 
-						widget_id %s
-				) as wids 
+						date, %s
+				) as a1 
 			GROUP BY 
-				unixstamp, 
-				widget_id %s
+				date, %s
 		) as %s
 	`, morefields, moresubfields, starthour, endhour, moresubfields, moresubfields, aliastable)
 }

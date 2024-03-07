@@ -4,42 +4,47 @@ import (
 	"fmt"
 	db "geonius/worker/database"
 	"geonius/worker/model"
-	"time"
 )
 
-// UniqWidgetPoint() to filter uniq user which access widget by its point location within 1 hour range
-// if now is 2.05pm then all widget usages from 1.00pm to 2.00pm will be uniqued by their geo point and widget id
+// UniqWidgetPoint() to filter uniq user which access widget by its point location within 1 day
+// the result will be uniqued by their geo point and widget id
 func UniqWidgetPoint() error {
-	now := time.Now().UTC()
-	endhour := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 0, 0, 0, time.UTC)
-	starthour := endhour.Add(-1 * time.Hour)
 	var widgetIDs []int64
-	db.Raw(getDistinctWidgetUsages("widget_id", starthour.Unix(), endhour.Unix())).Find(&widgetIDs)
+	db.Raw(getDistinctWidgetUsages("widget_id")).Find(&widgetIDs)
 
 	var results []model.UniqWidgetPoint
 	db.Raw(
 		fmt.Sprintf(`
-			SELECT restriction_id, point FROM (%s) as widgetpoints
+		SELECT widget_id, point, date 
+			FROM (%s) as t1
 			EXCEPT
-			SELECT restriction_id, point FROM %s WHERE restriction_id IN (?)
+				SELECT widget_id, point, date 
+				FROM %s 
+				WHERE widget_id IN (?) AND 
+					date < CURRENT_DATE
+				AND 
+					date >= (CURRENT_DATE - 1)
 		`,
-			getDistinctWidgetUsages("restriction_id, point", starthour.Unix(), endhour.Unix()),
+			getDistinctWidgetUsages("widget_id, point, created_at::date as date"),
 			model.TableUniqWidgetPoint,
 		),
 		widgetIDs,
 	).
 		Find(&results)
+
 	db.Create(&results)
 
 	return nil
 }
 
-func getDistinctWidgetUsages(fields string, starthour int64, endhour int64) string {
-	return fmt.Sprintf(`SELECT DISTINCT %s 
+func getDistinctWidgetUsages(fields string) string {
+	return fmt.Sprintf(`
+	SELECT DISTINCT %s 
 	FROM %s 
-	WHERE EXTRACT(EPOCH FROM created_at)::bigint >= %d
+	WHERE
+		created_at::date < CURRENT_DATE
 	AND 
-	EXTRACT(EPOCH FROM created_at)::bigint < %d`,
-		model.TableWidgetUsage, fields, starthour, endhour,
+		created_at::date >= (CURRENT_DATE - 1)`,
+		fields, model.TableWidgetUsage,
 	)
 }
