@@ -14,17 +14,19 @@ type Base struct {
 }
 
 func (b *Base) BeforeCreate(tx *gorm.DB) error {
-	b.CreatedAt = time.Now()
-	b.UpdatedAt = time.Now()
+	if b.CreatedAt.IsZero() {
+		b.CreatedAt = time.Now().UTC()
+		b.UpdatedAt = time.Now().UTC()
+	}
 	return nil
 }
 
 func (b *Base) BeforeUpdate(tx *gorm.DB) error {
-	b.UpdatedAt = time.Now()
+	b.UpdatedAt = time.Now().UTC()
 	return nil
 }
 
 func (b *Base) BeforeDelete(tx *gorm.DB) error {
-	b.DeletedAt = time.Now()
+	b.DeletedAt = time.Now().UTC()
 	return nil
 }

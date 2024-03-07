@@ -38,6 +38,9 @@ func (u *WidgetUsage) TableName() string {
 }
 
 func (b *WidgetUsage) BeforeCreate(tx *gorm.DB) error {
-	b.Date = datatypes.Date(time.Now())
+	if b.CreatedAt.IsZero() {
+		b.CreatedAt = time.Now().UTC()
+	}
+	b.Date = datatypes.Date(b.CreatedAt)
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"widgetz/config/env"
 	"widgetz/config/router"
+	"widgetz/pkg/seed"
 
 	cors "github.com/AdhityaRamadhanus/fasthttpcors"
 	"github.com/valyala/fasthttp"
@@ -17,9 +18,14 @@ func main() {
 	host := flag.String("host", "", "server host name, default: localhost")
 	port := flag.Int("port", 4000, "server port, default: 4000")
 	prod := flag.Bool("production", false, "run app as production")
+	isSeed := flag.Bool("seed", false, "run seed data")
 
 	flag.Parse()
 	env.Init(*prod, *fileENV)
+	if *isSeed {
+		seed.Run()
+		return
+	}
 	addr := fmt.Sprintf("%s:%d", *host, *port)
 	fmt.Printf("Server run %s\n", addr)
 	fasthttp.ListenAndServe(addr, CORSPlugin(router.RequestHandler()))

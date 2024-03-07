@@ -184,7 +184,7 @@ func (p *Payload) ScanNearby() {
 	remoteIP := p.Ctx.RemoteIP().String()
 
 	allowedRestrictionIDs := []uint{}
-	tx := dal.RestrictionsByRadiusWidget(50000, p.Widget, p.Latitude, p.Longitude)
+	tx := dal.RestrictionsByRadiusWidget(100000, p.Widget, p.Latitude, p.Longitude)
 	tx.Find(&restrictions)
 
 	for _, restriction := range restrictions {

@@ -40,3 +40,7 @@ func Table(name string, args ...interface{}) (tx *gorm.DB) {
 func Model(value interface{}) (tx *gorm.DB) {
 	return Db().Model(value)
 }
+
+func Find(query interface{}, args ...interface{}) *gorm.DB {
+	return Db().Find(query, args...)
+}
