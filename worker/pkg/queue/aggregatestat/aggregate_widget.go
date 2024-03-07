@@ -9,28 +9,29 @@ import (
 func AggregateWidget(startDate string, endDate string) error {
 	sql := fmt.Sprintf(`
 SELECT 
-	t1.date, 
+	to_date(t1.datetext, 'YYYY-MM-DD') as date,
 	t1.widget_id, 
 	t1.total_uniq, 
 	t2.total_hit 
 FROM  (
-	SELECT widget_id, date, count(*) as total_uniq  
+	SELECT widget_id, to_char(date, 'YYYY-MM-DD') as datetext, count(*) as total_uniq  
 	FROM uniq_widget_points 
-	WHERE date >= to_date('%s', 'YYYY-MM-DD') AND date < to_date('%s', 'YYYY-MM-DD')
-	GROUP BY widget_id, date
+	WHERE to_char(date, 'YYYY-MM-DD') = '%s'
+	GROUP BY widget_id, datetext
 ) t1
 JOIN  (
-	SELECT widget_id, date, count(*) as total_hit  
+	SELECT widget_id, to_char(date, 'YYYY-MM-DD') as datetext, count(*) as total_hit  
 	FROM widget_usages 
-	WHERE created_at::date >= to_date('%s', 'YYYY-MM-DD') AND created_at::date < to_date('%s', 'YYYY-MM-DD')
+	WHERE to_char(date, 'YYYY-MM-DD') = '%s'
 	GROUP BY widget_id, date
-) t2 ON t1.date = t2.date 
+) t2 ON t1.datetext = t2.datetext 
 AND t1.widget_id = t2.widget_id
 `,
-		startDate, endDate, startDate, endDate,
+		startDate, endDate,
 	)
 
 	var results []model.TotalDailyWidget
 	db.Raw(sql).Find(&results)
+	db.Create(&results)
 	return nil
 }

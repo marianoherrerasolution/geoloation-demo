@@ -7,6 +7,8 @@ import (
 	"geonius/worker/pkg/cron"
 	"geonius/worker/pkg/enums"
 	"geonius/worker/pkg/queue"
+	"geonius/worker/pkg/queue/aggregatestat"
+	"geonius/worker/pkg/queue/uniqstat"
 	"strings"
 )
 
@@ -14,7 +16,8 @@ import (
 func main() {
 	fileENV := flag.String("env-file", ".env", "file location which contains variable environment")
 	isCron := flag.Bool("cron", false, "run app as cron")
-	isUniq := flag.Bool("uniq", false, "run app as uniq")
+	recall := flag.Bool("recall", false, "run recalculating aggregation to last 30 days")
+	reuniq := flag.Bool("reuniq", false, "run reuniqueness coordinate with widget and restriction")
 	crons := flag.String("crons", "", "run custom crons, ex: queque/timeframe/params/task,statistic/1h/uniq/uniqAudience")
 	workers := flag.String("workers", "", "run custom workers, ex: worker@size,critical@10")
 
@@ -23,8 +26,13 @@ func main() {
 
 	Init(*fileENV)
 
-	if *isUniq {
-		// uniqstat.UniqRestrictionPoint()
+	if *reuniq {
+		uniqstat.Recalculate()
+		return
+	}
+
+	if *recall {
+		aggregatestat.Recalculate()
 		return
 	}
 

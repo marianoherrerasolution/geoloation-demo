@@ -19,10 +19,10 @@ func UniqRestrictionPoint(startDate string, endDate string, aggregate bool) erro
 	var results []model.UniqRestrictionPoint
 	db.Raw(
 		fmt.Sprintf(`
-		SELECT restriction_id, point, date 
+		SELECT restriction_id, point, date, allow
 			FROM (%s) as t1
 			EXCEPT
-				SELECT restriction_id, point, date 
+				SELECT restriction_id, point, date, allow
 				FROM %s 
 				WHERE restriction_id IN (?)
 				 	AND 
@@ -30,7 +30,7 @@ func UniqRestrictionPoint(startDate string, endDate string, aggregate bool) erro
 					AND 
 						date < TO_DATE('%s', 'YYYY-MM-DD')
 		`,
-			getDistinctRestrictionUsages("restriction_id, point, created_at::date as date", startDate, endDate),
+			getDistinctRestrictionUsages("restriction_id, point, created_at::date as date, allow", startDate, endDate),
 			model.TableUniqRestrictionPoint, startDate, endDate,
 		),
 		restrictionIDs,

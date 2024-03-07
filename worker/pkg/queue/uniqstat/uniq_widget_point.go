@@ -18,10 +18,10 @@ func UniqWidgetPoint(startDate string, endDate string, aggregate bool) error {
 	var results []model.UniqWidgetPoint
 	db.Raw(
 		fmt.Sprintf(`
-		SELECT widget_id, point, date 
+		SELECT widget_id, point, date
 			FROM (%s) as t1
 			EXCEPT
-				SELECT widget_id, point, date 
+				SELECT widget_id, point, date
 				FROM %s 
 				WHERE widget_id IN (?) AND 
 					date >= TO_DATE('%s', 'YYYY-MM-DD')

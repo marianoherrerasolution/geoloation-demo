@@ -11,8 +11,8 @@ func Recalculate() {
 
 	// Loop through the dates
 	for currentDate := startDate; currentDate.Before(endDate); currentDate = currentDate.AddDate(0, 0, 1) {
-		beginDate := startDate.Format("2006-01-02")
-		finishDate := startDate.AddDate(0, 0, 1).Format("2006-01-02")
+		beginDate := currentDate.Format("2006-01-02")
+		finishDate := currentDate.AddDate(0, 0, 1).Format("2006-01-02")
 		UniqWidgetPoint(beginDate, finishDate, false)
 		UniqRestrictionPoint(beginDate, finishDate, false)
 	}
