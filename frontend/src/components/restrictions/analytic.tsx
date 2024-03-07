@@ -1,9 +1,9 @@
 import { ActionType, ProColumns, ProTable, RequestData } from "@ant-design/pro-components";
 import { WidgetUsage } from "../../interfaces/models/widget_usage";
-import { Col, Input, Row, Tag } from "antd";
+import { Card, Col, Input, Row, Tag } from "antd";
 import titleize from "titleize";
 import dayjs from "dayjs";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RootState } from "../../store";
 import { useSelector } from "react-redux";
 import { apiURL } from "../../routes/api";
@@ -16,6 +16,10 @@ import { Point } from "ol/geom";
 import GreenPin from "./pin_correct2.png"
 import RedPin from "./pin_wrong2.png"
 import { Marker } from "../../interfaces/models/marker";
+import { OverviewAnalytic } from "../../interfaces/models/analytic";
+import Title from "antd/es/typography/Title";
+import { Line } from "@ant-design/plots";
+import LineChart from "@ant-design/plots/es/components/line";
 
 
 export interface AnalyticProps {
@@ -36,6 +40,19 @@ const AnalyticRestriction = (props: AnalyticProps) => {
   const [showMap, setShowMap] = useState<boolean>(false);
   const [mapMarkers, setMapMarkers] = useState<Array<Marker>>([])
   const [pageSize, setPageSize] = useState<number>(10)
+  const [overview, setOverview] = useState<OverviewAnalytic>()
+  const [lineCharts, setLineCharts] = useState<any>(<></>)
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      if (props.restrictionID) {
+        prepareMap()
+      }
+    }
+  });
+
 
   const columns: ProColumns[] = [
     {
@@ -117,32 +134,126 @@ const AnalyticRestriction = (props: AnalyticProps) => {
 
   const widgetsURL = () => (admin ? apiURL.restrictions : apiURL.user.restrictions);
 
-  const prepareUniqMarkers = (histories: [WidgetUsage]) => {
-    setShowMap(false)    
-    let uniqMarkers:any = {}
-    let markers:Marker[] = []
-    const totalHistories = histories.length
-    for(let i = 0; i < totalHistories; i += 1) {
-      let history = histories[i]
-      if (history.latitude != 0 && history.longitude != 0) {
-        let coordinateKey = `${history.latitude.toFixed(8)}_${history.longitude.toFixed(8)}`
-        if (!uniqMarkers[coordinateKey]) {
-          uniqMarkers[coordinateKey] = true
+  const prepareMap = () => {
+    defaultHttp
+      .get(`${widgetsURL()}/${props.restrictionID}/analytic`)
+      .then((response) => {
+        setOverview(response.data.overview)
+        setShowMap(false)
+        let markers:Marker[] = []
+        const totalMarker = response.data.markers.length
+        for(let i = 0; i < totalMarker; i += 1) {
+          let marker = response.data.markers[i]
           markers.push({
-            point: new Point(fromLonLat([history.longitude, history.latitude])),
-            icon: history.allow == 1 ? GreenPin : RedPin
+            point: new Point(fromLonLat([marker.lon, marker.lat])),
+            icon: marker.allow == 1 ? GreenPin : RedPin
           })
         }
-      }
-    }
-    setMapMarkers(markers)
-    setTimeout(() => {
-      setShowMap(true)
-    }, 500)
+        setMapMarkers(markers)
+        setTimeout(() => {
+          setShowMap(true)
+        }, 500)
+
+        let uniqDaily:any = []
+        let acceptedDaily:any = []
+        let hitDaily:any = []
+        let totalDaily = response.data.daily.length
+        for(let i = 0; i < totalDaily; i += 1) {
+          let item = response.data.daily[i]
+          uniqDaily.push({date: item.date, total: item.total_uniq})
+          acceptedDaily.push({date: item.date, total: item.total_allow})
+          hitDaily.push({date: item.date, total: item.total_hit})
+        }
+        let lines:any = []
+        lines.push(<Col span={8} style={{marginBottom: "50px"}} >
+          <Row gutter={24}>
+            <Col span={24}><Title style={{marginTop: "50px"}} level={3}>Daily Uniq Access</Title></Col>
+            <Col span={24}><LineChart {...chartConfig(uniqDaily)} /></Col>
+          </Row>
+        </Col>)
+        lines.push(<Col span={8} style={{marginBottom: "50px"}} >
+          <Row gutter={24}>
+            <Col span={24}><Title style={{marginTop: "50px"}} level={3}>Daily Accepted Access</Title></Col>
+            <Col span={24}><LineChart {...chartConfig(acceptedDaily)} /></Col>
+          </Row>
+        </Col>)
+        lines.push(<Col span={8} style={{marginBottom: "50px"}} >
+          <Row gutter={24}>
+            <Col span={24}><Title style={{marginTop: "50px"}} level={3}>Daily Hits</Title></Col>
+            <Col span={24}><LineChart {...chartConfig(hitDaily)} /></Col>
+          </Row>
+        </Col>)
+        setLineCharts(lines)
+
+      })
+      .catch((error) => {
+        handleErrorResponse(error);
+      })
+
+       
+    
   }
+
+  const chartConfig = (data: any) => {
+    return {
+      data,
+      xField: 'date',
+      yField: 'total',
+      label: {},
+      point: {
+        size: 5,
+        shape: 'diamond',
+        style: {
+          fill: 'white',
+          stroke: '#5B8FF9',
+          lineWidth: 2,
+        },
+      },
+      tooltip: {
+        showMarkers: false,
+      },
+      state: {
+        active: {
+          style: {
+            shadowBlur: 4,
+            stroke: '#000',
+            fill: 'red',
+          },
+        },
+      },
+      interactions: [
+        {
+          type: 'marker-active',
+        },
+      ],
+    };
+  }
+
   
   return (
     <Row gutter={24}>
+      <Col span={24}><Title style={{marginTop: "20px"}} level={3}>Overview in 30 days</Title></Col>
+      <Col span={6}>
+        <Card title="Access Allowed">
+          <Title level={3} className="text-center">{overview?.total_allow || "..."}</Title>
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card title="Access Denied">
+          <Title level={3} className="text-center">{overview?.total_deny || "..."}</Title>
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card title="Total Hits">
+          <Title level={3} className="text-center">{overview?.total_hit || "..."}</Title>
+        </Card>
+      </Col>
+      <Col span={6}>
+        <Card title="Uniq Access">
+          <Title level={3} className="text-center">{overview?.total_uniq || "..."}</Title>
+        </Card>
+      </Col>
+      { lineCharts }
       {
         showMap ? <Col span={24}>
         <GeoMap lat={props.centerLat} lon={props.centerLon} 
@@ -187,7 +298,6 @@ const AnalyticRestriction = (props: AnalyticProps) => {
               })
               .then((response) => {
                 const histories: [WidgetUsage] = response.data.data;
-                prepareUniqMarkers(histories)
                 return {
                   data: histories,
                   success: true,

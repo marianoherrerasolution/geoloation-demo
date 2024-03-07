@@ -577,7 +577,7 @@ const FormRestriction = (props: FormProps) => {
     <Modal
       open={props.show}
       onCancel={() => props.onClose()}
-      width={1200}
+      width={1800}
       style={{top: 0}}
       footer=""
       title={
