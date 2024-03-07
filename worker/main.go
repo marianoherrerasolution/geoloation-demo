@@ -7,7 +7,6 @@ import (
 	"geonius/worker/pkg/cron"
 	"geonius/worker/pkg/enums"
 	"geonius/worker/pkg/queue"
-	"geonius/worker/pkg/queue/uniqstat"
 	"strings"
 )
 
@@ -25,7 +24,7 @@ func main() {
 	Init(*fileENV)
 
 	if *isUniq {
-		uniqstat.UniqRestrictionPoint()
+		// uniqstat.UniqRestrictionPoint()
 		return
 	}
 

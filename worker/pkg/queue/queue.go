@@ -7,6 +7,7 @@ import (
 	"geonius/worker/pkg/queue/uniqstat"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/hibiken/asynq"
@@ -27,17 +28,27 @@ func statisticWorker(ctx context.Context, t *asynq.Task) error {
 	case "uniq":
 		return runUniqWidget()
 	case "uniq_widget_point":
-		return uniqstat.UniqWidgetPoint()
+		return uniqstat.UniqWidgetPoint(getStartDate(), getEndDate(), true)
 	case "uniq_restriction_point":
-		return uniqstat.UniqRestrictionPoint()
+		return uniqstat.UniqRestrictionPoint(getStartDate(), getEndDate(), true)
 	case "aggregate":
 		return runAggregation()
 	case "aggregate_widget":
-		return aggregatestat.AggregateWidget()
+		return aggregatestat.AggregateWidget(getStartDate(), getEndDate())
 	case "aggregate_restriction":
-		return aggregatestat.AggregateRestriction()
+		return aggregatestat.AggregateRestriction(getStartDate(), getEndDate())
 	}
 	return nil
+}
+
+func getStartDate() string {
+	now := time.Now().UTC().Add(-24 * time.Hour)
+	return now.Format("2006-01-02")
+}
+
+func getEndDate() string {
+	now := time.Now().UTC()
+	return now.Format("2006-01-02")
 }
 
 func runUniqWidget() error {

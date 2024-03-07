@@ -4,27 +4,29 @@ import (
 	"fmt"
 	db "geonius/worker/database"
 	"geonius/worker/model"
-	"time"
 )
 
-func AggregateRestriction() error {
-	now := time.Now().UTC()
-	endhour := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
-	starthour := endhour.Add(-24 * time.Hour)
-
+func AggregateRestriction(startDate string, endDate string) error {
 	sql := fmt.Sprintf(`
-		SELECT 
-			t1.date, 
-			t1.restriction_id, 
-			t1.total_hit, 
-			t2.total_uniq 
-		FROM %s
-		JOIN %s ON t1.date = t2.date 
-		AND t1.restriction_id = t2.restriction_id
-		`,
-		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t1", "restriction_id, total as total_hit", ""),
-		buildQueryAggr(starthour.Unix(), endhour.Unix(), "t2", "restriction_id, count(total) as total_uniq", ", point"),
-	)
+	SELECT 
+		t1.date, 
+		t1.restriction_id, 
+		t1.total_uniq, 
+		t2.total_hit 
+	FROM  (
+		SELECT restriction_id, date, count(*) as total_uniq  
+		FROM uniq_restriction_points 
+		WHERE date >= to_date('%s', 'YYYY-MM-DD') AND date < to_date('%s', 'YYYY-MM-DD')
+		GROUP BY restriction_id, date
+	) t1
+	JOIN  (
+		SELECT restriction_id, date, count(*) as total_hit  
+		FROM widget_usages 
+		WHERE created_at::date >= to_date('%s', 'YYYY-MM-DD') AND created_at::date < to_date('%s', 'YYYY-MM-DD')
+		GROUP BY restriction_id, date
+	) t2 ON t1.date = t2.date 
+	AND t1.restriction_id = t2.restriction_id
+	`, startDate, endDate, startDate, endDate)
 
 	var results []model.TotalDailyRestriction
 	db.Raw(sql).Find(&results)
