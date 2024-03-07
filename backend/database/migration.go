@@ -51,5 +51,20 @@ func Migrate() {
 		panic(err)
 	}
 
+	fmt.Println("Create Table widget_total_hit.")
+	if err := Pg.AutoMigrate(&model.WidgetTotalHit{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table uniq_restriction_point.")
+	if err := Pg.AutoMigrate(&model.UniqRestrictionPoint{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Create Table uniq_widget_point.")
+	if err := Pg.AutoMigrate(&model.UniqWidgetPoint{}); err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Done.")
 }

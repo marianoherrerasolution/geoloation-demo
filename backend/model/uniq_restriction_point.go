@@ -1,15 +1,18 @@
 package model
 
+import "gorm.io/datatypes"
+
 const (
 	TableUniqRestrictionPoint = "uniq_restriction_points"
 )
 
-type UniqWidgetPoint struct {
+type UniqRestrictionPoint struct {
 	Base
-	WidgetID  uint  `gorm:"column:widget_id;index:idx_uwp_widget_id" json:"widget_id"`
-	Point     string  `gorm:"column:point;type:geometry;index:idx_uwp_point" json:"point"`
+	RestrictionID uint           `gorm:"column:restriction_id;index:idx_urp_restriction_id" json:"restriction_id"`
+	Point         string         `gorm:"column:point;type:geometry;index:idx_urp_point" json:"point"`
+	Date          datatypes.Date `gorm:"column:date;index:idx_urp_date" json:"date"`
 }
 
-func (u *UniqWidgetPoint) TableName() string {
-	return TableUniqWidgetPoint
+func (u *UniqRestrictionPoint) TableName() string {
+	return TableUniqRestrictionPoint
 }
