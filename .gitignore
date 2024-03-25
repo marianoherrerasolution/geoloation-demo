@@ -3,3 +3,7 @@
 *.tar.gz
 *.sql
 V2/backend/geonius
+backend/
+frontend/
+widgets/
+worker/
