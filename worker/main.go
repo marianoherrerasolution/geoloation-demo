@@ -40,7 +40,7 @@ func main() {
 		cronsetting := strings.Join([]string{
 			strings.Join([]string{
 				enums.TaskStatistic,
-				"1h",
+				"1d",
 				"uniq",
 				enums.TaskStatisticUniq,
 			}, "/"),
