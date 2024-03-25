@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwind from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
@@ -6,11 +6,20 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import tailwindConfig from './tailwind.config.mjs';
 import CONFIG from './config';
 import { VitePWA } from 'vite-plugin-pwa';
+import { compression } from 'vite-plugin-compression2';
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
+    }
+  },
   plugins: [
     react(),
+    splitVendorChunkPlugin(), ViteImageOptimizer(), compression(),
     createHtmlPlugin({
       inject: {
         data: {
