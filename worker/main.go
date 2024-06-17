@@ -60,6 +60,7 @@ func main() {
 		return
 	}
 
+	//workers=geonius:statistic@10,geonius:statistic:uniq@10,geonius:statistic:aggregate@10
 	if *workers != "" {
 		queue.Run(*workers)
 		return

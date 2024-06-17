@@ -13,6 +13,8 @@ type EnvVars struct {
 	DB_PASS    string
 	DB_HOST    string
 	DB_PORT    string
+	MAXMIND_ACCOUNT_ID string
+	MAXMIND_LICENSE_KEY string
 }
 
 var Env EnvVars
@@ -41,5 +43,7 @@ func Init() {
 		DB_PASS:    os.Getenv("DB_PASS"),
 		DB_HOST:    os.Getenv("DB_HOST"),
 		DB_PORT:    os.Getenv("DB_PORT"),
+		MAXMIND_ACCOUNT_ID: os.Getenv("MAXMIND_ACCOUNT_ID"),
+		MAXMIND_LICENSE_KEY: os.Getenv("MAXMIND_LICENSE_KEY"),
 	}
 }

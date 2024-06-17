@@ -27,7 +27,7 @@ type GeoIP struct {
 	TimezoneOffset int     `gorm:"column:timezone_offset" json:"timezone_offset"`
 	Currency       string  `gorm:"column:currency" json:"currency"`
 	CurrencySymbol string  `gorm:"column:currency_symbol" json:"currency_symbol"`
-	Raw            JSONB   `gorm:"column:raw;type:jsonb" json:"raw"`
+	Raw            JSONB   `gorm:"column:raw;type:jsonb" json:"-"`
 }
 
 type JSONB map[string]interface{}

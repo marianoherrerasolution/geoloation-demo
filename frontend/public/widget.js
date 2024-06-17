@@ -11,33 +11,42 @@
     var token = String(source.match(/token=.*?($|&)/gi)).replace(/(token=)|(&$)/gi, "")
     var offset = new Date().getTimezoneOffset()
 
+    const callBack = function(data) {
+      if (!data) { return }
+     var message = `You are ${data.access}ed to access this page`
+      if (data.action == "nothing") {
+        return
+      }
+      if (data.action == "alert") {
+        alert(data.message || message)
+        return
+      }
+      if (data.action == "close") {
+        window.close()
+        return
+      }
+      if (data.action == "alert_close") {
+        alert(data.message || message)
+        window.close()
+        return
+      }
+      if (data.action == "alert_redirect") {
+        alert(data.message || message)
+        window.location = data.redirect
+        return
+      }
+      if (data.action == "redirect") {
+        window.location = data.redirect
+        return
+      }
+    }
+
     const successCallback = function(resp) {
-      var message = `You are ${resp.data.access}ed to access this page`
-      if (resp.data.action == "nothing") {
-        return
+      if (!resp) { return }
+      if (resp.type == "cors") {
+        return resp.json().then(function(data) { callBack(data) })
       }
-      if (resp.data.action == "alert") {
-        alert(resp.data.message || message)
-        return
-      }
-      if (resp.data.action == "close") {
-        window.close()
-        return
-      }
-      if (resp.data.action == "alert_close") {
-        alert(resp.data.message || message)
-        window.close()
-        return
-      }
-      if (resp.data.action == "alert_redirect") {
-        alert(resp.data.message || message)
-        window.location = resp.data.redirect
-        return
-      }
-      if (resp.data.action == "redirect") {
-        window.location = resp.data.redirect
-        return
-      }
+      return callBack(resp.data)
     }
 
     const endpoint = `https://widget.geo.taeqr.com/scan?token=${token}&offset=${offset}`

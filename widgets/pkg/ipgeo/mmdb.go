@@ -8,18 +8,19 @@ import (
 )
 
 // ReadMMDB file from db-ip.com
-func ReadLocal(ip string) (GeoLocation, error) {
+func ReadMMDB(ip string) (GeoLocation, *geoip2.City, error) {
 	var result GeoLocation
+	var city *geoip2.City
 	db, err := geoip2.Open("dbip-city.mmdb")
 	if err != nil {
-		return Remote(ip)
+		return result, city, err
 	}
 	defer db.Close()
 
 	ipaddress := net.ParseIP(ip)
 	record, err := db.City(ipaddress)
 	if err != nil {
-		return result, nil
+		return result, record, err
 	}
 
 	return GeoLocation{
@@ -28,5 +29,5 @@ func ReadLocal(ip string) (GeoLocation, error) {
 		Zipcode:     record.Postal.Code,
 		Latitude:    fmt.Sprintf("%v", record.Location.Latitude),
 		Longitude:   fmt.Sprintf("%v", record.Location.Longitude),
-	}, nil
+	}, record, nil
 }

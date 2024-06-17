@@ -8,11 +8,11 @@ import (
 )
 
 // ReadMMDB file from db-ip.com
-func ReadLocal(ip string) (GeoLocation, error) {
+func ReadMMDB(ip string) (GeoLocation, error) {
 	var result GeoLocation
 	db, err := geoip2.Open("dbip-city.mmdb")
 	if err != nil {
-		return Remote(ip)
+		return result, err
 	}
 	defer db.Close()
 

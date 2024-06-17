@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	config "widgetz/config/database"
 	"widgetz/config/env"
 	"widgetz/config/router"
 	"widgetz/pkg/seed"
@@ -28,6 +29,7 @@ func main() {
 	}
 	addr := fmt.Sprintf("%s:%d", *host, *port)
 	fmt.Printf("Server run %s\n", addr)
+	config.InitPostgres()
 	fasthttp.ListenAndServe(addr, CORSPlugin(router.RequestHandler()))
 }
 

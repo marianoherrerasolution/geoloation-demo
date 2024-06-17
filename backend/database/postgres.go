@@ -64,4 +64,5 @@ func InitPostgres() {
 	if err != nil {
 		panic(err)
 	}
+	Migrate()
 }

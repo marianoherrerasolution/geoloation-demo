@@ -18,3 +18,7 @@ microservice/*.mmdb
 *.mmdb
 worker/geocron
 worker/geoworker
+backend/main
+worker/main
+widget/main
+widgets/geo_widget

@@ -7,13 +7,15 @@ import (
 )
 
 type EnvVars struct {
-	PRODUCTION bool
-	GEOAPI_KEY string
-	DB_USER    string
-	DB_NAME    string
-	DB_PASS    string
-	DB_HOST    string
-	DB_PORT    string
+	PRODUCTION          bool
+	GEOAPI_KEY          string
+	DB_USER             string
+	DB_NAME             string
+	DB_PASS             string
+	DB_HOST             string
+	DB_PORT             string
+	MAXMIND_ACCOUNT_ID  string
+	MAXMIND_LICENSE_KEY string
 }
 
 var Vars EnvVars
@@ -29,12 +31,14 @@ func Init(isProduction bool, filepaths ...string) {
 		production = isProduction
 	}
 	Vars = EnvVars{
-		PRODUCTION: production,
-		GEOAPI_KEY: os.Getenv("GEOAPI_KEY"),
-		DB_USER:    os.Getenv("DB_USER"),
-		DB_NAME:    os.Getenv("DB_NAME"),
-		DB_PASS:    os.Getenv("DB_PASS"),
-		DB_HOST:    os.Getenv("DB_HOST"),
-		DB_PORT:    os.Getenv("DB_PORT"),
+		PRODUCTION:          production,
+		GEOAPI_KEY:          os.Getenv("GEOAPI_KEY"),
+		DB_USER:             os.Getenv("DB_USER"),
+		DB_NAME:             os.Getenv("DB_NAME"),
+		DB_PASS:             os.Getenv("DB_PASS"),
+		DB_HOST:             os.Getenv("DB_HOST"),
+		DB_PORT:             os.Getenv("DB_PORT"),
+		MAXMIND_ACCOUNT_ID:  os.Getenv("MAXMIND_ACCOUNT_ID"),
+		MAXMIND_LICENSE_KEY: os.Getenv("MAXMIND_LICENSE_KEY"),
 	}
 }

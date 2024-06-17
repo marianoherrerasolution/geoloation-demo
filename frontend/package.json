@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf dist && tsc && vite build && tar cf dist.tar dist/",
+    "build": "rm -rf dist && tsc && vite build && tar cf geonius.tar dist/",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx --fix .",
@@ -25,7 +25,10 @@
     "react": "^18.2.0",
     "react-country-flag": "^3.1.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
+    "react-json-view-lite": "^1.4.0",
     "rlayers": "^2.2.0",
+    "titleize": "^4.0.0",
     "vite-plugin-compression2": "^0.12.0",
     "vite-plugin-image-optimizer": "^1.1.7"
   },
