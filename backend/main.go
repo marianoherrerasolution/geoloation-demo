@@ -37,10 +37,5 @@ func runServer() {
 func main() {
 	config.Init()
 	database.InitPostgres()
-	if os.Getenv("MIGRATE") != "" {
-		database.Migrate()
-	} else {
-		runServer()
-	}
-
+	runServer()
 }

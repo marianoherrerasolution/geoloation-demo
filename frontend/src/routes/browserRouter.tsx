@@ -19,6 +19,7 @@ import Geoips from '../components/geoips';
 import Clients from '../components/clients';
 import Restrictions from '../components/restrictions';
 import Widgets from '../components/widgets';
+import Products from '../components/products';
 
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;

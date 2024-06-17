@@ -102,7 +102,7 @@ const Widgets = () => {
   const mounted = useRef(false);
   const [selectClients, setSelectClients] = useState<Array<SelectTag>>([]);
   const WidgetJS = import.meta.env.VITE_WIDGET_JS;
-  const WidgetAPI = import.meta.env.VITE_WIDGET_API;
+  const WidgetAPI = `${import.meta.env.VITE_WIDGET_API}/scan`;
 
   useEffect(() => {
     if (!mounted.current) {

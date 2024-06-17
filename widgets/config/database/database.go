@@ -29,6 +29,7 @@ func InitPostgres() {
 	if err != nil {
 		panic(err)
 	}
+	Migrate()
 }
 
 func buildPosgresDSN() string {

@@ -6,7 +6,7 @@ import {
   TableDropdown,
   ProDescriptions,
 } from '@ant-design/pro-components';
-import {BreadcrumbProps, Modal, Space, Button, Form, Input, Flex } from 'antd';
+import {BreadcrumbProps, Modal, Space, Row, Col, Form, Input, Flex } from 'antd';
 import { useRef, useState } from 'react';
 import { CiCircleMore } from 'react-icons/ci';
 import { Link } from 'react-router-dom';
@@ -26,6 +26,9 @@ import AlertBadge from '../alert';
 import { errorCallback } from '../../utils/userHTTPCallback';
 import { defaultHttp } from '../../utils/http';
 import GeoMap from '../geomap';
+import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
+import 'react-json-view-lite/dist/index.css';
+
 
 enum ActionKey {
   DELETE = 'delete',
@@ -308,7 +311,7 @@ const Geoips = () => {
         }}
       />
       {modalContextHolder}
-      <Modal title={editTitle} open={showEdit} onCancel={() => setShowEdit(false)} footer="">
+      <Modal title={editTitle} open={showEdit} onCancel={() => setShowEdit(false)} footer="" width={800}>
         <Form
           className="space-y-4 md:space-y-6"
           form={form}
@@ -317,38 +320,41 @@ const Geoips = () => {
           layout={'vertical'}
           requiredMark={false}
         >
-          <div>
-            {
-              alertEditTheme == "" ? "" : 
-              <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
-            }
-            <Form.Item
-                name="id"
-                style={{display:"none"}}
-              >
-              <Input
-                type='hidden'
-              />
-            </Form.Item>
-            <Form.Item
-              name="ip_address"
-              label={
-                <p className="block text-sm font-medium text-gray-900">IP Address</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'ip address should be filled',
-                },
-              ]}
+          {
+            alertEditTheme == "" ? "" : 
+            <AlertBadge message={alertEditMessage} theme={alertEditTheme} />
+          }
+          <Form.Item
+              name="id"
+              style={{display:"none"}}
             >
-              <Input
-                placeholder="please enter ip address"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </div>
-          <Flex wrap="wrap" gap="large">
+            <Input
+              type='hidden'
+            />
+          </Form.Item>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                name="ip_address"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">IP Address</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'ip address should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter ip address"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={6}>
               <Form.Item
                 className="mb-0"
                 name="city"
@@ -367,6 +373,9 @@ const Geoips = () => {
                   className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
                 />
               </Form.Item>
+            </Col>
+
+            <Col span={6}>
               <Form.Item
                 name="state"
                 className="mb-0"
@@ -385,170 +394,197 @@ const Geoips = () => {
                   className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
                 />
               </Form.Item>
-          </Flex>
-          <Flex wrap="wrap" gap="large">
-            <Form.Item
-              name="country"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Country</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'country should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter country"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-            <Form.Item
-              name="zipcode"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Zipcode</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'zipcode should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter zipcode"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Flex>
-          <Flex wrap="wrap" gap="large" className="mt-0">
-            <Form.Item
-              name="latitude"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Latitude</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'latitude should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter latitude"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-            <Form.Item
-              name="longitude"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Longitude</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'longitude should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter longitude"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Flex>
-          
-          <Flex wrap="wrap" gap="large" className="mt-0">
-            <Form.Item
-              name="timezone"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Timezone</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'timezone should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter timezone"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-            <Form.Item
-              name="timezone_offset"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Offset</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'timezone should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter timezone offset"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Flex>
-          <Flex wrap="wrap" gap="large" className="mt-0">
-            <Form.Item
-              name="currency"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Currency</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'currency should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter currency"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-            <Form.Item
-              name="currency_symbol"
-              className="mb-0"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Symbol</p>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'currency symbol should be filled',
-                },
-              ]}
-            >
-              <Input
-                placeholder="please enter currency symbol"
-                className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
-              />
-            </Form.Item>
-          </Flex>
-          <div>
-            <Form.Item
-              name="lon"
-              label={
-                <p className="block text-sm font-medium text-gray-900">Map</p>
-              }
-            >
-              <GeoMap lat={form.getFieldValue("latitude")} lon={form.getFieldValue("longitude")} />
-            </Form.Item>
-          </div>
+            </Col>
+
+            <Col span={6}>
+              <Form.Item
+                name="country"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Country</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'country should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter country"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="zipcode"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Zipcode</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'zipcode should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter zipcode"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={6}>
+              <Form.Item
+                name="latitude"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Latitude</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'latitude should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter latitude"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+            
+            <Col span={6}>
+              <Form.Item
+                name="longitude"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Longitude</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'longitude should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter longitude"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="timezone"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Timezone</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'timezone should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter timezone"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="timezone_offset"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Offset</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'timezone should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter timezone offset"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="currency"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Currency</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'currency should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter currency"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>  
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="currency_symbol"
+                className="mb-0"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Symbol</p>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'currency symbol should be filled',
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="please enter currency symbol"
+                  className="bg-gray-50 text-gray-900 sm:text-sm py-1.5"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="lon"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">Map</p>
+                }
+              >
+                <GeoMap lat={form.getFieldValue("latitude")} lon={form.getFieldValue("longitude")} />
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                name="raw"
+                label={
+                  <p className="block text-sm font-medium text-gray-900">JSON Response</p>
+                }
+              >
+                <JsonView data={form.getFieldValue("raw")} shouldExpandNode={allExpanded} style={defaultStyles} />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </BasePageContainer>

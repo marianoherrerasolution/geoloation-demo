@@ -42,6 +42,7 @@ func Scan(ctx *fasthttp.RequestCtx) {
 	}
 
 	disallow := false
+	offsetString := string(ctx.QueryArgs().Peek("offset"))
 	for _, restriction := range restrictions {
 		allow := 1
 		if restriction.IsDisllowed() {
@@ -64,6 +65,11 @@ func Scan(ctx *fasthttp.RequestCtx) {
 			TimezoneOffset: payload.Offset,
 			Country:        payload.Geo.CountryName,
 			Distance:       0,
+		}
+
+		if restriction.VPN == 2 && allow == 1 && offsetString != "" && offsetString != restriction.Offsets {
+			disallow = true
+			allow = 2
 		}
 
 		widgetUsage.ClientID = restriction.ClientID
@@ -152,7 +158,7 @@ func (p *Payload) GetCoordinate() bool {
 		ip = p.IpAddress
 	}
 
-	geo, err := ipgeo.Lookup(ip)
+	geo, err := ipgeo.LookupV2(ip)
 	if err != nil {
 		return p.BadRequest()
 	}
